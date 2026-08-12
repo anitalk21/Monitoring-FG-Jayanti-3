@@ -15,82 +15,97 @@
         .app-page { display: none; }
         .app-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        /* Custom Light Purple Table Header */
-        .table-purple-custom { background-color: #f3e8ff !important; color: #6b21a8 !important; border-color: #e9d5ff !important; }
+        
+        /* Soft Pastel Custom Theme Styles */
+        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
+        .pastel-header-dark { background-color: #e2e8f0 !important; color: #334155 !important; }
+        .btn-pastel-primary { background-color: #818cf8 !important; border-color: #818cf8 !important; color: #ffffff !important; }
+        .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
+
+        /* Bin Loc Capacity Colors */
+        .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .bin-med { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .bin-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-xs relative z-20">
+    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative z-20">
         <div class="flex items-center space-x-3">
-            <button onclick="toggleSidebar()" class="text-slate-700 hover:text-blue-600 focus:outline-none text-lg p-1.5 rounded-lg hover:bg-slate-100 transition">
+            <button onclick="toggleSidebar()" class="text-slate-600 hover:text-indigo-600 focus:outline-none text-lg p-1.5 rounded-lg hover:bg-slate-100 transition">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div>
-                <h1 id="topHeaderTitle" class="font-bold text-slate-800 text-base md:text-lg tracking-wide">Monitoring Finished Goods</h1>
-                <span class="text-xs text-slate-500 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
+                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Monitoring Finished Goods</h1>
+                <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 hidden sm:inline-block">
-                <i class="fa-regular fa-calendar text-blue-600 mr-1"></i> 11/08/2026
+            <span class="text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hidden sm:inline-block">
+                <i class="fa-regular fa-calendar text-indigo-400 mr-1"></i> 12/08/2026
             </span>
-            <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-house text-blue-600"></i> <span>Portal</span>
+            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
             </a>
         </div>
     </header>
 
     <!-- SIDEBAR / HAMBURGER MENU DRAWER -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/35 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
-    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white text-slate-700 shadow-xl border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white text-slate-600 shadow-xl border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
             <div class="flex items-center gap-3">
-                <div class="bg-blue-50 text-blue-600 p-2.5 rounded-xl border border-blue-100">
+                <div class="bg-indigo-50 text-indigo-500 p-2.5 rounded-xl border border-indigo-100">
                     <i class="fa-solid fa-chart-line text-lg"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-slate-800 text-sm tracking-wide">WAREHOUSE FG</h2>
+                    <h2 class="font-bold text-slate-700 text-sm tracking-wide">WAREHOUSE FG</h2>
                     <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">MONITORING SYSTEM</p>
                 </div>
             </div>
-            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
         <div class="p-4 space-y-1.5 flex-1 overflow-y-auto text-sm">
             <div class="text-[11px] font-bold text-slate-400 px-3 tracking-wider mb-2">NAVIGASI</div>
-            <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs" id="menu-kapasitas">
-                <div class="bg-white p-2 rounded-lg text-blue-600 shadow-2xs"><i class="fa-solid fa-chart-pie w-4 text-center"></i></div>
+            <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs" id="menu-kapasitas">
+                <div class="bg-white p-2 rounded-lg text-indigo-500 shadow-2xs"><i class="fa-solid fa-chart-pie w-4 text-center"></i></div>
                 <span>Kapasitas</span>
             </a>
             <a href="#" onclick="switchMenu('realisasi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-realisasi">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-truck-ramp-box w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-truck-ramp-box w-4 text-center"></i></div>
                 <span>Realisasi</span>
             </a>
             <a href="#" onclick="switchMenu('opname')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-opname">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-file-invoice w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-file-invoice w-4 text-center"></i></div>
                 <span>Stock Opname</span>
             </a>
             <a href="#" onclick="switchMenu('rdc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-rdc">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-warehouse w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-warehouse w-4 text-center"></i></div>
                 <span>Monitoring RDC</span>
             </a>
             <a href="#" onclick="switchMenu('ekspor')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-ekspor">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-ship w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-ship w-4 text-center"></i></div>
                 <span>Monitoring Ekspor</span>
             </a>
             <a href="#" onclick="switchMenu('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-jalur">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-boxes-stacked w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-boxes-stacked w-4 text-center"></i></div>
                 <span>Stock Jalur</span>
             </a>
             <a href="#" onclick="switchMenu('binloc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-binloc">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-location-dot w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-location-dot w-4 text-center"></i></div>
                 <span>Bin Loc</span>
             </a>
             <a href="#" onclick="switchMenu('kpi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-kpi">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
+            </a>
+            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-table-cells-large w-4 text-center"></i></div>
+                <span>Akses Aplikasi (Portal)</span>
             </a>
         </div>
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
@@ -105,151 +120,162 @@
         <div id="section-kapasitas" class="app-page active space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-800">Kapasitas GDFG</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Last Update: 11/08/2026 &bull; Status: <span class="text-emerald-600 font-medium">Terkini (Hari Ini)</span></p>
+                    <h2 class="text-xl font-bold text-slate-700">Kapasitas GDFG</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Last Update: 12/08/2026 &bull; Status: <span class="text-emerald-500 font-medium">Terkini (Hari Ini)</span></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-blue-600"></i> Input Data</button>
-                    <button class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-table text-emerald-600"></i> Spreadsheet</button>
-                    <button class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
+                    <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Input Data</button>
+                    <button class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-table text-emerald-500"></i> Spreadsheet</button>
+                    <button class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
                 </div>
             </div>
 
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
-                <button onclick="switchSubTab('summary')" id="btn-summary" class="subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">SUMMARY</button>
-                <button onclick="switchSubTab('lokal')" id="btn-lokal" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">LOKAL</button>
-                <button onclick="switchSubTab('ekspor')" id="btn-ekspor" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">EKSPOR</button>
-                <button onclick="switchSubTab('gdfg')" id="btn-gdfg" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">GDFG (HOLD QC)</button>
+                <button onclick="switchSubTab('summary')" id="btn-summary" class="subtab-btn px-4 py-1.5 rounded-lg bg-indigo-400 text-white shadow-2xs transition">SUMMARY</button>
+                <button onclick="switchSubTab('lokal')" id="btn-lokal" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">LOKAL</button>
+                <button onclick="switchSubTab('ekspor')" id="btn-ekspor" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">EKSPOR</button>
+                <button onclick="switchSubTab('gdfg')" id="btn-gdfg" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">GDFG (HOLD QC)</button>
             </div>
 
             <div id="content-summary" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                    <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">TOTAL PALLET INDUK</div>
-                        <div class="text-xl font-bold text-slate-800">0</div>
-                        <div class="text-[11px] text-slate-500">Dari 16.008 Pallet</div>
+                    <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-wide">TOTAL PALLET INDUK</div>
+                        <div class="text-xl font-bold text-slate-700">0</div>
+                        <div class="text-[11px] text-slate-400">Dari 16.008 Pallet</div>
                     </div>
-                    <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wide">TOTAL PALLET AGING</div>
-                        <div class="text-xl font-bold text-slate-800">0</div>
-                        <div class="text-[11px] text-slate-500">Dari 15.372 Pallet</div>
+                    <div class="bg-amber-50/40 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wide">TOTAL PALLET AGING</div>
+                        <div class="text-xl font-bold text-slate-700">0</div>
+                        <div class="text-[11px] text-slate-400">Dari 15.372 Pallet</div>
                     </div>
-                    <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
-                        <div class="text-xl font-bold text-slate-800">0</div>
-                        <div class="text-[11px] text-slate-500">Dari 31.380 Total</div>
+                    <div class="bg-violet-50/40 p-4 rounded-2xl border border-violet-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-violet-500 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
+                        <div class="text-xl font-bold text-slate-700">0</div>
+                        <div class="text-[11px] text-slate-400">Dari 31.380 Total</div>
                     </div>
-                    <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
-                        <div class="text-xl font-bold text-rose-600">0</div>
-                        <div class="text-[11px] text-slate-500">Pallet Tidak Bisa Kirim</div>
+                    <div class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-rose-500 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
+                        <div class="text-xl font-bold text-rose-500">0</div>
+                        <div class="text-[11px] text-slate-400">Pallet Tidak Bisa Kirim</div>
                     </div>
-                    <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">REALISASI MUAT</div>
-                        <div class="text-xl font-bold text-slate-800">0 Truk</div>
-                        <div class="text-[11px] text-emerald-600 font-medium">Sesuai target jadwal</div>
+                    <div class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">REALISASI MUAT</div>
+                        <div class="text-xl font-bold text-slate-700">0 Truk</div>
+                        <div class="text-[11px] text-emerald-500 font-medium">Sesuai target jadwal</div>
                     </div>
-                    <div class="bg-purple-50/60 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
-                        <div class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
-                        <div class="text-xl font-bold text-slate-800">0 Truk</div>
-                        <a href="antrian.html" class="text-[11px] text-blue-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
+                    <div class="bg-purple-50/40 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
+                        <div class="text-[10px] font-bold text-purple-500 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
+                        <div class="text-xl font-bold text-slate-700">0 Truk</div>
+                        <a href="antrian.html" class="text-[11px] text-indigo-500 hover:underline font-semibold block">Buka Antrian &rarr;</a>
                     </div>
                 </div>
+            </div>
+            
+            <div id="content-lokal" class="hidden bg-indigo-50/20 border border-indigo-100 rounded-2xl p-6 text-center space-y-2">
+                <h3 class="font-bold text-slate-700 text-base">Modul Barang Lokal</h3>
+                <p class="text-xs text-slate-400">Sumber data dari menu Penerimaan Barang Dari Produksi.</p>
+            </div>
+            <div id="content-ekspor" class="hidden bg-amber-50/20 border border-amber-100 rounded-2xl p-6 text-center space-y-2">
+                <h3 class="font-bold text-slate-700 text-base">Modul Barang Ekspor</h3>
+                <p class="text-xs text-slate-400">Sumber data dari menu Penerimaan Barang Dari Produksi.</p>
+            </div>
+            <div id="content-gdfg" class="hidden bg-rose-50/20 border border-rose-100 rounded-2xl p-6 text-center space-y-2">
+                <h3 class="font-bold text-slate-700 text-base">Barang Di-Hold oleh QC (GDFG)</h3>
+                <p class="text-xs text-slate-400">Terhubung dari Transaksi Harian.</p>
             </div>
         </div>
 
         <!-- SECTION 2: DATABASE MASTER SKU PRODUK -->
         <div id="section-master" class="app-page space-y-6">
-            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <h4 class="fw-bold mb-0 text-slate-800 text-base">Database Master SKU Produk</h4>
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h4 class="fw-bold mb-0 text-slate-700 text-base">Database Master SKU Produk</h4>
                 <button onclick="switchMenu('kapasitas')" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Kembali ke Kapasitas</button>
             </div>
-            <div class="card shadow-xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
+            <div class="card shadow-2xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
                 <div class="card-body">
-                    <div class="alert alert-secondary small mb-3">
+                    <div class="alert alert-light border small mb-3 text-slate-600">
                         <strong>Format Paste dari Excel (6 Kolom):</strong> ID | NAME | JUMLAH | SAT | <b>JML KARTON/PALLET</b> | SAT
                     </div>
                     <textarea class="form-control font-monospace text-nowrap mb-4" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET    60    CAR"></textarea>
-                    <button type="button" class="btn btn-dark px-4 fw-bold" onclick="processPasteData()">Simpan Data Master Database</button>
+                    <button type="button" class="btn btn-pastel-primary px-4 fw-bold" onclick="processPasteData()">Simpan Data Master Database</button>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 3: REALISASI SPE -->
         <div id="section-realisasi" class="app-page space-y-6">
-            <div class="flex justify-between items-center bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-xs">
+            <div class="flex justify-between items-center bg-slate-800 text-white px-6 py-3.5 rounded-2xl shadow-2xs">
                 <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-truck-fast text-lg text-blue-400"></i>
+                    <i class="fa-solid fa-truck-fast text-lg text-indigo-300"></i>
                     <h2 class="font-bold text-base tracking-wide">Realisasi SPE</h2>
                 </div>
-                <button onclick="switchMenu('kapasitas')" class="bg-slate-800 hover:bg-slate-700 text-xs px-3.5 py-2 rounded-lg border border-slate-700 font-medium transition flex items-center gap-1.5">
+                <button onclick="switchMenu('kapasitas')" class="bg-slate-700 hover:bg-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-600 font-medium transition flex items-center gap-1.5">
                     <i class="fa-solid fa-arrow-left"><span>Kembali</span></i>
                 </button>
             </div>
-            <div class="bg-white border border-slate-200 rounded-2xl p-16 text-center space-y-3 shadow-xs">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600"></div>
+            <div class="bg-white border border-slate-200 rounded-2xl p-16 text-center space-y-3 shadow-2xs">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-100 border-t-indigo-400"></div>
                 <p class="text-xs text-slate-400 font-medium">Memuat data realisasi pengiriman...</p>
             </div>
         </div>
 
-        <!-- SECTION 4: STOCK OPNAME (DENGAN FITUR REKONSILIASI SAP & TABEL LIGHT PURPLE) -->
+        <!-- SECTION 4: STOCK OPNAME -->
         <div id="section-opname" class="app-page space-y-6">
-            <h4 class="fw-bold mb-3">Stock Opname Harian (Audit Fisik)</h4>
+            <h4 class="fw-bold mb-3 text-slate-700">Stock Opname Harian (Audit Fisik)</h4>
             
-            <!-- FORM UTAMA OPNAME -->
-            <div class="card shadow-xs border-primary mb-3 bg-white p-4 rounded-2xl border border-slate-200">
+            <div class="card shadow-2xs mb-3 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-body">
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
-                        <!-- KOTAK ORANYE: INPUT STOCK SAP (REKONSILIASI) -->
-                        <div class="card border-warning mb-4 shadow-2xs">
-                            <div class="card-header bg-amber-50 text-amber-900 font-bold d-flex justify-content-between align-items-center py-2 px-3">
-                                <span class="small"><i class="fa-solid fa-file-excel text-success me-1.5"></i> Rekonsiliasi (SAP vs Fisik Aktual)</span>
-                                <button type="button" class="btn btn-sm btn-outline-warning text-dark bg-white" onclick="toggleSapInput()">Tutup/Buka Input SAP</button>
+                        <!-- INPUT STOCK SAP REKONSILIASI -->
+                        <div class="card border-0 mb-4 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
+                            <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-2.5 px-4" style="background-color: #fef3c7; color: #92400e;">
+                                <span class="small"><i class="fa-solid fa-file-excel text-emerald-600 me-1.5"></i> Rekonsiliasi (SAP vs Fisik Aktual)</span>
+                                <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs" onclick="toggleSapInput()">Tutup/Buka Input SAP</button>
                             </div>
-                            <div class="card-body" id="sapInputContainer">
-                                <label class="form-label small fw-bold text-muted">Tarik Data Sistem SAP (Paste 2 Kolom dari Excel: SKU & Qty Pallet)</label>
-                                <textarea class="form-control font-monospace text-nowrap mb-2" id="sapPasteArea" rows="3" placeholder="Contoh Paste:&#10;312743    15.5&#10;313376    10"></textarea>
-                                <button type="button" class="btn btn-primary btn-sm fw-bold px-4" onclick="processSapPaste()">Bandingkan SAP vs Fisik</button>
+                            <div class="card-body p-4" id="sapInputContainer">
+                                <label class="form-label small fw-bold text-slate-500">Tarik Data Sistem SAP (Paste 2 Kolom dari Excel: SKU & Qty Pallet)</label>
+                                <textarea class="form-control font-monospace text-nowrap mb-3 bg-white border-amber-200" id="sapPasteArea" rows="3" placeholder="Contoh Paste:&#10;312743    15.5&#10;313376    10"></textarea>
+                                <button type="button" class="btn btn-sm fw-bold px-4" style="background-color: #f59e0b; color: white;" onclick="processSapPaste()">Bandingkan SAP vs Fisik</button>
                             </div>
                         </div>
 
-                        <div class="row g-3 bg-light p-3 border rounded mb-4">
+                        <div class="row g-3 p-4 rounded-2xl mb-4 border border-slate-100" style="background-color: #f8fafc;">
                             <div class="col-md-3">
-                                <label class="form-label small fw-bold">Pilih Area Gudang Opname</label>
-                                <select class="form-select" id="opDestWarehouse" required onchange="clearOpnameRows()">
+                                <label class="form-label small fw-bold text-slate-600">Pilih Area Gudang Opname</label>
+                                <select class="form-select bg-white border-slate-200" id="opDestWarehouse" required onchange="clearOpnameRows()">
                                     <option value="INDUK">Gudang Induk</option>
                                     <option value="AGING">Gudang Aging</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label small fw-bold text-primary">Tanggal Opname</label>
-                                <input type="date" class="form-control" id="opGlobalDate" required>
+                                <label class="form-label small fw-bold text-slate-600">Tanggal Opname</label>
+                                <input type="date" class="form-control bg-white border-slate-200" id="opGlobalDate" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label small fw-bold text-success">Pilih Kode Plant</label>
-                                <select class="form-select border-success fw-bold text-success" id="opPlantCode" required>
+                                <label class="form-label small fw-bold text-slate-600">Pilih Kode Plant</label>
+                                <select class="form-select bg-white border-slate-200" id="opPlantCode" required>
                                     <option value="1115">Plant 1115</option>
                                     <option value="1116">Plant 1116</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label small fw-bold text-primary">Nama Stock Keeper (Petugas Audit)</label>
-                                <input type="text" class="form-control" id="opStockKeeper" required placeholder="Nama lengkap petugas">
+                                <label class="form-label small fw-bold text-slate-600">Nama Stock Keeper (Petugas Audit)</label>
+                                <input type="text" class="form-control bg-white border-slate-200" id="opStockKeeper" required placeholder="Nama lengkap petugas">
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">Daftar Item yang Dihitung Fisik</h6>
+                            <h6 class="fw-bold mb-0 text-slate-700">Daftar Item yang Dihitung Fisik</h6>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">Tambah Baris</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOpnameRow()">Tambah Baris</button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Ulang</button>
                             </div>
                         </div>
 
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
-                                <!-- KOTAK KUNING: HEADER TABEL WARNA LIGHT PURPLE -->
-                                <thead class="table-purple-custom text-center">
+                                <thead class="pastel-header-purple text-center">
                                     <tr>
                                         <th>Blok Rak (Bin Loc)</th>
                                         <th>Lorong / Row</th>
@@ -261,17 +287,17 @@
                                 <tbody id="multiOpnameBody"></tbody>
                             </table>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-3">Simpan Hasil Opname (Override Stok)</button>
+                        <button type="submit" class="btn btn-pastel-primary btn-lg w-100 fw-bold mt-3 shadow-2xs">Simpan Hasil Opname (Override Stok)</button>
                     </form>
                 </div>
             </div>
             
-            <!-- KOTAK HIJAU: TABEL REKONSILIASI PERBANDINGAN SAP VS FISIK -->
-            <div class="card shadow-xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header bg-purple-700 text-white fw-bold py-2 px-3 rounded-lg mb-3">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
+            <!-- TABEL REKONSILIASI PERBANDINGAN SAP VS FISIK AKTUAL -->
+            <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-purple fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">
-                        <thead class="table-purple-custom">
+                        <thead class="pastel-header-purple">
                             <tr>
                                 <th>SKU</th>
                                 <th class="text-start">Nama Produk</th>
@@ -289,11 +315,11 @@
             </div>
 
             <!-- RIWAYAT STOCK OPNAME TERAKHIR -->
-            <div class="card shadow-xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header bg-dark text-white fw-bold py-2 px-3 rounded-lg mb-3">Riwayat / Log Audit Stock Keeper Terakhir</div>
+            <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Riwayat / Log Audit Stock Keeper Terakhir</div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center">
-                        <thead class="table-secondary">
+                        <thead class="table-light">
                             <tr>
                                 <th>Tanggal Audit</th>
                                 <th>Plant</th>
@@ -312,13 +338,77 @@
             </div>
         </div>
 
-        <!-- SECTION 5: MODUL LAINNYA -->
+        <!-- SECTION 5: BIN LOC MONITORING (PETA INDUK & AGING DENGAN POP-UP LORONG) -->
+        <div id="section-binloc" class="app-page space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h2 class="font-bold text-slate-700 text-lg">Bin Loc Monitoring & Peta Kapasitas</h2>
+                    <p class="text-xs text-slate-400">Klik pada blok rak untuk melihat detail isi lorong dan SKU.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchBinWarehouse('INDUK')" id="btnBinInduk" class="px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold shadow-2xs transition">Gudang Induk</button>
+                    <button onclick="switchBinWarehouse('AGING')" id="btnBinAging" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">Gudang Aging</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center gap-4 text-xs">
+                <span class="font-bold text-slate-600">Kapasitas:</span>
+                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-empty inline-block"></span> Kosong</div>
+                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-low inline-block"></span> &lt;50%</div>
+                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-med inline-block"></span> 50-75%</div>
+                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-high inline-block"></span> 75-99%</div>
+                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-full inline-block"></span> &ge;100%</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
+                <div id="binMapContainer" class="min-w-[800px] space-y-3">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 6: MODUL LAINNYA -->
         <div id="section-other" class="app-page space-y-6">
-            <h3 id="otherTitle" class="font-bold text-slate-800 text-lg">Modul dalam Pengembangan</h3>
-            <p class="text-xs text-slate-500">Menu ini akan segera disesuaikan dengan kebutuhan operasional gudangmu.</p>
+            <h3 id="otherTitle" class="font-bold text-slate-700 text-lg">Modul dalam Pengembangan</h3>
+            <p class="text-xs text-slate-400">Menu ini akan segera disesuaikan dengan kebutuhan operasional gudangmu.</p>
         </div>
 
     </main>
+
+    <!-- MODAL DETAIL LORONG (POP-UP) -->
+    <div id="binModal" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-slate-700 text-base">Detail Blok & Lorong</h3>
+                <button onclick="closeBinModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div id="modalRowGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-4">
+                    <!-- Grid Lorong -->
+                </div>
+                <div id="modalSkuDetail" class="border-t border-slate-100 pt-4">
+                    <h6 class="font-bold text-xs text-slate-400 uppercase tracking-wider mb-2">Daftar SKU di Lorong Ini</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle text-center text-xs">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th class="text-start">Nama Produk</th>
+                                    <th>Pallet Tersedia</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalSkuTableBody">
+                                <tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 text-end">
+                <button onclick="closeBinModal()" class="btn btn-sm btn-secondary px-4">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <!-- DATALIST SKU -->
     <datalist id="datalistSkus"></datalist>
@@ -346,6 +436,9 @@
         };
 
         let sapStockData = JSON.parse(localStorage.getItem('sapStockDataOpname')) || {};
+        let currentBinWarehouse = 'INDUK';
+        const indukBlocks = ['X', 'T', 'W', 'S', 'V', 'R', 'U', 'Q', 'P', 'O', 'N', 'M', 'H', 'K', 'J', 'I', 'D', 'G', 'F', 'B', 'A'];
+        const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -355,12 +448,9 @@
         }
 
         function switchMenu(menuName) {
-            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-other'].forEach(id => {
+            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-binloc', 'section-other'].forEach(id => {
                 const el = document.getElementById(id);
-                if(el) {
-                    el.classList.add('hidden');
-                    el.classList.remove('active');
-                }
+                if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
 
             document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -370,7 +460,7 @@
             if (menuName === 'kapasitas') {
                 document.getElementById('section-kapasitas').classList.remove('hidden');
                 document.getElementById('section-kapasitas').classList.add('active');
-                document.getElementById('menu-kapasitas').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
+                document.getElementById('menu-kapasitas').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
                 document.getElementById('topHeaderTitle').innerText = 'Monitoring Finished Goods';
             } else if (menuName === 'master') {
                 document.getElementById('section-master').classList.remove('hidden');
@@ -379,12 +469,12 @@
             } else if (menuName === 'realisasi') {
                 document.getElementById('section-realisasi').classList.remove('hidden');
                 document.getElementById('section-realisasi').classList.add('active');
-                document.getElementById('menu-realisasi').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
+                document.getElementById('menu-realisasi').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
                 document.getElementById('topHeaderTitle').innerText = 'Realisasi SPE';
             } else if (menuName === 'opname') {
                 document.getElementById('section-opname').classList.remove('hidden');
                 document.getElementById('section-opname').classList.add('active');
-                document.getElementById('menu-opname').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
+                document.getElementById('menu-opname').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
                 document.getElementById('topHeaderTitle').innerText = 'Stock Opname Harian';
                 
                 document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
@@ -392,6 +482,12 @@
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
                 renderOpnameHistory();
                 renderReconciliationTable();
+            } else if (menuName === 'binloc') {
+                document.getElementById('section-binloc').classList.remove('hidden');
+                document.getElementById('section-binloc').classList.add('active');
+                document.getElementById('menu-binloc').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
+                document.getElementById('topHeaderTitle').innerText = 'Bin Loc Monitoring';
+                renderBinMap();
             } else {
                 document.getElementById('section-other').classList.remove('hidden');
                 document.getElementById('section-other').classList.add('active');
@@ -400,7 +496,6 @@
                     'rdc': 'Monitoring RDC (Regional Distribution Center)',
                     'ekspor': 'Dashboard Monitoring Ekspor',
                     'jalur': 'Monitoring Stock Jalur / Transit',
-                    'binloc': 'Modul Bin Loc & Layout Gudang',
                     'kpi': 'Key Performance Indicator (KPI) Gudang'
                 };
                 if(titles[menuName]) {
@@ -408,7 +503,7 @@
                     document.getElementById('topHeaderTitle').innerText = titles[menuName];
                 }
                 if(document.getElementById(`menu-${menuName}`)) {
-                    document.getElementById(`menu-${menuName}`).className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
+                    document.getElementById(`menu-${menuName}`).className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
                 }
             }
 
@@ -419,21 +514,101 @@
             ['summary', 'lokal', 'ekspor', 'gdfg'].forEach(id => {
                 document.getElementById(`content-${id}`).classList.add('hidden');
                 const btn = document.getElementById(`btn-${id}`);
-                if(btn) btn.className = "subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition";
+                if(btn) btn.className = "subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition";
             });
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             if(document.getElementById(`btn-${tabId}`)) {
-                document.getElementById(`btn-${tabId}`).className = "subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition";
+                document.getElementById(`btn-${tabId}`).className = "subtab-btn px-4 py-1.5 rounded-lg bg-indigo-400 text-white shadow-2xs transition";
             }
         }
 
-        // Fitur Toggle Kotak Oranye Input SAP
+        function switchBinWarehouse(wh) {
+            currentBinWarehouse = wh;
+            if(wh === 'INDUK') {
+                document.getElementById('btnBinInduk').className = "px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold shadow-2xs transition";
+                document.getElementById('btnBinAging').className = "px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition";
+            } else {
+                document.getElementById('btnBinAging').className = "px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold shadow-2xs transition";
+                document.getElementById('btnBinInduk').className = "px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition";
+            }
+            renderBinMap();
+        }
+
+        function renderBinMap() {
+            const container = document.getElementById('binMapContainer');
+            container.innerHTML = '';
+            let blocks = currentBinWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
+
+            let html = `<div class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Layout Blok Rak - Gudang ${currentBinWarehouse}</div>`;
+            html += `<div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3">`;
+
+            blocks.forEach(b => {
+                let randomClass = 'bin-empty';
+                let randVal = Math.random();
+                if(randVal > 0.8) randomClass = 'bin-full';
+                else if(randVal > 0.6) randomClass = 'bin-high';
+                else if(randVal > 0.4) randomClass = 'bin-med';
+                else if(randVal > 0.2) randomClass = 'bin-low';
+
+                html += `<div onclick="openBinModal('Blok ${b} FG')" class="p-3 rounded-xl border cursor-pointer transition transform hover:scale-105 shadow-2xs ${randomClass}">
+                    <div class="font-bold text-sm">Blok ${b} FG</div>
+                    <div class="text-[10px] mt-1 opacity-75">36 Row / Max 36 Plt</div>
+                </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function openBinModal(blockName) {
+            document.getElementById('modalTitle').innerText = 'Denah Lorong - ' + blockName;
+            let gridHtml = '';
+            for(let i = 1; i <= 17; i++) {
+                let rNum = i < 10 ? '0' + i : i;
+                let rowCode = blockName.replace('Blok ', '').replace(' FG', '') + rNum;
+                gridHtml += `<button onclick="selectLorong('${rowCode}')" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl text-center transition">
+                    <div class="font-bold text-xs text-slate-700">${rowCode}</div>
+                    <div class="text-[9px] text-slate-400">0 / 36</div>
+                </button>`;
+            }
+            document.getElementById('modalRowGrid').innerHTML = gridHtml;
+            document.getElementById('modalSkuTableBody').innerHTML = `<tr><td colspan="3" class="text-muted small">Pilih nomor lorong di atas.</td></tr>`;
+            document.getElementById('binModal').classList.remove('hidden');
+        }
+
+        function selectLorong(rowCode) {
+            let tbody = document.getElementById('modalSkuTableBody');
+            tbody.innerHTML = '';
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.opnameHistory && item.opnameHistory.length > 0) {
+                    item.opnameHistory.forEach(h => {
+                        if(h.rack && h.rack.includes(rowCode)) {
+                            found = true;
+                            tbody.innerHTML += `<tr>
+                                <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
+                                <td class="text-start fw-semibold">${item.name}</td>
+                                <td class="fw-bold text-indigo-600">${h.qty} Plt</td>
+                            </tr>`;
+                        }
+                    });
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-muted small">Rak Kosong / Belum ada data opname di lorong ${rowCode}.</td></tr>`;
+            }
+        }
+
+        function closeBinModal() {
+            document.getElementById('binModal').classList.add('hidden');
+        }
+
         function toggleSapInput() {
             const container = document.getElementById('sapInputContainer');
             container.style.display = container.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Proses Paste Data SAP (2 Kolom: SKU & Qty Pallet)
         function processSapPaste() {
             const text = document.getElementById('sapPasteArea').value.trim();
             if(!text) { alert('Data paste SAP masih kosong!'); return; }
@@ -455,7 +630,6 @@
             renderReconciliationTable();
         }
 
-        // Render Tabel Rekonsiliasi SAP vs Fisik Aktual
         function renderReconciliationTable() {
             let tbody = document.getElementById('reconciliationBody');
             tbody.innerHTML = '';
@@ -470,7 +644,6 @@
                 let sapQty = parseFloat(sapStockData[sku]) || 0;
                 let prodName = stockData[sku] ? stockData[sku].name : "Produk SKU " + sku;
                 
-                // Hitung total fisik aktual dari history/opname terakhir item tersebut
                 let totalFisik = 0;
                 if(stockData[sku] && stockData[sku].opnameHistory && stockData[sku].opnameHistory.length > 0) {
                     let latestHist = stockData[sku].opnameHistory[stockData[sku].opnameHistory.length - 1];
@@ -478,19 +651,19 @@
                 }
 
                 let variance = totalFisik - sapQty;
-                let statusBadge = '<span class="badge bg-success">Balance</span>';
+                let statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Balance</span>';
                 if(variance > 0) {
-                    statusBadge = '<span class="badge bg-primary">Surplus (+' + variance.toFixed(2) + ')</span>';
+                    statusBadge = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Surplus (+' + variance.toFixed(2) + ')</span>';
                 } else if(variance < 0) {
-                    statusBadge = '<span class="badge bg-danger">Minus (' + variance.toFixed(2) + ')</span>';
+                    statusBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Minus (' + variance.toFixed(2) + ')</span>';
                 }
 
                 tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-secondary">${sku}</span></td>
+                    <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
                     <td class="text-start fw-semibold">${prodName}</td>
-                    <td class="fw-bold text-primary">${sapQty.toFixed(2)} Plt</td>
-                    <td class="fw-bold text-success">${totalFisik.toFixed(2)} Plt</td>
-                    <td class="fw-bold ${variance === 0 ? 'text-success' : (variance > 0 ? 'text-primary' : 'text-danger')}">${variance.toFixed(2)} Plt</td>
+                    <td class="fw-bold text-indigo-600">${sapQty.toFixed(2)} Plt</td>
+                    <td class="fw-bold text-emerald-600">${totalFisik.toFixed(2)} Plt</td>
+                    <td class="fw-bold ${variance === 0 ? 'text-emerald-600' : (variance > 0 ? 'text-indigo-600' : 'text-rose-500')}">${variance.toFixed(2)} Plt</td>
                     <td>${statusBadge}</td>
                 </tr>`;
             });
@@ -548,11 +721,11 @@
             let tbody = document.getElementById('multiOpnameBody');
             let tr = document.createElement('tr');
             tr.id = 'opRow_' + opnameRowIdx;
-            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
-                           '<td><select class="form-select form-select-sm" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih Lorong -</option></select></td>' +
-                           '<td><input type="text" class="form-control form-control-sm" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
-                           '<td><input type="number" class="form-control form-control-sm" id="opCarton_' + opnameRowIdx + '" required min="0" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
-                           '<td class="text-center fw-bold text-primary" id="opPalletDisplay_' + opnameRowIdx + '">0 Plt</td>';
+            tr.innerHTML = '<td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
+                           '<td><select class="form-select form-select-sm border-slate-200" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih Lorong -</option></select></td>' +
+                           '<td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_' + opnameRowIdx + '" required min="0" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td class="text-center fw-bold text-indigo-500" id="opPalletDisplay_' + opnameRowIdx + '">0 Plt</td>';
             tbody.appendChild(tr);
         }
 
@@ -629,13 +802,13 @@
                     item.opnameHistory.forEach(hist => {
                         found = true;
                         tbody.innerHTML += `<tr>
-                            <td>${hist.date}</td>
-                            <td><span class="badge bg-success">Plant ${hist.plant || '1115'}</span></td>
-                            <td><span class="badge bg-primary">${hist.keeper}</span></td>
-                            <td><span class="badge bg-secondary">${sku}</span></td>
+                            <td><span class="text-slate-600">${hist.date}</span></td>
+                            <td><span class="badge bg-emerald-50 text-emerald-600 border border-emerald-100">Plant ${hist.plant || '1115'}</span></td>
+                            <td><span class="badge bg-indigo-50 text-indigo-600 border border-indigo-100">${hist.keeper}</span></td>
+                            <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
                             <td class="text-start fw-semibold">${item.name}</td>
                             <td>${hist.rack}</td>
-                            <td class="fw-bold text-success">${hist.qty} Plt</td>
+                            <td class="fw-bold text-indigo-600">${hist.qty} Plt</td>
                         </tr>`;
                     });
                 }
