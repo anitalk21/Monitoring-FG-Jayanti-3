@@ -126,7 +126,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Input Data</button>
                     <button class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-table text-emerald-500"></i> Spreadsheet</button>
-                    <button class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
+                    <button class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
                 </div>
             </div>
 
@@ -338,36 +338,95 @@
             </div>
         </div>
 
-        <!-- SECTION 5: BIN LOC MONITORING (PETA INDUK & AGING DENGAN POP-UP LORONG) -->
+        <!-- SECTION 5: BIN LOC MONITORING (DENGAN 3 SUB-TAB: STOK SAAT INI, RIWAYAT MOVEMENT, PETA KAPASITAS) -->
         <div id="section-binloc" class="app-page space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <div>
-                    <h2 class="font-bold text-slate-700 text-lg">Bin Loc Monitoring & Peta Kapasitas</h2>
-                    <p class="text-xs text-slate-400">Klik pada blok rak untuk melihat detail isi lorong dan SKU.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="switchBinWarehouse('INDUK')" id="btnBinInduk" class="px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold shadow-2xs transition">Gudang Induk</button>
-                    <button onclick="switchBinWarehouse('AGING')" id="btnBinAging" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">Gudang Aging</button>
+            
+            <!-- SUB-TAB HEADER -->
+            <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
+                <button onclick="switchBinSubTab('stok')" id="btnBinSubStok" class="bin-subtab-btn px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">📦 STOK SAAT INI</button>
+                <button onclick="switchBinSubTab('movement')" id="btnBinSubMovement" class="bin-subtab-btn px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">🔄 RIWAYAT MOVEMENT</button>
+                <button onclick="switchBinSubTab('peta')" id="btnBinSubPeta" class="bin-subtab-btn px-4 py-2 rounded-xl bg-indigo-400 text-white shadow-2xs transition">🗺️ PETA KAPASITAS</button>
+            </div>
+
+            <!-- KONTEN 1: STOK SAAT INI -->
+            <div id="binContent-stok" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+                    <h3 class="font-bold text-slate-700 text-base mb-3">Ringkasan Stok Aktual per Rak & Bin Loc</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center text-xs">
+                            <thead class="pastel-header-purple">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th class="text-start">Nama Produk</th>
+                                    <th>Lokasi Rak (Bin Loc)</th>
+                                    <th>Total Stok (Pallet)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="currentStockTableBody">
+                                <tr><td colspan="4" class="text-muted">Belum ada data stok tersimpan.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center gap-4 text-xs">
-                <span class="font-bold text-slate-600">Kapasitas:</span>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-empty inline-block"></span> Kosong</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-low inline-block"></span> &lt;50%</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-med inline-block"></span> 50-75%</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-high inline-block"></span> 75-99%</div>
-                <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-full inline-block"></span> &ge;100%</div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
-                <div id="binMapContainer" class="min-w-[800px] space-y-3">
-                    <!-- Rendered dynamically -->
+            <!-- KONTEN 2: RIWAYAT MOVEMENT -->
+            <div id="binContent-movement" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+                    <h3 class="font-bold text-slate-700 text-base mb-3">Log Riwayat Movement Barang (Masuk / Keluar / Pergeseran Rak)</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center text-xs">
+                            <thead class="pastel-header-dark">
+                                <tr>
+                                    <th>Waktu / Tanggal</th>
+                                    <th>Petugas / Keeper</th>
+                                    <th>Plant</th>
+                                    <th>SKU</th>
+                                    <th class="text-start">Nama Produk</th>
+                                    <th>Lokasi Rak</th>
+                                    <th>Jumlah (Pallet)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementHistoryTableBody">
+                                <tr><td colspan="7" class="text-muted">Belum ada riwayat movement barang. Lakukan input Stock Opname untuk mencatat log movement.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            <!-- KONTEN 3: PETA KAPASITAS -->
+            <div id="binContent-peta" class="space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                    <div>
+                        <h2 class="font-bold text-slate-700 text-lg">Peta Kapasitas Gudang</h2>
+                        <p class="text-xs text-slate-400">Klik pada blok rak untuk melihat detail isi lorong dan SKU secara real-time.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="switchBinWarehouse('INDUK')" id="btnBinInduk" class="px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold shadow-2xs transition">Gudang Induk</button>
+                        <button onclick="switchBinWarehouse('AGING')" id="btnBinAging" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">Gudang Aging</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-wrap items-center gap-4 text-xs">
+                    <span class="font-bold text-slate-600">Kapasitas:</span>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-empty inline-block"></span> Kosong</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-low inline-block"></span> &lt;50%</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-med inline-block"></span> 50-75%</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-high inline-block"></span> 75-99%</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded-md bin-full inline-block"></span> &ge;100%</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
+                    <div id="binMapContainer" class="min-w-[800px] space-y-3">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- SECTION 6: MODUL LAINNYA -->
+        <!-- SECTION LAINNYA -->
         <div id="section-other" class="app-page space-y-6">
             <h3 id="otherTitle" class="font-bold text-slate-700 text-lg">Modul dalam Pengembangan</h3>
             <p class="text-xs text-slate-400">Menu ini akan segera disesuaikan dengan kebutuhan operasional gudangmu.</p>
@@ -488,6 +547,8 @@
                 document.getElementById('menu-binloc').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
                 document.getElementById('topHeaderTitle').innerText = 'Bin Loc Monitoring';
                 renderBinMap();
+                renderCurrentStockTable();
+                renderMovementHistoryTable();
             } else {
                 document.getElementById('section-other').classList.remove('hidden');
                 document.getElementById('section-other').classList.add('active');
@@ -522,6 +583,19 @@
             }
         }
 
+        function switchBinSubTab(tabId) {
+            ['stok', 'movement', 'peta'].forEach(id => {
+                document.getElementById(`binContent-${id}`).classList.add('hidden');
+                const btn = document.getElementById(`btnBinSub${id.charAt(0).toUpperCase() + id.slice(1)}`);
+                if(btn) btn.className = "bin-subtab-btn px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition";
+            });
+            document.getElementById(`binContent-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btnBinSub${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
+            if(activeBtn) {
+                activeBtn.className = "bin-subtab-btn px-4 py-2 rounded-xl bg-indigo-400 text-white shadow-2xs transition";
+            }
+        }
+
         function switchBinWarehouse(wh) {
             currentBinWarehouse = wh;
             if(wh === 'INDUK') {
@@ -532,6 +606,56 @@
                 document.getElementById('btnBinInduk').className = "px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition";
             }
             renderBinMap();
+        }
+
+        function renderCurrentStockTable() {
+            let tbody = document.getElementById('currentStockTableBody');
+            tbody.innerHTML = '';
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.opnameHistory && item.opnameHistory.length > 0) {
+                    let latest = item.opnameHistory[item.opnameHistory.length - 1];
+                    found = true;
+                    tbody.innerHTML += `<tr>
+                        <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
+                        <td class="text-start fw-semibold">${item.name}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-600">${latest.rack || '-'}</span></td>
+                        <td class="fw-bold text-emerald-600">${latest.qty} Plt</td>
+                    </tr>`;
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-muted small">Belum ada data stok tersimpan.</td></tr>';
+            }
+        }
+
+        function renderMovementHistoryTable() {
+            let tbody = document.getElementById('movementHistoryTableBody');
+            tbody.innerHTML = '';
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.opnameHistory && item.opnameHistory.length > 0) {
+                    item.opnameHistory.forEach(hist => {
+                        found = true;
+                        tbody.innerHTML += `<tr>
+                            <td>${hist.date}</td>
+                            <td><span class="badge bg-indigo-50 text-indigo-600">${hist.keeper}</span></td>
+                            <td><span class="badge bg-emerald-50 text-emerald-600">Plant ${hist.plant || '1115'}</span></td>
+                            <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
+                            <td class="text-start fw-semibold">${item.name}</td>
+                            <td>${hist.rack}</td>
+                            <td class="fw-bold text-indigo-600">${hist.qty} Plt</td>
+                        </tr>`;
+                    });
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted small">Belum ada riwayat movement barang. Lakukan input Stock Opname untuk mencatat log movement.</td></tr>';
+            }
         }
 
         function renderBinMap() {
