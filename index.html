@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Aplikasi - Warehouse GDFG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .portal-header { background-color: #0f172a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .app-card { transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; background: white; }
+        .app-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+        .badge-pwa { background-color: #e0f2fe; color: #0369a1; font-weight: 600; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+        .badge-active { background-color: #dcfce7; color: #166534; font-weight: 600; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER PORTAL -->
+    <div class="portal-header shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fs-5 fw-bold">📦 Portal Aplikasi Warehouse GDFG</span>
+        </div>
+        <span class="small text-white-50">PT. Mayora Indah Tbk, Jayanti 3</span>
+    </div>
+
+    <div class="container my-5" style="max-width: 800px;">
+        <div class="text-center mb-4">
+            <p class="text-muted small">Klik kartu di bawah untuk membuka aplikasi yang diinginkan</p>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+            <!-- 1. MONITORING -->
+            <div class="card app-card p-3" onclick="location.href='monitoring.html'">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-dark text-white rounded p-3 fw-bold fs-4">📊</div>
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">Monitoring GDFG</h5>
+                            <p class="text-muted small mb-0">Dashboard kapasitas, realisasi, opname, RDC & stock jalur</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="badge-active">Aplikasi Utama</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. BINLOC -->
+            <div class="card app-card p-3" onclick="location.href='binloc.html'">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary text-white rounded p-3 fw-bold fs-4">📍</div>
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">BinLoc</h5>
+                            <p class="text-muted small mb-0">Manajemen lokasi bin, movement MASUK / KELUAR / PINDAH & peta kapasitas racking</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge-pwa">PWA</span>
+                        <span class="text-muted">↗</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ANTRIAN -->
+            <div class="card app-card p-3" onclick="location.href='antrian.html'">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-danger text-white rounded p-3 fw-bold fs-4">🚛</div>
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">Sistem Antrian GDFG</h5>
+                            <p class="text-muted small mb-0">Manajemen antrian truk, dock, loading & notifikasi TTS / alarm</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge-pwa">PWA</span>
+                        <span class="text-muted">↗</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
