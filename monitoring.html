@@ -15,6 +15,8 @@
         .app-page { display: none; }
         .app-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Light Purple Table Header */
+        .table-purple-custom { background-color: #f3e8ff !important; color: #6b21a8 !important; border-color: #e9d5ff !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -90,10 +92,6 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
             </a>
-            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-table-cells-large w-4 text-center"></i></div>
-                <span>Akses Aplikasi (Portal)</span>
-            </a>
         </div>
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
             LOADFLOW v1.1.2 &bull; Jayanti 3
@@ -103,7 +101,7 @@
     <!-- MAIN CONTENT AREA -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         
-        <!-- SECTION 1: HALAMAN KAPASITAS -->
+        <!-- SECTION 1: KAPASITAS -->
         <div id="section-kapasitas" class="app-page active space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -117,7 +115,6 @@
                 </div>
             </div>
 
-            <!-- Tab Kapasitas -->
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
                 <button onclick="switchSubTab('summary')" id="btn-summary" class="subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">SUMMARY</button>
                 <button onclick="switchSubTab('lokal')" id="btn-lokal" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">LOKAL</button>
@@ -159,22 +156,9 @@
                     </div>
                 </div>
             </div>
-            
-            <div id="content-lokal" class="hidden bg-blue-50/50 border border-blue-200 rounded-2xl p-6 text-center space-y-2">
-                <h3 class="font-bold text-slate-800 text-base">Modul Barang Lokal</h3>
-                <p class="text-xs text-slate-500">Sumber data dari menu Penerimaan Barang Dari Produksi.</p>
-            </div>
-            <div id="content-ekspor" class="hidden bg-amber-50/50 border border-amber-200 rounded-2xl p-6 text-center space-y-2">
-                <h3 class="font-bold text-slate-800 text-base">Modul Barang Ekspor</h3>
-                <p class="text-xs text-slate-500">Sumber data dari menu Penerimaan Barang Dari Produksi.</p>
-            </div>
-            <div id="content-gdfg" class="hidden bg-rose-50/50 border border-rose-200 rounded-2xl p-6 text-center space-y-2">
-                <h3 class="font-bold text-slate-800 text-base">Barang Di-Hold oleh QC (GDFG)</h3>
-                <p class="text-xs text-slate-500">Terhubung dari Transaksi Harian.</p>
-            </div>
         </div>
 
-        <!-- SECTION 2: DATABASE MASTER SKU PRODUK (TERBUKA KETIKA KLIK "INPUT DATA") -->
+        <!-- SECTION 2: DATABASE MASTER SKU PRODUK -->
         <div id="section-master" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
                 <h4 class="fw-bold mb-0 text-slate-800 text-base">Database Master SKU Produk</h4>
@@ -202,25 +186,33 @@
                     <i class="fa-solid fa-arrow-left"><span>Kembali</span></i>
                 </button>
             </div>
-
-            <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
-                <button class="px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">Summary</button>
-                <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Planning</button>
-                <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Input Realisasi</button>
-            </div>
-
             <div class="bg-white border border-slate-200 rounded-2xl p-16 text-center space-y-3 shadow-xs">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600"></div>
                 <p class="text-xs text-slate-400 font-medium">Memuat data realisasi pengiriman...</p>
             </div>
         </div>
 
-        <!-- SECTION 4: STOCK OPNAME (DENGAN PILIHAN KODE PLANT 1115 & 1116) -->
+        <!-- SECTION 4: STOCK OPNAME (DENGAN FITUR REKONSILIASI SAP & TABEL LIGHT PURPLE) -->
         <div id="section-opname" class="app-page space-y-6">
             <h4 class="fw-bold mb-3">Stock Opname Harian (Audit Fisik)</h4>
+            
+            <!-- FORM UTAMA OPNAME -->
             <div class="card shadow-xs border-primary mb-3 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-body">
                     <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
+                        <!-- KOTAK ORANYE: INPUT STOCK SAP (REKONSILIASI) -->
+                        <div class="card border-warning mb-4 shadow-2xs">
+                            <div class="card-header bg-amber-50 text-amber-900 font-bold d-flex justify-content-between align-items-center py-2 px-3">
+                                <span class="small"><i class="fa-solid fa-file-excel text-success me-1.5"></i> Rekonsiliasi (SAP vs Fisik Aktual)</span>
+                                <button type="button" class="btn btn-sm btn-outline-warning text-dark bg-white" onclick="toggleSapInput()">Tutup/Buka Input SAP</button>
+                            </div>
+                            <div class="card-body" id="sapInputContainer">
+                                <label class="form-label small fw-bold text-muted">Tarik Data Sistem SAP (Paste 2 Kolom dari Excel: SKU & Qty Pallet)</label>
+                                <textarea class="form-control font-monospace text-nowrap mb-2" id="sapPasteArea" rows="3" placeholder="Contoh Paste:&#10;312743    15.5&#10;313376    10"></textarea>
+                                <button type="button" class="btn btn-primary btn-sm fw-bold px-4" onclick="processSapPaste()">Bandingkan SAP vs Fisik</button>
+                            </div>
+                        </div>
+
                         <div class="row g-3 bg-light p-3 border rounded mb-4">
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Pilih Area Gudang Opname</label>
@@ -256,7 +248,8 @@
 
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
-                                <thead class="table-primary text-center">
+                                <!-- KOTAK KUNING: HEADER TABEL WARNA LIGHT PURPLE -->
+                                <thead class="table-purple-custom text-center">
                                     <tr>
                                         <th>Blok Rak (Bin Loc)</th>
                                         <th>Lorong / Row</th>
@@ -273,6 +266,28 @@
                 </div>
             </div>
             
+            <!-- KOTAK HIJAU: TABEL REKONSILIASI PERBANDINGAN SAP VS FISIK -->
+            <div class="card shadow-xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header bg-purple-700 text-white fw-bold py-2 px-3 rounded-lg mb-3">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-purple-custom">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Stok SAP (Pallet)</th>
+                                <th>Total Fisik (Pallet)</th>
+                                <th>Selisih Variance</th>
+                                <th>Status Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reconciliationBody">
+                            <tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan untuk perbandingan.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- RIWAYAT STOCK OPNAME TERAKHIR -->
             <div class="card shadow-xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-header bg-dark text-white fw-bold py-2 px-3 rounded-lg mb-3">Riwayat / Log Audit Stock Keeper Terakhir</div>
@@ -297,7 +312,7 @@
             </div>
         </div>
 
-        <!-- SECTION 5: MODUL LAINNYA (BIN LOC, RDC, EKSPOR, JALUR, KPI) -->
+        <!-- SECTION 5: MODUL LAINNYA -->
         <div id="section-other" class="app-page space-y-6">
             <h3 id="otherTitle" class="font-bold text-slate-800 text-lg">Modul dalam Pengembangan</h3>
             <p class="text-xs text-slate-500">Menu ini akan segera disesuaikan dengan kebutuhan operasional gudangmu.</p>
@@ -330,6 +345,8 @@
             "312743": { sku: "312743", name: "SUPERSTAR TRIPLE CHOCOLATE 30GBX6P", jmlCar: 60, opnameHistory: [] }
         };
 
+        let sapStockData = JSON.parse(localStorage.getItem('sapStockDataOpname')) || {};
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -337,7 +354,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // Navigasi Menu Utama Sidebar & Tombol Interaktif
         function switchMenu(menuName) {
             ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-other'].forEach(id => {
                 const el = document.getElementById(id);
@@ -375,6 +391,7 @@
                 populateSkuDatalist();
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
                 renderOpnameHistory();
+                renderReconciliationTable();
             } else {
                 document.getElementById('section-other').classList.remove('hidden');
                 document.getElementById('section-other').classList.add('active');
@@ -410,7 +427,75 @@
             }
         }
 
-        // Proses Simpan Data Master SKU dari Excel (6 Kolom)
+        // Fitur Toggle Kotak Oranye Input SAP
+        function toggleSapInput() {
+            const container = document.getElementById('sapInputContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Proses Paste Data SAP (2 Kolom: SKU & Qty Pallet)
+        function processSapPaste() {
+            const text = document.getElementById('sapPasteArea').value.trim();
+            if(!text) { alert('Data paste SAP masih kosong!'); return; }
+            let count = 0;
+            text.split('\n').forEach(line => {
+                const cols = line.split('\t');
+                if (cols.length >= 2) {
+                    const sku = cols[0].trim();
+                    const qtySap = parseFloat(cols[1].trim()) || 0;
+                    if (sku) {
+                        sapStockData[sku] = qtySap;
+                        count++;
+                    }
+                }
+            });
+            document.getElementById('sapPasteArea').value = '';
+            localStorage.setItem('sapStockDataOpname', JSON.stringify(sapStockData));
+            alert('Berhasil memproses ' + count + ' data stok SAP!');
+            renderReconciliationTable();
+        }
+
+        // Render Tabel Rekonsiliasi SAP vs Fisik Aktual
+        function renderReconciliationTable() {
+            let tbody = document.getElementById('reconciliationBody');
+            tbody.innerHTML = '';
+            let keys = Object.keys(sapStockData);
+            
+            if(keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan untuk perbandingan.</td></tr>';
+                return;
+            }
+
+            keys.forEach(sku => {
+                let sapQty = parseFloat(sapStockData[sku]) || 0;
+                let prodName = stockData[sku] ? stockData[sku].name : "Produk SKU " + sku;
+                
+                // Hitung total fisik aktual dari history/opname terakhir item tersebut
+                let totalFisik = 0;
+                if(stockData[sku] && stockData[sku].opnameHistory && stockData[sku].opnameHistory.length > 0) {
+                    let latestHist = stockData[sku].opnameHistory[stockData[sku].opnameHistory.length - 1];
+                    totalFisik = parseFloat(latestHist.qty) || 0;
+                }
+
+                let variance = totalFisik - sapQty;
+                let statusBadge = '<span class="badge bg-success">Balance</span>';
+                if(variance > 0) {
+                    statusBadge = '<span class="badge bg-primary">Surplus (+' + variance.toFixed(2) + ')</span>';
+                } else if(variance < 0) {
+                    statusBadge = '<span class="badge bg-danger">Minus (' + variance.toFixed(2) + ')</span>';
+                }
+
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge bg-secondary">${sku}</span></td>
+                    <td class="text-start fw-semibold">${prodName}</td>
+                    <td class="fw-bold text-primary">${sapQty.toFixed(2)} Plt</td>
+                    <td class="fw-bold text-success">${totalFisik.toFixed(2)} Plt</td>
+                    <td class="fw-bold ${variance === 0 ? 'text-success' : (variance > 0 ? 'text-primary' : 'text-danger')}">${variance.toFixed(2)} Plt</td>
+                    <td>${statusBadge}</td>
+                </tr>`;
+            });
+        }
+
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
             if(!text) { alert('Data paste masih kosong!'); return; }
@@ -530,6 +615,7 @@
             alert('Opname Plant ' + plantCode + ' sukses tersimpan dan terhubung ke data sistem!');
             clearOpnameRows();
             renderOpnameHistory();
+            renderReconciliationTable();
         }
 
         function renderOpnameHistory() {
