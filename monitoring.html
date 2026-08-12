@@ -37,7 +37,7 @@
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white text-slate-700 shadow-xl border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
         
-        <!-- Sidebar Header (Sesuai Referensi Foto Kamu) -->
+        <!-- Sidebar Header -->
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-50 text-blue-600 p-2.5 rounded-xl border border-blue-100">
@@ -51,7 +51,7 @@
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
-        <!-- Sidebar Navigation List (Sesuai Urutan Permintaan) -->
+        <!-- Sidebar Navigation List -->
         <div class="p-4 space-y-1.5 flex-1 overflow-y-auto text-sm">
             <div class="text-[11px] font-bold text-slate-400 px-3 tracking-wider mb-2">NAVIGASI</div>
 
@@ -122,31 +122,43 @@
             <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">GDFG</button>
         </div>
 
-        <!-- KARTU STATISTIK UTAMA (Digabung sesuai referensi gambar pertama) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Kartu 1: Total Pallet -->
+        <!-- KARTU STATISTIK UTAMA (Sesuai Referensi Gambar Kedua: Induk, Aging, Gabungan, Hold QC, Realisasi, Antrian) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <!-- Kartu 1: Gudang Induk -->
             <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 shadow-2xs space-y-1">
-                <div class="text-[11px] font-bold text-blue-700 uppercase tracking-wide">TOTAL PALLET</div>
-                <div class="text-2xl font-bold text-slate-800">7.062</div>
-                <div class="text-xs text-slate-500">Kapasitas 7.096 Pallet</div>
+                <div class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">TOTAL PALLET INDUK</div>
+                <div class="text-xl font-bold text-slate-800">4,519</div>
+                <div class="text-[11px] text-slate-500">Dari 16.008 Pallet</div>
             </div>
-            <!-- Kartu 2: Persentase Lokal -->
-            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
-                <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">PERSENTASE LOKAL</div>
-                <div class="text-2xl font-bold text-slate-800">77.91%</div>
-                <div class="text-xs text-slate-500">4.519 pallet dari 5.800</div>
-            </div>
-            <!-- Kartu 3: Persentase Ekspor -->
+            <!-- Kartu 2: Gudang Aging -->
             <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
-                <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wide">PERSENTASE EKSPOR</div>
-                <div class="text-2xl font-bold text-slate-800">186.03%</div>
-                <div class="text-xs text-slate-500">2.411 pallet dari 1.296</div>
+                <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wide">TOTAL PALLET AGING</div>
+                <div class="text-xl font-bold text-slate-800">2,411</div>
+                <div class="text-[11px] text-slate-500">Dari 15.372 Pallet</div>
             </div>
-            <!-- Kartu 4: Persentase All Stock -->
+            <!-- Kartu 3: Kapasitas Gabungan -->
+            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
+                <div class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
+                <div class="text-xl font-bold text-slate-800">6,930</div>
+                <div class="text-[11px] text-slate-500">Dari 31.380 Total</div>
+            </div>
+            <!-- Kartu 4: Barang di-Hold QC -->
+            <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
+                <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
+                <div class="text-xl font-bold text-rose-600">124</div>
+                <div class="text-[11px] text-slate-500">Pallet Tidak Bisa Kirim</div>
+            </div>
+            <!-- Kartu 5: Realisasi Muat Hari Ini -->
+            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">REALISASI MUAT</div>
+                <div class="text-xl font-bold text-slate-800">42 Truk</div>
+                <div class="text-[11px] text-emerald-600 font-medium">Sesuai target jadwal</div>
+            </div>
+            <!-- Kartu 6: Antrian Truk Aktif -->
             <div class="bg-purple-50/60 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
-                <div class="text-[11px] font-bold text-purple-700 uppercase tracking-wide">PERSENTASE ALL STOCK</div>
-                <div class="text-2xl font-bold text-slate-800">99.52%</div>
-                <div class="text-xs text-slate-500">Kapasitas 7.096 Pallet</div>
+                <div class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
+                <div class="text-xl font-bold text-slate-800">11 Truk</div>
+                <a href="antrian.html" class="text-[11px] text-blue-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
             </div>
         </div>
 
