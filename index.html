@@ -4,84 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Aplikasi - Warehouse GDFG</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .portal-header { background-color: #0f172a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .app-card { transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; background: white; }
-        .app-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #cbd5e1; }
-        .badge-pwa { background-color: #e0f2fe; color: #0369a1; font-weight: 600; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
-        .badge-active { background-color: #dcfce7; color: #166534; font-weight: 600; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
-    </style>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-slate-100 text-slate-700 min-h-screen font-sans flex flex-col">
 
-    <!-- HEADER PORTAL -->
-    <div class="portal-header shadow-sm">
-        <div class="d-flex align-items-center gap-2">
-            <span class="fs-5 fw-bold">📦 Portal Aplikasi Warehouse GDFG</span>
+    <!-- TOP HEADER -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-sm relative z-20">
+        <div class="flex items-center space-x-3">
+            <!-- Tombol Hamburger / Sidebar Toggle -->
+            <button onclick="toggleSidebar()" class="text-slate-700 hover:text-blue-600 focus:outline-none text-lg p-1 transition">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="bg-blue-600 p-2 rounded-lg text-white font-bold"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div>
+                <h1 class="font-bold text-slate-800 text-base md:text-lg tracking-wide">Portal Warehouse GDFG</h1>
+                <span class="text-xs text-slate-500">PT. Mayora Indah Tbk, Jayanti 3</span>
+            </div>
         </div>
-        <span class="small text-white-50">PT. Mayora Indah Tbk, Jayanti 3</span>
-    </div>
+        <div class="text-xs text-slate-500 font-medium hidden sm:block bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+            <i class="fa-regular fa-calendar-days mr-1.5 text-blue-600"></i> Sistem Integrasi PWA
+        </div>
+    </header>
 
-    <div class="container my-5" style="max-width: 800px;">
-        <div class="text-center mb-4">
-            <p class="text-muted small">Klik kartu di bawah untuk membuka aplikasi yang diinginkan</p>
+    <!-- SIDEBAR / HAMBURGER MENU DRAWER -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white border-r border-slate-200 shadow-xl z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-compass text-blue-600"></i> Menu Navigasi</span>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="p-4 space-y-1.5 text-sm flex-1 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 font-medium transition">
+                <i class="fa-solid fa-house text-blue-600 w-5"></i> Portal Utama
+            </a>
+            <a href="monitoring.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition">
+                <i class="fa-solid fa-chart-line text-slate-500 w-5"></i> Monitoring GDFG
+            </a>
+            <a href="binloc.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition">
+                <i class="fa-solid fa-location-dot text-slate-500 w-5"></i> BinLoc (Lapangan)
+            </a>
+            <a href="antrian.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition">
+                <i class="fa-solid fa-truck-fast text-slate-500 w-5"></i> Sistem Antrian Truk
+            </a>
+        </div>
+        <div class="p-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            LOADFLOW v1.1.2 &bull; Jayanti 3
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT / CARD PORTAL -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-6 flex flex-col justify-center">
+        <div class="text-center mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-800">Pilih Modul Aplikasi</h2>
+            <p class="text-xs md:text-sm text-slate-500 mt-1">Silakan pilih menu di bawah ini untuk masuk ke masing-masing sistem operasional gudang.</p>
         </div>
 
-        <div class="d-flex flex-column gap-3">
-            <!-- 1. MONITORING -->
-            <div class="card app-card p-3" onclick="location.href='monitoring.html'">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-dark text-white rounded p-3 fw-bold fs-4">📊</div>
-                        <div>
-                            <h5 class="fw-bold mb-1 text-dark">Monitoring GDFG</h5>
-                            <p class="text-muted small mb-0">Dashboard kapasitas, realisasi, opname, RDC & stock jalur</p>
-                        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Card 1: Monitoring -->
+            <div onclick="location.href='monitoring.html'" class="bg-white border border-slate-200 hover:border-blue-400 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                <div>
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-chart-line"></i>
                     </div>
-                    <div>
-                        <span class="badge-active">Aplikasi Utama</span>
-                    </div>
+                    <h3 class="font-bold text-slate-800 text-base mb-1">Monitoring GDFG</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Dashboard kapasitas, laporan, grafik, rekonsiliasi SAP, dan stock jalur.</p>
+                </div>
+                <div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+                    <span>Buka Aplikasi</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </div>
 
-            <!-- 2. BINLOC -->
-            <div class="card app-card p-3" onclick="location.href='binloc.html'">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-primary text-white rounded p-3 fw-bold fs-4">📍</div>
-                        <div>
-                            <h5 class="fw-bold mb-1 text-dark">BinLoc</h5>
-                            <p class="text-muted small mb-0">Manajemen lokasi bin, movement MASUK / KELUAR / PINDAH & peta kapasitas racking</p>
-                        </div>
+            <!-- Card 2: BinLoc -->
+            <div onclick="location.href='binloc.html'" class="bg-white border border-slate-200 hover:border-emerald-400 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                <div>
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-emerald-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-location-dot"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge-pwa">PWA</span>
-                        <span class="text-muted">↗</span>
-                    </div>
+                    <h3 class="font-bold text-slate-800 text-base mb-1">BinLoc</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Manajemen lokasi bin, movement Masuk/Keluar/Pindah, & peta racking.</p>
+                </div>
+                <div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-600">
+                    <span>Buka Aplikasi</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </div>
 
-            <!-- 3. ANTRIAN -->
-            <div class="card app-card p-3" onclick="location.href='antrian.html'">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-danger text-white rounded p-3 fw-bold fs-4">🚛</div>
-                        <div>
-                            <h5 class="fw-bold mb-1 text-dark">Sistem Antrian GDFG</h5>
-                            <p class="text-muted small mb-0">Manajemen antrian truk, dock, loading & notifikasi TTS / alarm</p>
-                        </div>
+            <!-- Card 3: Antrian Kendaraan -->
+            <div onclick="location.href='antrian.html'" class="bg-white border border-slate-200 hover:border-amber-400 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                <div>
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-amber-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-truck-fast"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge-pwa">PWA</span>
-                        <span class="text-muted">↗</span>
-                    </div>
+                    <h3 class="font-bold text-slate-800 text-base mb-1">Sistem Antrian</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Manajemen truk masuk, nomor dock, status loading, dan surat jalan.</p>
+                </div>
+                <div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-amber-600">
+                    <span>Buka Aplikasi</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FOOTER -->
+    <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 Warehouse Finished Goods Jayanti 3. All rights reserved.
+    </footer>
+
+    <!-- JAVASCRIPT FOR SIDEBAR -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
