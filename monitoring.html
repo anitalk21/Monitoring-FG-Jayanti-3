@@ -22,6 +22,10 @@
         .btn-pastel-primary { background-color: #818cf8 !important; border-color: #818cf8 !important; color: #ffffff !important; }
         .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
 
+        /* Soft Red Border & Accent for QC Form */
+        .border-pastel-red { border-color: #fca5a5 !important; }
+        .border-pastel-red:focus { border-color: #f87171 !important; box-shadow: 0 0 0 0.25rem rgba(254, 202, 202, 0.5); }
+
         /* Bin Loc Capacity Colors */
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
@@ -156,7 +160,7 @@
                     </div>
                     <div class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
                         <div class="text-[10px] font-bold text-rose-500 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
-                        <div class="text-xl font-bold text-rose-500">0 Plt</div>
+                        <div id="summaryHoldCount" class="text-xl font-bold text-rose-500">0 Plt</div>
                         <div class="text-[11px] text-slate-400">Pallet Tidak Bisa Kirim</div>
                     </div>
                     <div class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
@@ -182,7 +186,7 @@
             </div>
             <div id="content-gdfg" class="hidden bg-rose-50/20 border border-rose-100 rounded-2xl p-6 text-center space-y-2">
                 <h3 class="font-bold text-slate-700 text-base">Barang Di-Hold oleh QC (GDFG)</h3>
-                <p class="text-xs text-slate-400">Terhubung dari Transaksi Harian / Status QC.</p>
+                <p class="text-xs text-slate-400">Terhubung dari Form Karantina QC.</p>
             </div>
         </div>
 
@@ -226,48 +230,67 @@
             
             <div class="card shadow-2xs mb-3 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-body">
-                    <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
-                        <!-- INPUT STOCK SAP REKONSILIASI (HIDDEN BY DEFAULT, MUNCUL KETIKA DIKLIK) -->
-                        <div class="card border-0 mb-4 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
-                            <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-2.5 px-4" style="background-color: #fef3c7; color: #92400e;">
-                                <span class="small"><i class="fa-solid fa-file-excel text-emerald-600 me-1.5"></i> Rekonsiliasi (SAP vs Fisik Aktual)</span>
-                                <!-- TOMBOL BERSEBELAHAN DI KANAN HEADER -->
-                                <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs fw-bold" onclick="toggleSapInput()">Input Data SAP</button>
-                            </div>
-                            <div class="card-body p-4" id="sapInputContainer" style="display: none;">
-                                <label class="form-label small fw-bold text-slate-500">Tarik Data Sistem SAP (Paste 2 Kolom dari Excel: SKU & Qty Pallet)</label>
-                                <textarea class="form-control font-monospace text-nowrap mb-3 bg-white border-amber-200" id="sapPasteArea" rows="3" placeholder="Contoh Paste:&#10;312743    15.5&#10;313376    10"></textarea>
-                                <button type="button" class="btn btn-sm fw-bold px-4" style="background-color: #f59e0b; color: white;" onclick="processSapPaste()">Bandingkan SAP vs Fisik</button>
-                            </div>
-                        </div>
-
-                        <!-- KONTROL PENGELOLAAN STATUS QC DI MENU STOCK OPNAME -->
-                        <div class="card border-0 mb-4 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #f0fdf4;">
-                            <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-2.5 px-4" style="background-color: #dcfce7; color: #166534;">
-                                <span class="small"><i class="fa-solid fa-shield-halved text-emerald-600 me-1.5"></i> Manajemen Status QC (Hold & Release Barang / GDFG)</span>
-                                <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs fw-bold" onclick="toggleQcPanel()">Buka/Tutup Panel QC</button>
-                            </div>
-                            <div class="card-body p-4" id="qcPanelContainer" style="display: none;">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover align-middle text-center text-xs bg-white">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>SKU</th>
-                                                <th class="text-start">Nama Produk</th>
-                                                <th>Lokasi Rak</th>
-                                                <th>Jumlah (Pallet)</th>
-                                                <th>Status QC</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="qcStatusTableBody">
-                                            <tr><td colspan="6" class="text-muted">Belum ada data produk tersimpan.</td></tr>
-                                        </tbody>
-                                    </table>
+                    
+                    <!-- TOMBOL BERSEBELAHAN DI ATAS (INPUT DATA SAP & KARANTINA QC) -->
+                    <div class="row g-3 mb-4">
+                        <!-- Tombol SAP -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden h-100" style="background-color: #fffbeb;">
+                                <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #fef3c7; color: #92400e;">
+                                    <span class="small"><i class="fa-solid fa-file-excel text-emerald-600 me-1.5"></i> Rekonsiliasi (SAP vs Fisik)</span>
+                                    <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs fw-bold" onclick="toggleSapInput()">Input Data SAP</button>
+                                </div>
+                                <div class="card-body p-4" id="sapInputContainer" style="display: none;">
+                                    <label class="form-label small fw-bold text-slate-500">Tarik Data Sistem SAP (Paste SKU & Qty Pallet)</label>
+                                    <textarea class="form-control font-monospace text-nowrap mb-3 bg-white border-amber-200" id="sapPasteArea" rows="3" placeholder="Contoh: 312743    15.5"></textarea>
+                                    <button type="button" class="btn btn-sm fw-bold px-4" style="background-color: #f59e0b; color: white;" onclick="processSapPaste()">Bandingkan SAP vs Fisik</button>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Tombol Karantina QC (Hold / Release) -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden h-100" style="background-color: #fff1f2;">
+                                <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #ffe4e6; color: #9f1239;">
+                                    <span class="small"><i class="fa-solid fa-shield-halved text-rose-500 me-1.5"></i> Form Karantina QC (Hold/Release)</span>
+                                    <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs fw-bold" onclick="toggleQcForm()">Form Karantina QC</button>
+                                </div>
+                                <div class="card-body p-4" id="qcFormContainer" style="display: none;">
+                                    <form onsubmit="saveQcAction(event)">
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-slate-600">Tindakan</label>
+                                            <select class="form-select form-select-sm bg-white border-slate-200" id="qcActionType">
+                                                <option value="HOLD">Karantina Barang (HOLD)</option>
+                                                <option value="RELEASED">Release Barang</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-slate-600">Pilih SKU Produk</label>
+                                            <input type="text" class="form-control form-control-sm bg-white border-slate-200" id="qcSkuInput" list="datalistSkus" required placeholder="Ketik atau pilih SKU...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik yang Diproses</label>
+                                            <input type="text" class="form-control form-control-sm bg-white border-pastel-red" id="qcPalletNumber" required placeholder="Masukkan No. Pallet / Range...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-slate-600">Keterangan / Alasan QC</label>
+                                            <input type="text" class="form-control form-control-sm bg-white border-slate-200" id="qcReason" placeholder="Misal: Out of spec, kemasan rusak...">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-slate-600">Jumlah KARTON Diproses</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" class="form-control bg-white border-slate-200" id="qcCartonInput" required min="0" oninput="calcQcPallet()" placeholder="Karton">
+                                                <span class="input-group-text bg-slate-50 text-indigo-600 fw-bold" id="qcPalletBadge">0 Pallet</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm fw-bold w-100 text-white" style="background-color: #f43f5e;">Update Status QC</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
                         <div class="row g-3 p-4 rounded-2xl mb-4 border border-slate-100" style="background-color: #f8fafc;">
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold text-slate-600">Pilih Area Gudang Opname</label>
@@ -337,6 +360,28 @@
                         </thead>
                         <tbody id="reconciliationBody">
                             <tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan untuk perbandingan.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RIWAYAT KONTROL KARANTINA QC -->
+            <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Riwayat / Log Karantina QC (Hold & Release)</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tindakan</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>No. Pallet Fisik</th>
+                                <th>Jumlah Plt</th>
+                                <th>Keterangan QC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="qcHistoryBody">
+                            <tr><td colspan="6" class="text-muted small">Belum ada data riwayat karantina QC.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -520,6 +565,7 @@
         };
 
         let sapStockData = JSON.parse(localStorage.getItem('sapStockDataOpname')) || {};
+        let qcHistoryData = JSON.parse(localStorage.getItem('qcHistoryDataLog')) || [];
         let currentBinWarehouse = 'INDUK';
         const indukBlocks = ['X', 'T', 'W', 'S', 'V', 'R', 'U', 'Q', 'P', 'O', 'N', 'M', 'H', 'K', 'J', 'I', 'D', 'G', 'F', 'B', 'A'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
@@ -567,7 +613,7 @@
                 if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
                 renderOpnameHistory();
                 renderReconciliationTable();
-                renderQcStatusTable();
+                renderQcHistoryTable();
             } else if (menuName === 'binloc') {
                 document.getElementById('section-binloc').classList.remove('hidden');
                 document.getElementById('section-binloc').classList.add('active');
@@ -640,67 +686,85 @@
             container.style.display = container.style.display === 'none' ? 'block' : 'none';
         }
 
-        function toggleQcPanel() {
-            const container = document.getElementById('qcPanelContainer');
+        function toggleQcForm() {
+            const container = document.getElementById('qcFormContainer');
             container.style.display = container.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Render Tabel Status QC di Stock Opname
-        function renderQcStatusTable() {
-            let tbody = document.getElementById('qcStatusTableBody');
-            tbody.innerHTML = '';
-            let found = false;
+        function calcQcPallet() {
+            let cartonVal = parseFloat(document.getElementById('qcCartonInput').value) || 0;
+            let sku = extractSku(document.getElementById('qcSkuInput').value);
+            let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 60 : 60;
+            let pallets = cartonVal / jmlCar;
+            document.getElementById('qcPalletBadge').innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Pallet';
+        }
 
-            for(let sku in stockData) {
-                let item = stockData[sku];
-                found = true;
-                let rackLoc = "-";
-                let qtyPlt = "0";
-                if(item.opnameHistory && item.opnameHistory.length > 0) {
-                    let latest = item.opnameHistory[item.opnameHistory.length - 1];
-                    rackLoc = latest.rack || "-";
-                    qtyPlt = latest.qty || "0";
-                }
+        function saveQcAction(e) {
+            e.preventDefault();
+            let action = document.getElementById('qcActionType').value;
+            let skuInput = document.getElementById('qcSkuInput').value;
+            let sku = extractSku(skuInput);
+            let palletNo = document.getElementById('qcPalletNumber').value.trim();
+            let reason = document.getElementById('qcReason').value.trim();
+            let cartons = parseFloat(document.getElementById('qcCartonInput').value) || 0;
 
-                let qcState = item.qcStatus || "RELEASED";
-                let badgeClass = qcState === "HOLD" ? "bg-rose-100 text-rose-600 border border-rose-200" : "bg-emerald-100 text-emerald-600 border border-emerald-200";
-                let actionBtn = qcState === "HOLD" ? 
-                    `<button onclick="toggleQcStatus('${sku}', 'RELEASED')" class="btn btn-sm btn-outline-success px-3 py-1">Release</button>` :
-                    `<button onclick="toggleQcStatus('${sku}', 'HOLD')" class="btn btn-sm btn-outline-danger px-3 py-1">Hold</button>`;
+            let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 60 : 60;
+            let pallets = (cartons / jmlCar).toFixed(2);
+            let prodName = stockData[sku] ? stockData[sku].name : "Produk SKU " + sku;
 
-                tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-slate-100 text-slate-600">${sku}</span></td>
-                    <td class="text-start fw-semibold">${item.name}</td>
-                    <td><span class="badge bg-indigo-50 text-indigo-600">${rackLoc}</span></td>
-                    <td class="fw-bold">${qtyPlt} Plt</td>
-                    <td><span class="badge ${badgeClass} px-2 py-1 fw-bold">${qcState}</span></td>
-                    <td>${actionBtn}</td>
-                </tr>`;
+            if(!stockData[sku]) {
+                stockData[sku] = { sku: sku, name: prodName, jmlCar: jmlCar, qcStatus: action, opnameHistory: [] };
+            } else {
+                stockData[sku].qcStatus = action;
             }
-            if(!found) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data produk tersimpan.</td></tr>';
-            }
+
+            qcHistoryData.push({
+                action: action,
+                sku: sku,
+                name: prodName,
+                palletNo: palletNo,
+                pallets: pallets,
+                reason: reason || '-'
+            });
+
+            localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
+            localStorage.setItem('qcHistoryDataLog', JSON.stringify(qcHistoryData));
+
+            alert('Status QC Berhasil Diperbarui (' + action + ')!');
+            document.getElementById('qcPalletNumber').value = '';
+            document.getElementById('qcReason').value = '';
+            document.getElementById('qcCartonInput').value = '';
+            document.getElementById('qcPalletBadge').innerText = '0 Pallet';
+            renderQcHistoryTable();
             updateSummaryHoldCount();
         }
 
-        function toggleQcStatus(sku, newStatus) {
-            if(stockData[sku]) {
-                stockData[sku].qcStatus = newStatus;
-                localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
-                renderQcStatusTable();
-                updateSummaryHoldCount();
+        function renderQcHistoryTable() {
+            let tbody = document.getElementById('qcHistoryBody');
+            tbody.innerHTML = '';
+            if(qcHistoryData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data riwayat karantina QC.</td></tr>';
+                return;
             }
+            qcHistoryData.forEach(h => {
+                let badgeStyle = h.action === 'HOLD' ? 'bg-rose-100 text-rose-600 border border-rose-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200';
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge ${badgeStyle} px-2 py-1 fw-bold">${h.action}</span></td>
+                    <td><span class="badge bg-slate-100 text-slate-600">${h.sku}</span></td>
+                    <td class="text-start fw-semibold">${h.name}</td>
+                    <td class="fw-bold">${h.palletNo}</td>
+                    <td class="text-indigo-600 fw-bold">${h.pallets} Plt</td>
+                    <td class="text-start">${h.reason}</td>
+                </tr>`;
+            });
+            updateSummaryHoldCount();
         }
 
         function updateSummaryHoldCount() {
             let totalHold = 0;
-            for(let sku in stockData) {
-                let item = stockData[sku];
-                if(item.qcStatus === "HOLD" && item.opnameHistory && item.opnameHistory.length > 0) {
-                    let latest = item.opnameHistory[item.opnameHistory.length - 1];
-                    totalHold += parseFloat(latest.qty) || 0;
-                }
-            }
+            qcHistoryData.forEach(h => {
+                if(h.action === 'HOLD') totalHold += parseFloat(h.pallets) || 0;
+            });
             const el = document.getElementById('summaryHoldCount');
             if(el) el.innerText = totalHold.toFixed(2) + ' Plt';
         }
@@ -1005,7 +1069,6 @@
             clearOpnameRows();
             renderOpnameHistory();
             renderReconciliationTable();
-            renderQcStatusTable();
         }
 
         function renderOpnameHistory() {
