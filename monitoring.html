@@ -14,7 +14,6 @@
     <!-- TOP HEADER -->
     <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-xs relative z-20">
         <div class="flex items-center space-x-3">
-            <!-- Tombol Hamburger / Sidebar Toggle -->
             <button onclick="toggleSidebar()" class="text-slate-700 hover:text-blue-600 focus:outline-none text-lg p-1.5 rounded-lg hover:bg-slate-100 transition">
                 <i class="fa-solid fa-bars"></i>
             </button>
@@ -33,11 +32,9 @@
         </div>
     </header>
 
-    <!-- SIDEBAR / HAMBURGER MENU DRAWER (Light Mode Pastel) -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
+    <!-- SIDEBAR / HAMBURGER MENU DRAWER -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/35 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white text-slate-700 shadow-xl border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
-        
-        <!-- Sidebar Header -->
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-50 text-blue-600 p-2.5 rounded-xl border border-blue-100">
@@ -51,54 +48,51 @@
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
-        <!-- Sidebar Navigation List -->
         <div class="p-4 space-y-1.5 flex-1 overflow-y-auto text-sm">
             <div class="text-[11px] font-bold text-slate-400 px-3 tracking-wider mb-2">NAVIGASI</div>
-
-            <a href="#" onclick="switchTab('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs">
+            <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs">
                 <div class="bg-white p-2 rounded-lg text-blue-600 shadow-2xs"><i class="fa-solid fa-chart-pie w-4 text-center"></i></div>
                 <span>Kapasitas</span>
             </a>
-            <a href="#" onclick="switchTab('realisasi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('realisasi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-truck-ramp-box w-4 text-center"></i></div>
                 <span>Realisasi</span>
             </a>
-            <a href="#" onclick="switchTab('opname')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('opname')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-file-invoice w-4 text-center"></i></div>
                 <span>Stock Opname</span>
             </a>
-            <a href="#" onclick="switchTab('rdc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('rdc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-warehouse w-4 text-center"></i></div>
                 <span>Monitoring RDC</span>
             </a>
-            <a href="#" onclick="switchTab('ekspor')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('ekspor')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-ship w-4 text-center"></i></div>
                 <span>Monitoring Ekspor</span>
             </a>
-            <a href="#" onclick="switchTab('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-boxes-stacked w-4 text-center"></i></div>
                 <span>Stock Jalur</span>
             </a>
-            <a href="binloc.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="binloc.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-location-dot w-4 text-center"></i></div>
                 <span>Bin Loc</span>
             </a>
-            <a href="#" onclick="switchTab('kpi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="#" onclick="switchMenu('kpi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
             </a>
-            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition">
+            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-table-cells-large w-4 text-center"></i></div>
                 <span>Akses Aplikasi (Portal)</span>
             </a>
         </div>
-
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
             LOADFLOW v1.1.2 &bull; Jayanti 3
         </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA: KAPASITAS GDFG -->
+    <!-- MAIN CONTENT AREA -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
         
         <!-- Header & Action Bar -->
@@ -114,189 +108,144 @@
             </div>
         </div>
 
-        <!-- TAB NAVIGATION KECIL (SUMMARY, LOKAL, EKSPOR, GDFG) -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
-            <button class="px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs">SUMMARY</button>
-            <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">LOKAL</button>
-            <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">EKSPOR</button>
-            <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">GDFG</button>
+        <!-- TAB UTAMA (SUMMARY, LOKAL, EKSPOR, GDFG) -->
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
+            <button onclick="switchSubTab('summary')" id="btn-summary" class="subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">SUMMARY</button>
+            <button onclick="switchSubTab('lokal')" id="btn-lokal" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">LOKAL</button>
+            <button onclick="switchSubTab('ekspor')" id="btn-ekspor" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">EKSPOR</button>
+            <button onclick="switchSubTab('gdfg')" id="btn-gdfg" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">GDFG (HOLD QC)</button>
         </div>
 
-        <!-- KARTU STATISTIK UTAMA (Sesuai Referensi Gambar Kedua: Induk, Aging, Gabungan, Hold QC, Realisasi, Antrian) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <!-- Kartu 1: Gudang Induk -->
-            <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">TOTAL PALLET INDUK</div>
-                <div class="text-xl font-bold text-slate-800">4,519</div>
-                <div class="text-[11px] text-slate-500">Dari 16.008 Pallet</div>
+        <!-- KONTEN TAB: SUMMARY -->
+        <div id="content-summary" class="space-y-6">
+            <!-- Kartu Statistik Utama -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">TOTAL PALLET INDUK</div>
+                    <div class="text-xl font-bold text-slate-800">4,519</div>
+                    <div class="text-[11px] text-slate-500">Dari 16.008 Pallet</div>
+                </div>
+                <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wide">TOTAL PALLET AGING</div>
+                    <div class="text-xl font-bold text-slate-800">2,411</div>
+                    <div class="text-[11px] text-slate-500">Dari 15.372 Pallet</div>
+                </div>
+                <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
+                    <div class="text-xl font-bold text-slate-800">6,930</div>
+                    <div class="text-[11px] text-slate-500">Dari 31.380 Total</div>
+                </div>
+                <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
+                    <div class="text-xl font-bold text-rose-600">124</div>
+                    <div class="text-[11px] text-slate-500">Pallet Tidak Bisa Kirim</div>
+                </div>
+                <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">REALISASI MUAT</div>
+                    <div class="text-xl font-bold text-slate-800">42 Truk</div>
+                    <div class="text-[11px] text-emerald-600 font-medium">Sesuai target jadwal</div>
+                </div>
+                <div class="bg-purple-50/60 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
+                    <div class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
+                    <div class="text-xl font-bold text-slate-800">11 Truk</div>
+                    <a href="antrian.html" class="text-[11px] text-blue-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
+                </div>
             </div>
-            <!-- Kartu 2: Gudang Aging -->
-            <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-amber-700 uppercase tracking-wide">TOTAL PALLET AGING</div>
-                <div class="text-xl font-bold text-slate-800">2,411</div>
-                <div class="text-[11px] text-slate-500">Dari 15.372 Pallet</div>
-            </div>
-            <!-- Kartu 3: Kapasitas Gabungan -->
-            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
-                <div class="text-xl font-bold text-slate-800">6,930</div>
-                <div class="text-[11px] text-slate-500">Dari 31.380 Total</div>
-            </div>
-            <!-- Kartu 4: Barang di-Hold QC -->
-            <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-rose-700 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
-                <div class="text-xl font-bold text-rose-600">124</div>
-                <div class="text-[11px] text-slate-500">Pallet Tidak Bisa Kirim</div>
-            </div>
-            <!-- Kartu 5: Realisasi Muat Hari Ini -->
-            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">REALISASI MUAT</div>
-                <div class="text-xl font-bold text-slate-800">42 Truk</div>
-                <div class="text-[11px] text-emerald-600 font-medium">Sesuai target jadwal</div>
-            </div>
-            <!-- Kartu 6: Antrian Truk Aktif -->
-            <div class="bg-purple-50/60 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
-                <div class="text-xl font-bold text-slate-800">11 Truk</div>
-                <a href="antrian.html" class="text-[11px] text-blue-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
-            </div>
-        </div>
 
-        <!-- FILTER VIEW TOMBOL (Chart / Tabel / Trend) -->
-        <div class="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-fit text-xs font-medium shadow-2xs">
-            <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white flex items-center gap-1.5"><i class="fa-solid fa-chart-bar"></i> Chart</button>
-            <button class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5"><i class="fa-solid fa-table"></i> Tabel</button>
-            <button class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5"><i class="fa-solid fa-chart-line"></i> Trend</button>
-        </div>
+            <!-- Filter View Tombol (Chart / Tabel / Trend) -->
+            <div class="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-fit text-xs font-medium shadow-2xs">
+                <button onclick="switchViewMode('chart')" id="view-chart-btn" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white flex items-center gap-1.5 transition"><i class="fa-solid fa-chart-bar"></i> Chart</button>
+                <button onclick="switchViewMode('tabel')" id="view-tabel-btn" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition"><i class="fa-solid fa-table"></i> Tabel</button>
+                <button onclick="switchViewMode('trend')" id="view-trend-btn" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition"><i class="fa-solid fa-chart-line"></i> Trend</button>
+            </div>
 
-        <!-- BAGIAN GRAFIK 2 KOLOM (SKU LOKAL TERBANYAK & SKU EKSPOR TERBANYAK) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Kolom 1: SKU Lokal Terbanyak -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chart-simple text-blue-600"></i> SKU LOKAL TERBANYAK
-                        </h3>
-                        <p class="text-[11px] text-slate-400">Berdasarkan jumlah pallet saat ini</p>
+            <!-- VIEW MODE: CHART -->
+            <div id="mode-chart" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- SKU Lokal Terbanyak (Dikosongkan sesuai permintaan) -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-chart-simple text-blue-600"></i> SKU LOKAL TERBANYAK
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Berdasarkan jumlah pallet gudang induk & aging</p>
+                        </div>
+                        <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Top 10</span>
                     </div>
-                    <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Top 10</span>
+                    <div class="py-12 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-database text-lg mb-1 block text-slate-300"></i>
+                        Menunggu master data SKU & transaksi harian terisi
+                    </div>
                 </div>
 
-                <!-- Bar Chart Simulasi -->
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA KELAPA 4BDX7PAX300G</span>
-                            <span class="font-bold">551</span>
+                <!-- SKU Ekspor Terbanyak (Dikosongkan sesuai permintaan) -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-chart-simple text-amber-600"></i> SKU EKSPOR TERBANYAK
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Berdasarkan jumlah pallet gudang induk & aging</p>
                         </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-rose-500 h-full rounded-full" style="width: 100%;"></div>
-                        </div>
+                        <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Top 10</span>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA MALKIST ABON 12RCX10S...</span>
-                            <span class="font-bold">551</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-rose-500 h-full rounded-full" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA MALKIST CRACKERS 12RC...</span>
-                            <span class="font-bold">463</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-amber-500 h-full rounded-full" style="width: 84%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA SANDWICHI CHOCOLATE D...</span>
-                            <span class="font-bold">450</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-amber-500 h-full rounded-full" style="width: 80%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA SARI GANDUM COK BOX 1...</span>
-                            <span class="font-bold">355</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-yellow-500 h-full rounded-full" style="width: 64%;"></div>
-                        </div>
+                    <div class="py-12 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-database text-lg mb-1 block text-slate-300"></i>
+                        Menunggu master data SKU & transaksi harian terisi
                     </div>
                 </div>
             </div>
 
-            <!-- Kolom 2: SKU Ekspor Terbanyak -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chart-simple text-amber-600"></i> SKU EKSPOR TERBANYAK
-                        </h3>
-                        <p class="text-[11px] text-slate-400">Berdasarkan jumlah pallet saat ini</p>
-                    </div>
-                    <span class="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Top 10</span>
-                </div>
-
-                <!-- Bar Chart Simulasi -->
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">MALKIST CHEESE 12GBX40PC SX...</span>
-                            <span class="font-bold">907</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-rose-600 h-full rounded-full" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">MALKIST CHEESE PACK 10X6X1...</span>
-                            <span class="font-bold">612</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-rose-500 h-full rounded-full" style="width: 68%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">MALKIST CHEESE CRACKERS 12...</span>
-                            <span class="font-bold">410</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-amber-500 h-full rounded-full" style="width: 45%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">ROMA KELAPA FRESH PACK24X1...</span>
-                            <span class="font-bold">290</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-yellow-500 h-full rounded-full" style="width: 32%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-1 text-slate-600 font-medium">
-                            <span class="truncate max-w-[220px]">GO CHOCO ROLLZ GB 24X20X12...</span>
-                            <span class="font-bold">185</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-emerald-500 h-full rounded-full" style="width: 20%;"></div>
-                        </div>
-                    </div>
+            <!-- VIEW MODE: TABEL (Hidden by default) -->
+            <div id="mode-tabel" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+                <h3 class="font-bold text-slate-800 text-sm mb-4"><i class="fa-solid fa-table text-emerald-600 mr-2"></i> Rekapitulasi Tabel Master Stok Gudang</h3>
+                <div class="py-12 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                    Tabel data lengkap akan tampil otomatis setelah transaksi harian terhubung.
                 </div>
             </div>
 
+            <!-- VIEW MODE: TREND (Hidden by default) -->
+            <div id="mode-trend" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+                <h3 class="font-bold text-slate-800 text-sm mb-4"><i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Grafik Trend Kapasitas Bulanan</h3>
+                <div class="py-12 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                    Grafik trend pergerakan pallet akan tampil otomatis.
+                </div>
+            </div>
         </div>
+
+        <!-- KONTEN TAB: LOKAL (Hidden by default) -->
+        <div id="content-lokal" class="hidden space-y-4">
+            <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-6 text-center space-y-2">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-base">Modul Barang Lokal</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">Fitur ini khusus memuat data dan rekapitulasi barang-barang lokal yang bersumber dari menu <strong>Penerimaan Barang Dari Produksi</strong>.</p>
+            </div>
+        </div>
+
+        <!-- KONTEN TAB: EKSPOR (Hidden by default) -->
+        <div id="content-ekspor" class="hidden space-y-4">
+            <div class="bg-amber-50/50 border border-amber-200 rounded-2xl p-6 text-center space-y-2">
+                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+                    <i class="fa-solid fa-ship"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-base">Modul Barang Ekspor</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">Fitur ini khusus memuat data dan rekapitulasi barang-barang ekspor yang bersumber dari menu <strong>Penerimaan Barang Dari Produksi</strong>.</p>
+            </div>
+        </div>
+
+        <!-- KONTEN TAB: GDFG / HOLD QC (Hidden by default) -->
+        <div id="content-gdfg" class="hidden space-y-4">
+            <div class="bg-rose-50/50 border border-rose-200 rounded-2xl p-6 text-center space-y-2">
+                <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-base">Barang Di-Hold oleh QC (GDFG)</h3>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">Fitur ini terhubung langsung dari <strong>Transaksi Harian</strong> untuk memantau daftar pallet dan SKU mana saja yang sedang ditahan/hold oleh tim Quality Control.</p>
+            </div>
+        </div>
+
     </main>
 
     <!-- FOOTER -->
@@ -313,7 +262,34 @@
             overlay.classList.toggle('hidden');
         }
 
-        function switchTab(tabName) {
+        // Fungsi Aktivasi Sub-Tab (Summary, Lokal, Ekspor, GDFG)
+        function switchSubTab(tabId) {
+            ['summary', 'lokal', 'ekspor', 'gdfg'].forEach(id => {
+                document.getElementById(`content-${id}`).classList.add('hidden');
+                const btn = document.getElementById(`btn-${id}`);
+                btn.className = "subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition";
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.className = "subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition";
+        }
+
+        // Fungsi Aktivasi View Mode (Chart, Tabel, Trend)
+        function switchViewMode(mode) {
+            ['chart', 'tabel', 'trend'].forEach(m => {
+                document.getElementById(`mode-${m}`).classList.add('hidden');
+                const btn = document.getElementById(`view-${m}-btn`);
+                btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition";
+            });
+
+            document.getElementById(`mode-${mode}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`view-${mode}-btn`);
+            activeBtn.className = "px-3 py-1.5 rounded-lg bg-slate-800 text-white flex items-center gap-1.5 transition";
+        }
+
+        // Fungsi Navigasi Sidebar Menu Utama
+        function switchMenu(menuName) {
             const titles = {
                 'kapasitas': 'Kapasitas GDFG',
                 'realisasi': 'Data Realisasi Pengiriman & Pemuatan',
@@ -323,19 +299,9 @@
                 'jalur': 'Monitoring Stock Jalur / Transit',
                 'kpi': 'Key Performance Indicator (KPI) Gudang'
             };
-            
-            if(titles[tabName]) {
-                document.getElementById('pageTitle').innerText = titles[tabName];
+            if(titles[menuName]) {
+                document.getElementById('pageTitle').innerText = titles[menuName];
             }
-            
-            const buttons = document.querySelectorAll('.menu-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-50', 'text-blue-700', 'font-semibold', 'border', 'border-blue-100');
-                btn.classList.add('text-slate-600', 'font-medium');
-            });
-            event.currentTarget.classList.remove('text-slate-600', 'font-medium');
-            event.currentTarget.classList.add('bg-blue-50', 'text-blue-700', 'font-semibold', 'border', 'border-blue-100');
-
             if (window.innerWidth < 768) {
                 toggleSidebar();
             }
