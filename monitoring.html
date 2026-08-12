@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Finished Goods - GDFG</title>
+    <title>Monitoring Finished Goods - PT. Mayora Indah Tbk</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap 5 CSS CDN (Untuk Halaman Stock Opname) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .app-page { display: none; }
+        .app-page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-700 min-h-screen font-sans flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <!-- TOP HEADER -->
     <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-xs relative z-20">
@@ -50,12 +58,12 @@
 
         <div class="p-4 space-y-1.5 flex-1 overflow-y-auto text-sm">
             <div class="text-[11px] font-bold text-slate-400 px-3 tracking-wider mb-2">NAVIGASI</div>
-            <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-kapasitas">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-chart-pie w-4 text-center"></i></div>
+            <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs" id="menu-kapasitas">
+                <div class="bg-white p-2 rounded-lg text-blue-600 shadow-2xs"><i class="fa-solid fa-chart-pie w-4 text-center"></i></div>
                 <span>Kapasitas</span>
             </a>
-            <a href="#" onclick="switchMenu('realisasi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs" id="menu-realisasi">
-                <div class="bg-white p-2 rounded-lg text-blue-600 shadow-2xs"><i class="fa-solid fa-truck-ramp-box w-4 text-center"></i></div>
+            <a href="#" onclick="switchMenu('realisasi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-realisasi">
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-truck-ramp-box w-4 text-center"></i></div>
                 <span>Realisasi</span>
             </a>
             <a href="#" onclick="switchMenu('opname')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-opname">
@@ -81,10 +89,6 @@
             <a href="#" onclick="switchMenu('kpi')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-kpi">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
-            </a>
-            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i class="fa-solid fa-table-cells-large w-4 text-center"></i></div>
-                <span>Akses Aplikasi (Portal)</span>
             </a>
         </div>
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
@@ -117,7 +121,6 @@
                 <button onclick="switchSubTab('gdfg')" id="btn-gdfg" class="subtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">GDFG (HOLD QC)</button>
             </div>
 
-            <!-- Konten Summary Kapasitas -->
             <div id="content-summary" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                     <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 shadow-2xs space-y-1">
@@ -167,10 +170,8 @@
             </div>
         </div>
 
-        <!-- SECTION 2: HALAMAN REALISASI SPE (Sesuai Referensi Gambar) -->
+        <!-- SECTION 2: HALAMAN REALISASI SPE -->
         <div id="section-realisasi" class="hidden space-y-6">
-            
-            <!-- Header & Tombol Kembali -->
             <div class="flex justify-between items-center bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-xs">
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-truck-fast text-lg text-blue-400"></i>
@@ -181,71 +182,97 @@
                 </button>
             </div>
 
-            <!-- Tab Utama Realisasi -->
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold overflow-x-auto">
-                <button onclick="switchRealTab('summary')" id="rbtn-summary" class="rtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">Summary</button>
-                <button onclick="switchRealTab('planning')" id="rbtn-planning" class="rtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Planning</button>
-                <button onclick="switchRealTab('input')" id="rbtn-input" class="rtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Input Realisasi</button>
-                <button onclick="switchRealTab('direct')" id="rbtn-direct" class="rtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Input Planning Direct</button>
-                <button onclick="switchRealTab('mdc')" id="rbtn-mdc" class="rtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Input Planning MDC</button>
+                <button class="px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition">Summary</button>
+                <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Planning</button>
+                <button class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">Input Realisasi</button>
             </div>
 
-            <!-- Panel Filter Tanggal & Sub-Kategori -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-                
-                <!-- Filter Tanggal / Week -->
-                <div class="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <button class="bg-slate-800 text-white text-xs px-3.5 py-2 rounded-xl font-medium shadow-2xs flex items-center gap-1.5"><i class="fa-regular fa-calendar"></i> Tanggal</button>
-                        <button class="bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-xl font-medium transition flex items-center gap-1.5"><i class="fa-solid fa-calendar-week"></i> Week</button>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3 text-xs">
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-bold text-slate-500">DARI</span>
-                            <input type="text" value="11/08/2026" class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 font-medium w-32 text-center">
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-bold text-slate-500">SAMPAI</span>
-                            <input type="text" value="11/08/2026" class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 font-medium w-32 text-center">
-                        </div>
-                        <button class="bg-slate-800 hover:bg-slate-900 text-white font-medium px-4 py-1.5 rounded-lg transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass"></i> Tampilkan</button>
-                        <button class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-3.5 py-1.5 rounded-lg transition"><i class="fa-solid fa-xmark mr-1"></i> Reset</button>
-                    </div>
-                </div>
-
-                <!-- Sub-Kategori Menu (Realisasi All, Direct, MDC, Rekap) -->
-                <div class="flex flex-wrap items-center gap-4 pt-1 text-xs">
-                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 px-2 uppercase">Realisasi All</span>
-                        <button class="bg-slate-800 text-white px-3 py-1 rounded-lg font-medium shadow-2xs">Realisasi All</button>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">Detail</button>
-                    </div>
-
-                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 px-2 uppercase">Direct</span>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">Direct</button>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">Direct Detail</button>
-                    </div>
-
-                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 px-2 uppercase">MDC</span>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">MDC</button>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">Detail</button>
-                    </div>
-
-                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 gap-1">
-                        <span class="text-[10px] font-bold text-slate-400 px-2 uppercase">Rekap</span>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">By TIM</button>
-                        <button class="text-slate-600 hover:bg-white px-3 py-1 rounded-lg font-medium transition">By Shift</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Area Tampilan Data / Loading State -->
             <div class="bg-white border border-slate-200 rounded-2xl p-16 text-center space-y-3 shadow-xs">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600"></div>
                 <p class="text-xs text-slate-400 font-medium">Memuat data realisasi pengiriman...</p>
+            </div>
+        </div>
+
+        <!-- SECTION 3: HALAMAN STOCK OPNAME (DENGAN PILIHAN KODE PLANT 1115 & 1116) -->
+        <div id="section-opname" class="app-page space-y-6">
+            <h4 class="fw-bold mb-3">Stock Opname Harian (Audit Fisik)</h4>
+            <div class="card shadow-xs border-primary mb-3 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-body">
+                    <form id="formMultiOpname" onsubmit="saveBulkOpname(event)">
+                        <div class="row g-3 bg-light p-3 border rounded mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Pilih Area Gudang Opname</label>
+                                <select class="form-select" id="opDestWarehouse" required onchange="clearOpnameRows()">
+                                    <option value="INDUK">Gudang Induk</option>
+                                    <option value="AGING">Gudang Aging</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-primary">Tanggal Opname</label>
+                                <input type="date" class="form-control" id="opGlobalDate" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-success">Pilih Kode Plant</label>
+                                <select class="form-select border-success fw-bold text-success" id="opPlantCode" required>
+                                    <option value="1115">Plant 1115</option>
+                                    <option value="1116">Plant 1116</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-primary">Nama Stock Keeper (Petugas Audit)</label>
+                                <input type="text" class="form-control" id="opStockKeeper" required placeholder="Nama lengkap petugas">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Daftar Item yang Dihitung Fisik</h6>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addOpnameRow()">Tambah Baris</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Ulang</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-primary text-center">
+                                    <tr>
+                                        <th>Blok Rak</th>
+                                        <th>Lorong / Row</th>
+                                        <th>Cari SKU</th>
+                                        <th>Fisik (Karton)</th>
+                                        <th>Konversi Pallet</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="multiOpnameBody"></tbody>
+                            </table>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold mt-3">Simpan Hasil Opname (Override Stok)</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- RIWAYAT STOCK OPNAME TERAKHIR -->
+            <div class="card shadow-xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header bg-dark text-white fw-bold py-2 px-3 rounded-lg mb-3">Riwayat / Log Audit Stock Keeper Terakhir</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Tanggal Audit</th>
+                                <th>Plant</th>
+                                <th>Stock Keeper (Petugas)</th>
+                                <th>SKU</th>
+                                <th class="text-start name-col">Nama Produk</th>
+                                <th>Rak</th>
+                                <th>Hasil Opname (Plt)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="opnameHistoryBody">
+                            <tr><td colspan="7" class="text-muted small">Belum ada data riwayat opname.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -257,13 +284,27 @@
 
     </main>
 
+    <!-- DATALIST SKU -->
+    <datalist id="datalistSkus"></datalist>
+
     <!-- FOOTER -->
     <footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 bg-white mt-8">
         &copy; 2026 Warehouse Finished Goods Jayanti 3. All rights reserved.
     </footer>
 
     <!-- JAVASCRIPT LOGIC -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const masterRackingInduk = {
+            "LANTAI / FLOOR": { prefix: "FLOOR", rows: 1, perRow: 9999 },
+            "BLOK X FG": { prefix: "X", rows: 16, perRow: 18 }
+        };
+        const masterRackingAging = {
+            "AGING - BLOK A FG": { prefix: "A", rows: 29, perRow: 36 }
+        };
+
+        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -273,12 +314,12 @@
 
         // Navigasi Menu Utama Sidebar
         function switchMenu(menuName) {
-            // Sembunyikan semua section
             document.getElementById('section-kapasitas').classList.add('hidden');
             document.getElementById('section-realisasi').classList.add('hidden');
+            document.getElementById('section-opname').classList.remove('active');
+            document.getElementById('section-opname').classList.add('hidden');
             document.getElementById('section-other').classList.add('hidden');
 
-            // Reset warna tombol menu di sidebar
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 btn.className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition";
             });
@@ -291,10 +332,18 @@
                 document.getElementById('section-realisasi').classList.remove('hidden');
                 document.getElementById('menu-realisasi').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
                 document.getElementById('topHeaderTitle').innerText = 'Realisasi SPE';
+            } else if (menuName === 'opname') {
+                document.getElementById('section-opname').classList.remove('hidden');
+                document.getElementById('section-opname').classList.add('active');
+                document.getElementById('menu-opname').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold transition border border-blue-100 shadow-2xs";
+                document.getElementById('topHeaderTitle').innerText = 'Stock Opname Harian';
+                
+                document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
+                if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
+                renderOpnameHistory();
             } else {
                 document.getElementById('section-other').classList.remove('hidden');
                 const titles = {
-                    'opname': 'Laporan Stock Opname Finished Goods',
                     'rdc': 'Monitoring RDC (Regional Distribution Center)',
                     'ekspor': 'Dashboard Monitoring Ekspor',
                     'jalur': 'Monitoring Stock Jalur / Transit',
@@ -314,7 +363,6 @@
             }
         }
 
-        // Sub-Tab di halaman Kapasitas
         function switchSubTab(tabId) {
             ['summary', 'lokal', 'ekspor', 'gdfg'].forEach(id => {
                 document.getElementById(`content-${id}`).classList.add('hidden');
@@ -325,13 +373,118 @@
             document.getElementById(`btn-${tabId}`).className = "subtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition";
         }
 
-        // Sub-Tab di halaman Realisasi SPE
-        function switchRealTab(tabId) {
-            ['summary', 'planning', 'input', 'direct', 'mdc'].forEach(id => {
-                const btn = document.getElementById(`rbtn-${id}`);
-                btn.className = "rtab-btn px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition";
-            });
-            document.getElementById(`rbtn-${tabId}`).className = "rtab-btn px-4 py-1.5 rounded-lg bg-blue-600 text-white shadow-2xs transition";
+        // Logic khusus Stock Opname
+        function extractSku(val) { return val.split(' | ')[0].trim(); }
+
+        function getBlockOptions(wh) {
+            let config = wh === 'INDUK' ? masterRackingInduk : masterRackingAging;
+            let options = '<option value="">-- Pilih Blok --</option>';
+            Object.keys(config).sort().forEach(b => { options += '<option value="' + b + '">' + b + '</option>'; });
+            return options;
+        }
+
+        let opnameRowIdx = 0;
+        function clearOpnameRows() { document.getElementById('multiOpnameBody').innerHTML = ''; addOpnameRow(); }
+        
+        function addOpnameRow() {
+            opnameRowIdx++;
+            let wh = document.getElementById('opDestWarehouse').value;
+            let tbody = document.getElementById('multiOpnameBody');
+            let tr = document.createElement('tr');
+            tr.id = 'opRow_' + opnameRowIdx;
+            tr.innerHTML = '<td><select class="form-select form-select-sm" id="opRackBlock_' + opnameRowIdx + '" required onchange="populateRows(\'op\', \'_\' + ' + opnameRowIdx + ', \'' + wh + '\')">' + getBlockOptions(wh) + '</select></td>' +
+                           '<td><select class="form-select form-select-sm" id="opRackRow_' + opnameRowIdx + '" required><option value="">- Pilih -</option></select></td>' +
+                           '<td><input type="text" class="form-control form-control-sm" id="opSku_' + opnameRowIdx + '" list="datalistSkus" required autocomplete="off" onchange="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td><input type="number" class="form-control form-control-sm" id="opCarton_' + opnameRowIdx + '" required min="0" oninput="calcMultiRow(' + opnameRowIdx + ')"></td>' +
+                           '<td class="text-center fw-bold text-primary" id="opPalletDisplay_' + opnameRowIdx + '">0 Plt</td>';
+            tbody.appendChild(tr);
+        }
+
+        function populateRows(type, rowId, wh) {
+            const blockSelect = document.getElementById(type + 'RackBlock' + rowId);
+            const rowSelect = document.getElementById(type + 'RackRow' + rowId);
+            if(!blockSelect || !rowSelect) return;
+            rowSelect.innerHTML = '<option value="">- Lorong -</option>';
+            let blockName = blockSelect.value;
+            if(blockName === "LANTAI / FLOOR") { rowSelect.innerHTML = '<option value="FLOOR-AREA">Area Lantai Umum</option>'; return; }
+            
+            let config = wh === 'INDUK' ? masterRackingInduk : masterRackingAging;
+            if(config[blockName]) {
+                let rData = config[blockName];
+                for(let i = 1; i <= rData.rows; i++) {
+                    let rNum = i < 10 ? '0' + i : i;
+                    let rName = rData.prefix + rNum;
+                    rowSelect.innerHTML += '<option value="' + rName + '">' + rName + ' (Max: ' + rData.perRow + ')</option>';
+                }
+            }
+        }
+
+        function calcMultiRow(idx) {
+            let sku = extractSku(document.getElementById('opSku_' + idx).value);
+            let cartonVal = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
+            let displayEl = document.getElementById('opPalletDisplay_' + idx);
+            let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 1 : 1;
+            let pallets = cartonVal / jmlCar;
+            displayEl.innerText = (Number.isInteger(pallets) ? pallets : pallets.toFixed(2)) + ' Plt';
+        }
+
+        function saveBulkOpname(e) {
+            e.preventDefault();
+            let opDate = document.getElementById('opGlobalDate').value;
+            let plantCode = document.getElementById('opPlantCode').value;
+            let stockKeeper = document.getElementById('opStockKeeper').value.trim();
+            let rows = document.getElementById('multiOpnameBody').children;
+            if(rows.length === 0) { alert('Tabel opname kosong!'); return; }
+
+            for(let i = 0; i < rows.length; i++) {
+                let idx = rows[i].id.split('_')[1];
+                let block = document.getElementById('opRackBlock_' + idx).value;
+                let row = document.getElementById('opRackRow_' + idx).value;
+                let sku = extractSku(document.getElementById('opSku_' + idx).value);
+                let carton = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
+
+                if(stockData[sku]) {
+                    let pallets = carton / (parseInt(stockData[sku].jmlCar) || 1);
+                    let st = stockData[sku];
+                    st.rack = block + ' | ' + row;
+                    st.opname = pallets; 
+                    st.inProd = 0; st.inPlant = 0; st.out = 0; st.holdQty = 0;
+                    
+                    if(!st.opnameHistory) st.opnameHistory = [];
+                    st.opnameHistory.push({ date: opDate, plant: plantCode, keeper: stockKeeper, rack: st.rack, qty: pallets.toFixed(2) });
+                }
+            }
+            localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
+            alert('Opname Plant ' + plantCode + ' sukses disimpan dengan petugas: ' + stockKeeper + '!');
+            clearOpnameRows();
+            renderOpnameHistory();
+        }
+
+        function renderOpnameHistory() {
+            let tbody = document.getElementById('opnameHistoryBody');
+            tbody.innerHTML = '';
+            let found = false;
+
+            for(let sku in stockData) {
+                let item = stockData[sku];
+                if(item.opnameHistory && item.opnameHistory.length > 0) {
+                    item.opnameHistory.forEach(hist => {
+                        found = true;
+                        tbody.innerHTML += `<tr>
+                            <td>${hist.date}</td>
+                            <td><span class="badge bg-success">Plant ${hist.plant || '1115'}</span></td>
+                            <td><span class="badge bg-primary">${hist.keeper}</span></td>
+                            <td><span class="badge bg-secondary">${sku}</span></td>
+                            <td class="text-start fw-semibold">${item.name}</td>
+                            <td>${hist.rack}</td>
+                            <td class="fw-bold text-success">${hist.qty} Plt</td>
+                        </tr>`;
+                    });
+                }
+            }
+            if(!found) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted small">Belum ada data riwayat opname.</td></tr>';
+            }
         }
     </script>
 </body>
