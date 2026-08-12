@@ -365,23 +365,27 @@
                 </div>
             </div>
 
-            <!-- RIWAYAT KONTROL KARANTINA QC -->
+            <!-- RIWAYAT & LAPORAN TARIK DATA KARANTINA QC (HOLD & RELEASE) -->
             <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Riwayat / Log Karantina QC (Hold & Release)</div>
+                <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small flex justify-between items-center">
+                    <span>Daftar / Laporan Live Monitoring Status Karantina QC (Hold & Release)</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderQcHistoryTable()">Refresh Laporan</button>
+                </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover align-middle text-center">
+                    <table class="table table-bordered table-hover align-middle text-center text-xs">
                         <thead class="table-light">
                             <tr>
-                                <th>Tindakan</th>
+                                <th>Status QC</th>
                                 <th>SKU</th>
                                 <th class="text-start">Nama Produk</th>
                                 <th>No. Pallet Fisik</th>
                                 <th>Jumlah Plt</th>
                                 <th>Keterangan QC</th>
+                                <th>Aksi Ubah Status</th>
                             </tr>
                         </thead>
                         <tbody id="qcHistoryBody">
-                            <tr><td colspan="6" class="text-muted small">Belum ada data riwayat karantina QC.</td></tr>
+                            <tr><td colspan="7" class="text-muted small">Belum ada data laporan karantina QC.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -708,6 +712,16 @@
             let reason = document.getElementById('qcReason').value.trim();
             let cartons = parseFloat(document.getElementById('qcCartonInput').value) || 0;
 
+            // VALIDASI ANTI-DUPLIKASI (WARNING PENGINPUTAN GANDA)
+            let existingIdx = qcHistoryData.findIndex(item => item.palletNo.toLowerCase() === palletNo.toLowerCase());
+            if (existingIdx !== -1) {
+                let existing = qcHistoryData[existingIdx];
+                if (existing.action === 'HOLD' && action === 'HOLD') {
+                    alert('Peringatan: Nomor Pallet "' + palletNo + '" sudah tercatat berstatus HOLD sebelumnya! Silakan periksa kembali.');
+                    return;
+                }
+            }
+
             let jmlCar = stockData[sku] ? parseInt(stockData[sku].jmlCar) || 60 : 60;
             let pallets = (cartons / jmlCar).toFixed(2);
             let prodName = stockData[sku] ? stockData[sku].name : "Produk SKU " + sku;
@@ -718,14 +732,20 @@
                 stockData[sku].qcStatus = action;
             }
 
-            qcHistoryData.push({
-                action: action,
-                sku: sku,
-                name: prodName,
-                palletNo: palletNo,
-                pallets: pallets,
-                reason: reason || '-'
-            });
+            // Jika update dari list yang sudah ada atau entri baru
+            if(existingIdx !== -1) {
+                qcHistoryData[existingIdx].action = action;
+                qcHistoryData[existingIdx].reason = reason || qcHistoryData[existingIdx].reason;
+            } else {
+                qcHistoryData.push({
+                    action: action,
+                    sku: sku,
+                    name: prodName,
+                    palletNo: palletNo,
+                    pallets: pallets,
+                    reason: reason || '-'
+                });
+            }
 
             localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
             localStorage.setItem('qcHistoryDataLog', JSON.stringify(qcHistoryData));
@@ -739,15 +759,34 @@
             updateSummaryHoldCount();
         }
 
+        function toggleQcItemStatus(index) {
+            if(qcHistoryData[index]) {
+                let current = qcHistoryData[index].action;
+                let newAction = current === 'HOLD' ? 'RELEASED' : 'HOLD';
+                qcHistoryData[index].action = newAction;
+                
+                let sku = qcHistoryData[index].sku;
+                if(stockData[sku]) stockData[sku].qcStatus = newAction;
+
+                localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
+                localStorage.setItem('qcHistoryDataLog', JSON.stringify(qcHistoryData));
+                renderQcHistoryTable();
+                updateSummaryHoldCount();
+            }
+        }
+
         function renderQcHistoryTable() {
             let tbody = document.getElementById('qcHistoryBody');
             tbody.innerHTML = '';
             if(qcHistoryData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data riwayat karantina QC.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted small">Belum ada data riwayat karantina QC.</td></tr>';
                 return;
             }
-            qcHistoryData.forEach(h => {
+            qcHistoryData.forEach((h, idx) => {
                 let badgeStyle = h.action === 'HOLD' ? 'bg-rose-100 text-rose-600 border border-rose-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200';
+                let toggleBtnText = h.action === 'HOLD' ? 'Ubah ke Release' : 'Ubah ke Hold';
+                let toggleBtnClass = h.action === 'HOLD' ? 'btn-outline-success' : 'btn-outline-danger';
+
                 tbody.innerHTML += `<tr>
                     <td><span class="badge ${badgeStyle} px-2 py-1 fw-bold">${h.action}</span></td>
                     <td><span class="badge bg-slate-100 text-slate-600">${h.sku}</span></td>
@@ -755,6 +794,9 @@
                     <td class="fw-bold">${h.palletNo}</td>
                     <td class="text-indigo-600 fw-bold">${h.pallets} Plt</td>
                     <td class="text-start">${h.reason}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm ${toggleBtnClass} px-2.5 py-1" onclick="toggleQcItemStatus(${idx})">${toggleBtnText}</button>
+                    </td>
                 </tr>`;
             });
             updateSummaryHoldCount();
