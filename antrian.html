@@ -85,14 +85,14 @@
 <div class="container">
     <!-- Kolom Pencarian & Reset -->
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
         <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Semua Data</button>
     </div>
 
     <!-- Tab Status Alur Truk -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian</button>
-        <button class="tab-btn" onclick="switchMainTab('NungguDokumenTab', this)">Nunggu Dokumen</button>
+        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen</button>
         <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat</button>
         <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat</button>
         <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
@@ -107,7 +107,7 @@
     </div>
 </div>
 
-<!-- MODAL DAFTAR MANUAL -->
+<!-- MODAL DAFTAR MANUAL (Sesuai Alur Gambar Referensi) -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <h4 style="margin-top:0; color:#1e293b;">Ambil Nomor Antrian Masuk</h4>
@@ -115,10 +115,46 @@
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
             <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
             <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
+            <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
             <div class="form-group"><label>Quantity (Karton)</label><input type="number" id="mQty" placeholder="120"></div>
-            <div class="form-group"><label>Jenis Pengiriman</label><select id="mJenis"><option>LOKAL</option><option>EKSPOR</option><option>RDC</option><option>SUBDIST</option></select></div>
+            
+            <!-- Jenis Pengiriman Utama -->
+            <div class="form-group">
+                <label>Jenis *</label>
+                <select id="mJenis" required onchange="handleJenisChange()">
+                    <option value="">— Pilih Jenis —</option>
+                    <option value="LOKAL">LOKAL</option>
+                    <option value="EKSPOR">EKSPOR</option>
+                </select>
+            </div>
+
+            <!-- Turunan jika LOKAL: Tipe Pengiriman (RDC, SUBDIST, MDC) -->
+            <div class="form-group" id="groupTipePengiriman" style="display:none;">
+                <label>Tipe Pengiriman *</label>
+                <select id="mTipeLokal">
+                    <option value="">— Pilih Tipe —</option>
+                    <option value="RDC">RDC</option>
+                    <option value="SUBDIST">SUBDIST</option>
+                    <option value="MDC">MDC</option>
+                </select>
+            </div>
+
+            <!-- Turunan jika EKSPOR: No. Container -->
+            <div class="form-group" id="groupContainer" style="display:none;">
+                <label>No. Container (opsional)</label>
+                <input type="text" id="mContainer" placeholder="CONTOH: TCKU1234567">
+            </div>
+
+            <!-- Tujuan Pengiriman (Muncul di bawah sebelum No. HP) -->
+            <div class="form-group">
+                <label>Tujuan Pengiriman *</label>
+                <input type="text" id="mTujuan" required placeholder="Masukkan tujuan pengiriman">
+            </div>
+
+            <div class="form-group"><label>No. HP (opsional)</label><input type="text" id="mNoHp" placeholder="08123456789"></div>
+
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;">Simpan Antrian</button>
+                <button type="submit" class="btn btn-primary" style="flex:1;">Ambil Nomor Antrian →</button>
                 <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>
             </div>
         </form>
@@ -134,7 +170,7 @@
             <label>Pilih Status Truk</label>
             <select id="selectStatus" onchange="checkStatusChange()">
                 <option value="Antrian">Antrian</option>
-                <option value="Nunggu Dokumen">Nunggu Dokumen</option>
+                <option value="Menunggu Dokumen">Menunggu Dokumen</option>
                 <option value="Proses Muat">Proses Muat</option>
                 <option value="Selesai Muat">Selesai Muat (Menunggu Surat Jalan di Parkiran)</option>
                 <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
@@ -193,6 +229,26 @@
     function openModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'flex'; }
     function closeModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
 
+    // Logika Dinamis Dropdown Jenis Pilihan (Lokal / Ekspor)
+    function handleJenisChange() {
+        const jenis = document.getElementById('mJenis').value;
+        const groupTipe = document.getElementById('groupTipePengiriman');
+        const groupContainer = document.getElementById('groupContainer');
+
+        if (jenis === 'LOKAL') {
+            groupTipe.style.display = 'block';
+            groupContainer.style.display = 'none';
+            document.getElementById('mContainer').value = '';
+        } else if (jenis === 'EKSPOR') {
+            groupTipe.style.display = 'none';
+            groupContainer.style.display = 'block';
+            document.getElementById('mTipeLokal').value = '';
+        } else {
+            groupTipe.style.display = 'none';
+            groupContainer.style.display = 'none';
+        }
+    }
+
     function switchMainTab(tabName, btn) {
         currentMainTab = tabName;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -215,13 +271,27 @@
     function submitAntrian(e) {
         e.preventDefault();
         const now = new Date();
+        const jenisVal = document.getElementById('mJenis').value;
+        const tipeVal = document.getElementById('mTipeLokal').value;
+        const containerVal = document.getElementById('mContainer').value;
+
+        let jenisFull = jenisVal;
+        if(jenisVal === 'LOKAL' && tipeVal) {
+            jenisFull = 'LOKAL • ' + tipeVal;
+        } else if(jenisVal === 'EKSPOR' && containerVal) {
+            jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
+        }
+
         data.unshift({ 
             id: "L0" + Math.floor(Math.random() * 90 + 10), 
             sopir: document.getElementById('mSopir').value, 
             ekspedisi: document.getElementById('mEkspedisi').value,
-            nopol: document.getElementById('mNoPol').value.toUpperCase(), 
+            nopol: document.getElementById('mNoPol').value.toUpperCase(),
+            nodoc: document.getElementById('mNoDoc').value,
+            nohp: document.getElementById('mNoHp').value || '-',
+            tujuan: document.getElementById('mTujuan').value.toUpperCase(),
             qty: document.getElementById('mQty').value || 0,
-            jenis: document.getElementById('mJenis').value,
+            jenis: jenisFull,
             status: 'Antrian',
             dock: '-',
             rawTime: now.getTime(), 
@@ -230,19 +300,18 @@
         localStorage.setItem('antrian', JSON.stringify(data));
         closeModal('modalManual');
         e.target.reset();
+        document.getElementById('groupTipePengiriman').style.display = 'none';
+        document.getElementById('groupContainer').style.display = 'none';
         renderAll();
     }
 
     function openStatusModal(idx) {
         activeIdx = idx;
         const item = data[idx];
-        
-        // Pengecekan: Jika status sudah Keluar, kunci dan tidak bisa diubah lagi
         if (item.status === 'Keluar') {
             alert('Truk ini sudah berstatus "Keluar" dan dikunci secara permanen (tidak dapat diubah statusnya lagi).');
             return;
         }
-
         document.getElementById('selectStatus').value = item.status || 'Antrian';
         checkStatusChange();
         openModal('modalStatus');
@@ -264,7 +333,6 @@
         renderAll();
     }
 
-    // Fitur Hapus Data Mobil Satuan
     function deleteTruck(idx) {
         if(confirm('Yakin ingin menghapus data truk ' + data[idx].nopol + ' dari sistem?')) {
             data.splice(idx, 1);
@@ -295,7 +363,6 @@
         document.getElementById('countTreatmentTab').innerText = data.filter(i => i.status === 'Treatment').length;
 
         if (currentMainTab === 'DockTab') {
-            // RENDER 32 LOADING DOCK & AREA MENUNGGU SURAT JALAN
             let dockHtml = '<div class="dock-grid">';
             for(let i=1; i<=32; i++) {
                 let dockName = "Dock " + (i < 10 ? '0'+i : i);
@@ -327,7 +394,7 @@
                 waitingTrucks.forEach(t => {
                     let realIdx = data.indexOf(t);
                     dockHtml += `<div class="card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; background:white;">
-                        <div><strong>${t.nopol}</strong> &bull; ${t.ekspedisi} (${t.jenis}) &bull; Sopir: ${t.sopir}</div>
+                        <div><strong>${t.nopol}</strong> &bull; ${t.ekspedisi} &bull; Tujuan: ${t.tujuan} &bull; Sopir: ${t.sopir}</div>
                         <div style="display:flex; gap:6px;">
                             <button class="btn" style="font-size:11px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
                             <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${realIdx})">Hapus</button>
@@ -352,7 +419,7 @@
         } else {
             let targetStatus = '';
             if(currentMainTab === 'AntrianTab') targetStatus = 'Antrian';
-            else if(currentMainTab === 'NungguDokumenTab') targetStatus = 'Nunggu Dokumen';
+            else if(currentMainTab === 'MenungguDokumenTab') targetStatus = 'Menunggu Dokumen';
             else if(currentMainTab === 'ProsesMuatTab') targetStatus = 'Proses Muat';
             else if(currentMainTab === 'SelesaiMuatTab') targetStatus = 'Selesai Muat';
             else if(currentMainTab === 'TreatmentTab') targetStatus = 'Treatment';
@@ -363,7 +430,9 @@
                 let textMatch = (item.id.toLowerCase().includes(keyword) || 
                                  item.nopol.toLowerCase().includes(keyword) || 
                                  item.sopir.toLowerCase().includes(keyword) || 
-                                 item.ekspedisi.toLowerCase().includes(keyword));
+                                 item.ekspedisi.toLowerCase().includes(keyword) ||
+                                 item.tujuan.toLowerCase().includes(keyword) ||
+                                 (item.nodoc && item.nodoc.toLowerCase().includes(keyword)));
                 return matchTab && textMatch;
             });
 
@@ -380,10 +449,10 @@
                         <div>
                             <div style="font-weight:bold; font-size:13px; color:#1e293b;">
                                 <span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; margin-right:5px;">${item.id}</span> 
-                                ${item.nopol} &bull; ${item.ekspedisi || '-'}
+                                ${item.nopol} &bull; ${item.ekspedisi || '-'} &bull; <span style="color:#0284c7;">Doc: ${item.nodoc || '-'}</span>
                             </div>
                             <div style="margin-top:4px; color:#64748b;">
-                                Sopir: <strong>${item.sopir}</strong> | Qty: ${item.qty} krt | Jenis: ${item.jenis} 
+                                Sopir: <strong>${item.sopir}</strong> (HP: ${item.nohp || '-'}) | Jenis: ${item.jenis} &rarr; <strong>Tujuan: ${item.tujuan || '-'}</strong> | Qty: ${item.qty} krt 
                                 ${item.dock !== '-' ? '<span style="color:#059669; font-weight:bold;">(Dock: '+item.dock+')</span>' : ''}
                             </div>
                             <div style="margin-top:6px; font-size:11px; color:#64748b; display:flex; align-items:center; gap:8px;">
