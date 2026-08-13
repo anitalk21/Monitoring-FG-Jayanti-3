@@ -9,7 +9,7 @@
         
         /* Bar Navigasi Atas */
         .nav-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .nav-actions { display: flex; gap: 6px; }
+        .nav-actions { display: flex; gap: 6px; align-items: center; }
         .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-nav:hover { background: #f1f5f9; }
 
@@ -32,9 +32,9 @@
         
         /* Indikator Pastel Durasi */
         .badge-duration { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid transparent; }
-        .dur-green { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } /* 0 - 2 Jam */
-        .dur-yellow { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } /* 2 - 4 Jam */
-        .dur-red { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } /* > 4 Jam */
+        .dur-green { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } 
+        .dur-yellow { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } 
+        .dur-red { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } 
 
         /* Modal Pop-up */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
@@ -54,11 +54,11 @@
 <header class="nav-bar">
     <div style="display: flex; align-items: center; gap: 15px;">
         <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian</span>
-        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">--/--/---- --:--:--</span>
+        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
-        <button class="btn-nav" onclick="renderCards()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
-        <button class="btn-nav" onclick="toggleModal('modalManual')">+ Daftar Manual</button>
+        <button class="btn-nav" onclick="renderCards()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
+        <button class="btn-nav" onclick="openModal('modalManual')">+ Daftar Manual</button>
         <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
         <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
     </div>
@@ -104,7 +104,7 @@
             <div class="form-group"><label>Jenis Pengiriman</label><select id="mJenis"><option>LOKAL</option><option>EKSPOR</option><option>RDC</option><option>SUBDIST</option></select></div>
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button type="submit" class="btn btn-primary" style="flex:1;">Simpan Antrian</button>
-                <button type="button" class="btn" onclick="toggleModal('modalManual')">Batal</button>
+                <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>
             </div>
         </form>
     </div>
@@ -146,7 +146,7 @@
 
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan</button>
-            <button class="btn" onclick="toggleModal('modalStatus')">Tutup</button>
+            <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
 </div>
@@ -161,7 +161,7 @@
     let currentFilter = 'Semua';
     let activeIdx = null;
 
-    // Real-Time Clock & Jam berjalan
+    // Real-Time Clock & Jam berjalan setiap detik
     function updateClock() {
         const now = new Date();
         const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -172,9 +172,15 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    function toggleModal(id) { 
-        const m = document.getElementById(id); 
-        if (m) m.style.display = (m.style.display === 'flex' ? 'none' : 'flex'); 
+    // Fungsi Pop-up yang Lebih Aman & Spesifik
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'none';
     }
 
     function filterStatus(status, btn) {
@@ -215,12 +221,12 @@
             jenis: document.getElementById('mJenis').value,
             status: 'Antrian',
             dock: '-',
-            rawTime: now.getTime(), // Disimpan dalam milidetik untuk kalkulasi durasi akurat
+            rawTime: now.getTime(), 
             masukText: dateStr + ' ' + timeStr
         });
         localStorage.setItem('antrian', JSON.stringify(data));
-        toggleModal('modalManual');
-        document.getElementById('formManual')?.reset();
+        closeModal('modalManual');
+        e.target.reset();
         renderCards();
     }
 
@@ -229,7 +235,7 @@
         const item = data[idx];
         document.getElementById('selectStatus').value = item.status || 'Antrian';
         checkStatusChange();
-        toggleModal('modalStatus');
+        openModal('modalStatus');
     }
 
     function saveStatus() {
@@ -239,14 +245,14 @@
         }
         data[activeIdx].status = document.getElementById('selectStatus').value;
         if(data[activeIdx].status === 'Proses Muat') {
-            data[activeIdx].dock = document.getElementById('selectDock'].value;
+            data[activeIdx].dock = document.getElementById('selectDock').value;
         }
         localStorage.setItem('antrian', JSON.stringify(data));
-        toggleModal('modalStatus');
+        closeModal('modalStatus');
         renderCards();
     }
 
-    // Fungsi Kalkulator Durasi & Penentu Warna Pastel
+    // Kalkulator Durasi dengan Indikator Warna Pastel
     function calculateDuration(rawTime) {
         if (!rawTime) return { text: "Baru masuk", class: "dur-green" };
         const now = new Date().getTime();
@@ -258,7 +264,6 @@
 
         let timeString = (hours > 0 ? hours + " jam " : "") + mins + " menit";
         
-        // Standar Warna Pastel: <2 jam hijau, 2-4 jam kuning, >4 jam merah
         let durClass = "dur-green";
         if (hours >= 4) {
             durClass = "dur-red";
@@ -276,7 +281,6 @@
 
         const keyword = (document.getElementById('searchInput').value || '').toLowerCase();
 
-        // Hitung badge
         let cSemua = data.length;
         let cAntrian = data.filter(i => i.status === 'Antrian').length;
         let cNunggu = data.filter(i => i.status === 'Nunggu Dokumen').length;
@@ -305,7 +309,7 @@
         });
 
         if(filtered.length === 0) {
-            cont.innerHTML = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk pada status ini. Klik "+ Daftar Manual" untuk mulai menambah data.</div>';
+            cont.innerHTML = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk pada status ini. Klik "+ Daftar Manual" di pojok kanan atas untuk mulai menambah data.</div>';
             return;
         }
 
