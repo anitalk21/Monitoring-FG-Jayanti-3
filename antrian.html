@@ -24,6 +24,8 @@
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
         .btn-primary { background: #6366f1; color: white; border: none; }
         .btn-primary:hover { background: #4f46e5; }
+        .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        .btn-danger:hover { background: #fecaca; }
         
         /* Tabs Status Alur Truk */
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
@@ -84,10 +86,10 @@
     <!-- Kolom Pencarian & Reset -->
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
-        <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Data</button>
+        <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Semua Data</button>
     </div>
 
-    <!-- Tab Status Alur Truk (Lengkap dengan Loading Dock, Treatment, dan Analisis) -->
+    <!-- Tab Status Alur Truk -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian</button>
         <button class="tab-btn" onclick="switchMainTab('NungguDokumenTab', this)">Nunggu Dokumen</button>
@@ -101,7 +103,6 @@
 
     <!-- KONTEN UTAMA BERDASARKAN TAB -->
     <div id="tabContentArea">
-        <!-- Container Daftar Kartu Antrian -->
         <div id="antrianCardContainer"></div>
     </div>
 </div>
@@ -137,7 +138,7 @@
                 <option value="Proses Muat">Proses Muat</option>
                 <option value="Selesai Muat">Selesai Muat (Menunggu Surat Jalan di Parkiran)</option>
                 <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
-                <option value="Keluar">Keluar Gudang</option>
+                <option value="Keluar">Keluar Gudang (Permanen)</option>
             </select>
         </div>
 
@@ -155,7 +156,7 @@
 
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan</button>
-            <button class="btn" onclick="closeModal('modalStatus')">Tutup</button>
+            <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
 </div>
@@ -170,7 +171,7 @@
     let currentMainTab = 'AntrianTab';
     let activeIdx = null;
 
-    // Generate pilihan Dock 1 s/d 32 secara otomatis
+    // Generate pilihan Dock 1 s/d 32
     const dockSelect = document.getElementById('selectDock');
     for(let i=1; i<=32; i++) {
         let opt = document.createElement('option');
@@ -235,6 +236,13 @@
     function openStatusModal(idx) {
         activeIdx = idx;
         const item = data[idx];
+        
+        // Pengecekan: Jika status sudah Keluar, kunci dan tidak bisa diubah lagi
+        if (item.status === 'Keluar') {
+            alert('Truk ini sudah berstatus "Keluar" dan dikunci secara permanen (tidak dapat diubah statusnya lagi).');
+            return;
+        }
+
         document.getElementById('selectStatus').value = item.status || 'Antrian';
         checkStatusChange();
         openModal('modalStatus');
@@ -254,6 +262,15 @@
         localStorage.setItem('antrian', JSON.stringify(data));
         closeModal('modalStatus');
         renderAll();
+    }
+
+    // Fitur Hapus Data Mobil Satuan
+    function deleteTruck(idx) {
+        if(confirm('Yakin ingin menghapus data truk ' + data[idx].nopol + ' dari sistem?')) {
+            data.splice(idx, 1);
+            localStorage.setItem('antrian', JSON.stringify(data));
+            renderAll();
+        }
     }
 
     function calculateDuration(rawTime) {
@@ -300,7 +317,6 @@
             }
             dockHtml += '</div>';
 
-            // Area Menunggu Surat Jalan (Selesai Muat di Parkiran)
             let waitingTrucks = data.filter(i => i.status === 'Selesai Muat');
             dockHtml += `<div class="waiting-area">
                 <h4 style="margin-top:0; color:#15803d; font-size:13px;">✅ MENUNGGU SURAT JALAN (${waitingTrucks.length} Mobil di Area Parkir)</h4>`;
@@ -312,7 +328,10 @@
                     let realIdx = data.indexOf(t);
                     dockHtml += `<div class="card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; background:white;">
                         <div><strong>${t.nopol}</strong> &bull; ${t.ekspedisi} (${t.jenis}) &bull; Sopir: ${t.sopir}</div>
-                        <button class="btn" style="font-size:11px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn" style="font-size:11px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+                            <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${realIdx})">Hapus</button>
+                        </div>
                     </div>`;
                 });
             }
@@ -320,7 +339,6 @@
             area.innerHTML = dockHtml;
 
         } else if (currentMainTab === 'AnalisisTab') {
-            // MENU ANALISIS (PEAK HOUR KEDATANGAN TRUK)
             let totalTruk = data.length;
             area.innerHTML = `<div class="card">
                 <h3 style="margin-top:0; color:#1e293b;">Analisis Peak Hour Kedatangan Truk</h3>
@@ -332,7 +350,6 @@
             </div>`;
 
         } else {
-            // RENDER KARTU ANTRIAN BIASA BERDASARKAN TAB
             let targetStatus = '';
             if(currentMainTab === 'AntrianTab') targetStatus = 'Antrian';
             else if(currentMainTab === 'NungguDokumenTab') targetStatus = 'Nunggu Dokumen';
@@ -357,6 +374,7 @@
                 filtered.forEach(item => {
                     let realIdx = data.findIndex(d => d.id === item.id);
                     let durasi = calculateDuration(item.rawTime);
+                    let isKeluar = (item.status === 'Keluar');
 
                     html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
@@ -375,10 +393,13 @@
                             </div>
                         </div>
                         <div style="text-align:right;">
-                            <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; background:${item.status==='Treatment' ? '#fee2e2' : '#f1f5f9'}; color:${item.status==='Treatment' ? '#991b1b' : '#475569'}; margin-bottom:5px;">
-                                ${item.status}
+                            <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; background:${isKeluar ? '#dcfce7' : (item.status==='Treatment' ? '#fee2e2' : '#f1f5f9')}; color:${isKeluar ? '#166534' : (item.status==='Treatment' ? '#991b1b' : '#475569')}; margin-bottom:5px;">
+                                ${item.status} ${isKeluar ? '🔒' : ''}
                             </span><br>
-                            <button class="btn" style="font-size:11px; padding:4px 10px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+                            <div style="display:flex; gap:5px; justify-content:flex-end;">
+                                <button class="btn" style="font-size:11px; padding:4px 10px; ${isKeluar ? 'opacity: 0.6;' : ''}" onclick="openStatusModal(${realIdx})">${isKeluar ? 'Terkunci' : 'Pindah Status'}</button>
+                                <button class="btn btn-danger" style="font-size:11px; padding:4px 8px;" onclick="deleteTruck(${realIdx})">Hapus</button>
+                            </div>
                         </div>
                     </div>`;
                 });
@@ -389,7 +410,7 @@
     }
 
     function resetData() {
-        if(confirm('Hapus semua data antrian lokal?')) {
+        if(confirm('Hapus seluruh data antrian secara total?')) {
             localStorage.removeItem('antrian');
             data = [];
             renderAll();
