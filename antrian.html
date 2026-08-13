@@ -4,24 +4,29 @@
     <meta charset="UTF-8">
     <title>Dashboard Antrian - PT. Mayora Indah</title>
     <style>
+        /* Desain Pastel Light Mode */
         body { background-color: #f8fafc; color: #475569; font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 12px; }
         .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; }
+        .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; overflow: hidden; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         
+        /* Card & Button Styles */
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
         .btn-primary { background: #6366f1; color: white; border: none; }
         .btn-primary:hover { background: #4f46e5; }
         
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 500px; max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 15px; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
+        /* Tabs & Search */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        .tab-btn { padding: 6px 12px; cursor: pointer; border: none; background: none; font-weight: 600; color: #94a3b8; }
+        .tab-btn.active { color: #6366f1; border-bottom: 2px solid #6366f1; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
-        th { background: #f1f5f9; }
+        /* Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 400px; }
+        .form-group { margin-bottom: 10px; }
+        label { font-size: 11px; font-weight: bold; color: #64748b; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -35,152 +40,89 @@
 </header>
 
 <div class="marquee">
-    <marquee scrollamount="5">🟢 Keluar: 4 Truk | 🔵 Lokal Proses: 4 Truk | 📦 Antrian: 1 Truk</marquee>
+    <marquee scrollamount="5">
+        🟢 Keluar: 4 Truk | 🔵 Lokal Proses: 4 Truk | ✅ Lokal Selesai: 4 Truk | 📦 Antrian: 1 Truk | 🚚 SUBDIST Proses: 3 Truk
+    </marquee>
 </div>
 
 <div class="container">
-    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="searchInput" placeholder="Cari nomor / nama / no.pol..." style="flex: 1;" oninput="renderCards()">
-        <button class="btn" onclick="resetLocalStorage()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Data</button>
+    <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan..." style="margin-bottom:15px;" oninput="renderCards()">
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filterStatus('Semua')">Semua</button>
+        <button class="tab-btn" onclick="filterStatus('Antrian')">Antrian</button>
+        <button class="tab-btn" onclick="filterStatus('Proses Muat')">Proses Muat</button>
     </div>
-    
+
     <div id="antrianCardContainer"></div>
 </div>
 
-<!-- MODAL DAFTAR MANUAL -->
+<!-- Modal Daftar Manual -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <h4 style="margin-top:0;">Ambil Nomor Antrian</h4>
         <form onsubmit="submitAntrian(event)">
-            <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
-            <div class="form-group"><label>No. Polisi *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
+            <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required></div>
+            <div class="form-group"><label>No. Polisi *</label><input type="text" id="mNoPol" required></div>
             <div class="form-group"><label>Jenis Pengiriman</label><select id="mJenis"><option>LOKAL</option><option>EKSPOR</option></select></div>
             <button type="submit" class="btn btn-primary">Simpan</button>
-            <button type="button" class="btn" onclick="toggleModal('modalManual')" style="margin-left: 5px;">Batal</button>
         </form>
     </div>
 </div>
 
-<!-- MODAL PENGIRIMAN BARANG (OUTBOUND) -->
-<div id="modalOutbound" class="modal">
-    <div class="modal-content" style="width: 600px;">
-        <h4 style="color:#e11d48; margin-top:0;">Form Pengiriman & Outbound</h4>
-        <div class="form-group">
-            <label>Cari SKU Produk</label>
-            <input type="text" id="skuSearch" placeholder="Ketik nama SKU..." oninput="checkSKU()">
+<!-- Modal Status -->
+<div id="modalStatus" class="modal">
+    <div class="modal-content">
+        <h4>Pindah Status</h4>
+        <select id="selectStatus" onchange="checkDock()">
+            <option value="Antrian">Antrian</option>
+            <option value="Proses Muat">Proses Muat</option>
+            <option value="Keluar">Keluar</option>
+        </select>
+        <div id="dockDiv" style="display:none; margin-top:10px;">
+            <label>Pilih Loading Dock</label>
+            <select id="selectDock"><option>Dock 01</option><option>Dock 02</option></select>
         </div>
-        <table>
-            <tr><th>Lokasi</th><th>Stok</th><th>Karton Diambil</th></tr>
-            <tr><td id="cellLoc">-</td><td id="cellStock">-</td><td><input type="number" id="qtyInput" placeholder="0"></td></tr>
-        </table>
-        <p id="holdWarning" style="color:red; display:none; font-weight:bold; margin-top: 10px;">Barang ini berstatus HOLD, tidak bisa diproses!</p>
-        <div style="margin-top:20px; display:flex; justify-content:space-between;">
-            <button class="btn btn-primary" onclick="processOutbound()">Proses Pengiriman Barang</button>
-            <button class="btn" onclick="toggleModal('modalOutbound')">Tutup</button>
-        </div>
+        <button class="btn btn-primary" onclick="saveStatus()" style="margin-top:15px;">Update</button>
     </div>
 </div>
 
 <script>
-    // Ambil data dengan pengaman agar tidak nge-blank jika data rusak
-    let data = [];
-    try {
-        data = JSON.parse(localStorage.getItem('antrian')) || [];
-        if (!Array.isArray(data)) data = [];
-    } catch(e) {
-        data = [];
-    }
-
+    let data = JSON.parse(localStorage.getItem('antrian')) || [];
+    let filter = 'Semua';
     let activeIdx = null;
 
-    function toggleModal(id) { 
-        const m = document.getElementById(id); 
-        if (m) m.style.display = (m.style.display === 'flex' ? 'none' : 'flex'); 
-    }
+    function toggleModal(id) { const m = document.getElementById(id); m.style.display = (m.style.display === 'flex' ? 'none' : 'flex'); }
+    function filterStatus(s) { filter = s; renderCards(); }
+    function checkDock() { document.getElementById('dockDiv').style.display = (document.getElementById('selectStatus').value === 'Proses Muat' ? 'block' : 'none'); }
     
-    function checkSKU() {
-        const val = document.getElementById('skuSearch').value || '';
-        const warning = document.getElementById('holdWarning');
-        if(warning) {
-            if(val.toLowerCase().includes('hold')) {
-                warning.style.display = 'block';
-            } else {
-                warning.style.display = 'none';
-            }
-        }
+    function submitAntrian(e) {
+        e.preventDefault();
+        data.unshift({ id: "L0"+Math.floor(Math.random()*99), sopir: document.getElementById('mSopir').value, nopol: document.getElementById('mNoPol').value, status: 'Antrian', dock: '-' });
+        localStorage.setItem('antrian', JSON.stringify(data));
+        toggleModal('modalManual');
+        renderCards();
     }
 
-    function processOutbound() {
-        const warning = document.getElementById('holdWarning');
-        if(warning && warning.style.display === 'block') {
-            alert('Tidak dapat diproses karena barang berstatus HOLD!');
-            return;
-        }
-        alert('Pengiriman berhasil diproses!');
-        toggleModal('modalOutbound');
+    function saveStatus() {
+        data[activeIdx].status = document.getElementById('selectStatus').value;
+        data[activeIdx].dock = document.getElementById('selectDock').value;
+        localStorage.setItem('antrian', JSON.stringify(data));
+        toggleModal('modalStatus');
+        renderCards();
     }
 
     function renderCards() {
         const cont = document.getElementById('antrianCardContainer');
-        if (!cont) return;
-        
-        cont.innerHTML = '';
-        const searchInput = document.getElementById('searchInput');
-        const keyword = searchInput ? searchInput.value.toLowerCase() : '';
-
-        let filtered = data.filter(item => {
-            if (!item) return false;
-            let nopol = (item.nopol || '').toLowerCase();
-            let sopir = (item.sopir || '').toLowerCase();
-            let id = (item.id || '').toLowerCase();
-            return nopol.includes(keyword) || sopir.includes(keyword) || id.includes(keyword);
-        });
-
-        if(filtered.length === 0) {
-            cont.innerHTML = '<div class="card" style="text-align:center; color:#94a3b8;">Belum ada data antrian truk. Silakan klik "+ Daftar Manual" di pojok kanan atas.</div>';
-            return;
-        }
-
-        filtered.forEach((item) => {
-            let idx = data.findIndex(d => d && d.id === item.id);
+        cont.innerHTML = data.length === 0 ? '<div class="card">Belum ada antrian.</div>' : '';
+        data.filter(i => filter === 'Semua' || i.status === filter).forEach((item, idx) => {
             cont.innerHTML += `<div class="card">
-                <div style="font-weight:bold; font-size:14px; color:#1e293b;">${item.id || '-'} &bull; ${item.nopol || '-'}</div>
-                <div style="margin: 4px 0;">Sopir: ${item.sopir || '-'} | Status: <strong>${item.status || 'Antrian'}</strong></div>
-                <button class="btn" style="margin-top:6px; font-size:11px;" onclick="activeIdx=${idx}; toggleModal('modalOutbound')">Input Pengiriman</button>
+                <div style="font-weight:bold; font-size:14px;">${item.id} - ${item.nopol}</div>
+                <div>Sopir: ${item.sopir} | <strong>Status: ${item.status}</strong> ${item.dock !== '-' ? ' (Dock: '+item.dock+')' : ''}</div>
+                <button class="btn" style="margin-top:8px;" onclick="activeIdx=${idx}; toggleModal('modalStatus')">Pindah Status</button>
             </div>`;
         });
     }
-    
-    function submitAntrian(e) {
-        e.preventDefault();
-        const sopirEl = document.getElementById('mSopir');
-        const nopolEl = document.getElementById('mNoPol');
-        
-        if (!sopirEl || !nopolEl) return;
-
-        data.unshift({ 
-            id: "L0" + Math.floor(Math.random() * 90 + 10), 
-            sopir: sopirEl.value, 
-            nopol: nopolEl.value.toUpperCase(), 
-            status: 'Antrian' 
-        });
-        
-        localStorage.setItem('antrian', JSON.stringify(data));
-        toggleModal('modalManual');
-        sopirEl.value = '';
-        nopolEl.value = '';
-        renderCards();
-    }
-
-    function resetLocalStorage() {
-        if(confirm('Reset semua data antrian lokal?')) {
-            localStorage.removeItem('antrian');
-            data = [];
-            renderCards();
-        }
-    }
-
-    // Jalankan pertama kali saat halaman dimuat
     renderCards();
 </script>
 </body>
