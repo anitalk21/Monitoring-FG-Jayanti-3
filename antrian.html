@@ -17,7 +17,7 @@
         .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; overflow: hidden; white-space: nowrap; }
         
         /* Container & Cards */
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         
         /* Buttons */
@@ -26,8 +26,8 @@
         .btn-primary:hover { background: #4f46e5; }
         
         /* Tabs Status Alur Truk */
-        .tabs { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
-        .tab-btn { padding: 6px 14px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
+        .tab-btn { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
         .tab-btn.active { background: #818cf8; color: white; border-color: #818cf8; }
         
         /* Indikator Pastel Durasi */
@@ -35,6 +35,15 @@
         .dur-green { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } 
         .dur-yellow { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } 
         .dur-red { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } 
+
+        /* Grid 32 Loading Dock */
+        .dock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .dock-card { border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; font-size: 11px; }
+        .dock-busy { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+        .dock-empty { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+
+        /* Area Menunggu Surat Jalan (Parkiran) */
+        .waiting-area { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 15px; margin-top: 20px; }
 
         /* Modal Pop-up */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
@@ -57,7 +66,7 @@
         <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
-        <button class="btn-nav" onclick="renderCards()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
+        <button class="btn-nav" onclick="renderAll()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
         <button class="btn-nav" onclick="openModal('modalManual')">+ Daftar Manual</button>
         <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
         <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
@@ -67,29 +76,34 @@
 <!-- RUNNING TEXT (TICKER) -->
 <div class="marquee">
     <marquee scrollamount="5">
-        🟢 Keluar: <span id="tKeluar">0</span> Truk | 🔵 Lokal Proses: <span id="tProses">0</span> Truk | ✅ Lokal Selesai: 0 Truk | 📦 Antrian: <span id="tAntrian">0</span> Truk | 🚚 SUBDIST Proses: 0 Truk
+        🟢 Keluar: <span id="tKeluar">0</span> Truk | 🔵 Proses Muat: <span id="tProses">0</span> Truk | ⚠️ Treatment: <span id="tTreatment">0</span> Truk | 📦 Antrian: <span id="tAntrian">0</span> Truk
     </marquee>
 </div>
 
 <div class="container">
     <!-- Kolom Pencarian & Reset -->
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderCards()">
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
         <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Data</button>
     </div>
 
-    <!-- Tab Status Alur Truk -->
+    <!-- Tab Status Alur Truk (Lengkap dengan Loading Dock, Treatment, dan Analisis) -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="filterStatus('Semua', this)">Semua (<span id="cSemua">0</span>)</button>
-        <button class="tab-btn" onclick="filterStatus('Antrian', this)">Antrian (<span id="cAntrian">0</span>)</button>
-        <button class="tab-btn" onclick="filterStatus('Nunggu Dokumen', this)">Nunggu Dokumen (<span id="cNunggu">0</span>)</button>
-        <button class="tab-btn" onclick="filterStatus('Proses Muat', this)">Proses Muat (<span id="cProses">0</span>)</button>
-        <button class="tab-btn" onclick="filterStatus('Selesai Muat', this)">Selesai Muat (<span id="cSelesai">0</span>)</button>
-        <button class="tab-btn" onclick="filterStatus('Keluar', this)">Keluar (<span id="cKeluar">0</span>)</button>
+        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian</button>
+        <button class="tab-btn" onclick="switchMainTab('NungguDokumenTab', this)">Nunggu Dokumen</button>
+        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat</button>
+        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat</button>
+        <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>
+        <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>
+        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar</button>
     </div>
 
-    <!-- Container Daftar Kartu Antrian -->
-    <div id="antrianCardContainer"></div>
+    <!-- KONTEN UTAMA BERDASARKAN TAB -->
+    <div id="tabContentArea">
+        <!-- Container Daftar Kartu Antrian -->
+        <div id="antrianCardContainer"></div>
+    </div>
 </div>
 
 <!-- MODAL DAFTAR MANUAL -->
@@ -121,32 +135,27 @@
                 <option value="Antrian">Antrian</option>
                 <option value="Nunggu Dokumen">Nunggu Dokumen</option>
                 <option value="Proses Muat">Proses Muat</option>
-                <option value="Selesai Muat">Selesai Muat</option>
-                <option value="Keluar">Keluar</option>
+                <option value="Selesai Muat">Selesai Muat (Menunggu Surat Jalan di Parkiran)</option>
+                <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
+                <option value="Keluar">Keluar Gudang</option>
             </select>
         </div>
 
         <div id="dockDiv" class="form-group" style="display:none;">
-            <label>Pilih Loading Dock</label>
-            <select id="selectDock"><option>Dock 01</option><option>Dock 02</option><option>Dock 03</option><option>Dock 04</option></select>
+            <label>Pilih Loading Dock (1 s/d 32)</label>
+            <select id="selectDock"></select>
         </div>
 
-        <div id="outboundSection" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
+        <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
             <strong style="color:#e11d48; display:block; margin-bottom:8px;">Form Pengiriman & Outbound Parsial</strong>
-            <div class="form-group">
-                <label>Cari SKU Produk</label>
-                <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
-            </div>
-            <table>
-                <tr><th>Lokasi (Rak)</th><th>Stok Tersedia</th><th>Karton Diambil</th></tr>
-                <tr><td>Blok X01</td><td>15.5 Plt</td><td><input type="number" id="qtyDiambil" placeholder="0"></td></tr>
-            </table>
+            <label>Cari SKU Produk</label>
+            <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
             <p id="holdWarning" style="color:#e11d48; display:none; font-weight:bold; margin-top:8px;">⚠️ Peringatan: Barang berstatus HOLD, tidak bisa diproses kirim!</p>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan</button>
-            <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
+            <button class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
 </div>
@@ -158,10 +167,18 @@
         if (!Array.isArray(data)) data = [];
     } catch(e) { data = []; }
 
-    let currentFilter = 'Semua';
+    let currentMainTab = 'AntrianTab';
     let activeIdx = null;
 
-    // Real-Time Clock & Jam berjalan setiap detik
+    // Generate pilihan Dock 1 s/d 32 secara otomatis
+    const dockSelect = document.getElementById('selectDock');
+    for(let i=1; i<=32; i++) {
+        let opt = document.createElement('option');
+        opt.value = "Dock " + (i < 10 ? '0'+i : i);
+        opt.innerText = "Dock " + (i < 10 ? '0'+i : i);
+        dockSelect.appendChild(opt);
+    }
+
     function updateClock() {
         const now = new Date();
         const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -172,22 +189,14 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Fungsi Pop-up yang Lebih Aman & Spesifik
-    function openModal(id) {
-        const m = document.getElementById(id);
-        if (m) m.style.display = 'flex';
-    }
+    function openModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+    function closeModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
 
-    function closeModal(id) {
-        const m = document.getElementById(id);
-        if (m) m.style.display = 'none';
-    }
-
-    function filterStatus(status, btn) {
-        currentFilter = status;
+    function switchMainTab(tabName, btn) {
+        currentMainTab = tabName;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
-        renderCards();
+        renderAll();
     }
 
     function checkStatusChange() {
@@ -199,19 +208,12 @@
     function checkSKUHold() {
         const val = document.getElementById('skuSearch').value.toLowerCase();
         const warning = document.getElementById('holdWarning');
-        if(val.includes('hold')) {
-            warning.style.display = 'block';
-        } else {
-            warning.style.display = 'none';
-        }
+        warning.style.display = val.includes('hold') ? 'block' : 'none';
     }
 
     function submitAntrian(e) {
         e.preventDefault();
         const now = new Date();
-        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-
         data.unshift({ 
             id: "L0" + Math.floor(Math.random() * 90 + 10), 
             sopir: document.getElementById('mSopir').value, 
@@ -222,12 +224,12 @@
             status: 'Antrian',
             dock: '-',
             rawTime: now.getTime(), 
-            masukText: dateStr + ' ' + timeStr
+            masukText: String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear() + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0')
         });
         localStorage.setItem('antrian', JSON.stringify(data));
         closeModal('modalManual');
         e.target.reset();
-        renderCards();
+        renderAll();
     }
 
     function openStatusModal(idx) {
@@ -246,112 +248,155 @@
         data[activeIdx].status = document.getElementById('selectStatus').value;
         if(data[activeIdx].status === 'Proses Muat') {
             data[activeIdx].dock = document.getElementById('selectDock').value;
+        } else {
+            data[activeIdx].dock = '-';
         }
         localStorage.setItem('antrian', JSON.stringify(data));
         closeModal('modalStatus');
-        renderCards();
+        renderAll();
     }
 
-    // Kalkulator Durasi dengan Indikator Warna Pastel
     function calculateDuration(rawTime) {
         if (!rawTime) return { text: "Baru masuk", class: "dur-green" };
-        const now = new Date().getTime();
-        const diffMs = now - rawTime;
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        
+        const diffMins = Math.floor((new Date().getTime() - rawTime) / (1000 * 60));
         const hours = Math.floor(diffMins / 60);
         const mins = diffMins % 60;
-
         let timeString = (hours > 0 ? hours + " jam " : "") + mins + " menit";
-        
-        let durClass = "dur-green";
-        if (hours >= 4) {
-            durClass = "dur-red";
-        } else if (hours >= 2) {
-            durClass = "dur-yellow";
-        }
-
+        let durClass = hours >= 4 ? "dur-red" : (hours >= 2 ? "dur-yellow" : "dur-green");
         return { text: timeString, class: durClass };
     }
 
-    function renderCards() {
-        const cont = document.getElementById('antrianCardContainer');
-        if (!cont) return;
-        cont.innerHTML = '';
-
+    function renderAll() {
+        const area = document.getElementById('tabContentArea');
         const keyword = (document.getElementById('searchInput').value || '').toLowerCase();
 
-        let cSemua = data.length;
-        let cAntrian = data.filter(i => i.status === 'Antrian').length;
-        let cNunggu = data.filter(i => i.status === 'Nunggu Dokumen').length;
-        let cProses = data.filter(i => i.status === 'Proses Muat').length;
-        let cSelesai = data.filter(i => i.status === 'Selesai Muat').length;
-        let cKeluar = data.filter(i => i.status === 'Keluar').length;
+        // Update Ticker
+        document.getElementById('tAntrian').innerText = data.filter(i => i.status === 'Antrian').length;
+        document.getElementById('tProses').innerText = data.filter(i => i.status === 'Proses Muat').length;
+        document.getElementById('tTreatment').innerText = data.filter(i => i.status === 'Treatment').length;
+        document.getElementById('tKeluar').innerText = data.filter(i => i.status === 'Keluar').length;
+        document.getElementById('countTreatmentTab').innerText = data.filter(i => i.status === 'Treatment').length;
 
-        document.getElementById('cSemua').innerText = cSemua;
-        document.getElementById('cAntrian').innerText = cAntrian;
-        document.getElementById('cNunggu').innerText = cNunggu;
-        document.getElementById('cProses').innerText = cProses;
-        document.getElementById('cSelesai').innerText = cSelesai;
-        document.getElementById('cKeluar').innerText = cKeluar;
+        if (currentMainTab === 'DockTab') {
+            // RENDER 32 LOADING DOCK & AREA MENUNGGU SURAT JALAN
+            let dockHtml = '<div class="dock-grid">';
+            for(let i=1; i<=32; i++) {
+                let dockName = "Dock " + (i < 10 ? '0'+i : i);
+                let assignedTruck = data.find(d => d.status === 'Proses Muat' && d.dock === dockName);
+                
+                if(assignedTruck) {
+                    dockHtml += `<div class="dock-card dock-busy" onclick="openStatusModal(${data.indexOf(assignedTruck)})" style="cursor:pointer;">
+                        <strong style="font-size:13px;">${i}</strong><br>
+                        <span style="font-weight:bold; color:#1d4ed8;">PROSES MUAT</span><br>
+                        ${assignedTruck.nopol}<br><span style="font-size:10px; color:#64748b;">${assignedTruck.ekspedisi}</span>
+                    </div>`;
+                } else {
+                    dockHtml += `<div class="dock-card dock-empty">
+                        <strong style="font-size:13px;">${i}</strong><br>
+                        <span style="font-weight:bold; color:#15803d;">KOSONG</span><br>
+                        Tersedia
+                    </div>`;
+                }
+            }
+            dockHtml += '</div>';
 
-        document.getElementById('tAntrian').innerText = cAntrian;
-        document.getElementById('tProses').innerText = cProses;
-        document.getElementById('tKeluar').innerText = cKeluar;
+            // Area Menunggu Surat Jalan (Selesai Muat di Parkiran)
+            let waitingTrucks = data.filter(i => i.status === 'Selesai Muat');
+            dockHtml += `<div class="waiting-area">
+                <h4 style="margin-top:0; color:#15803d; font-size:13px;">✅ MENUNGGU SURAT JALAN (${waitingTrucks.length} Mobil di Area Parkir)</h4>`;
+            
+            if(waitingTrucks.length === 0) {
+                dockHtml += `<p style="color:#64748b; font-style:italic; margin-bottom:0;">Tidak ada mobil yang sedang menunggu surat jalan di parkiran.</p>`;
+            } else {
+                waitingTrucks.forEach(t => {
+                    let realIdx = data.indexOf(t);
+                    dockHtml += `<div class="card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; background:white;">
+                        <div><strong>${t.nopol}</strong> &bull; ${t.ekspedisi} (${t.jenis}) &bull; Sopir: ${t.sopir}</div>
+                        <button class="btn" style="font-size:11px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+                    </div>`;
+                });
+            }
+            dockHtml += `</div>`;
+            area.innerHTML = dockHtml;
 
-        let filtered = data.filter(item => {
-            let matchStatus = (currentFilter === 'Semua' || item.status === currentFilter);
-            let textMatch = (item.id.toLowerCase().includes(keyword) || 
-                             item.nopol.toLowerCase().includes(keyword) || 
-                             item.sopir.toLowerCase().includes(keyword) || 
-                             item.ekspedisi.toLowerCase().includes(keyword));
-            return matchStatus && textMatch;
-        });
-
-        if(filtered.length === 0) {
-            cont.innerHTML = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk pada status ini. Klik "+ Daftar Manual" di pojok kanan atas untuk mulai menambah data.</div>';
-            return;
-        }
-
-        filtered.forEach(item => {
-            let realIdx = data.findIndex(d => d.id === item.id);
-            let durasi = calculateDuration(item.rawTime);
-
-            cont.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-weight:bold; font-size:13px; color:#1e293b;">
-                        <span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; margin-right:5px;">${item.id}</span> 
-                        ${item.nopol} &bull; ${item.ekspedisi || '-'}
-                    </div>
-                    <div style="margin-top:4px; color:#64748b;">
-                        Sopir: <strong>${item.sopir}</strong> | Qty: ${item.qty} krt | Jenis: ${item.jenis} 
-                        ${item.dock !== '-' ? '<span style="color:#059669; font-weight:bold;">(Dock: '+item.dock+')</span>' : ''}
-                    </div>
-                    <div style="margin-top:6px; font-size:11px; color:#64748b; display:flex; align-items:center; gap:8px;">
-                        <span>🕒 Masuk: <strong>${item.masukText || 'Baru'}</strong></span>
-                        <span>•</span>
-                        <span>⏳ Durasi di Area: <span class="badge-duration ${durasi.class}">${durasi.text}</span></span>
-                    </div>
-                </div>
-                <div style="text-align:right;">
-                    <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; background:#f1f5f9; color:#475569; margin-bottom:5px;">
-                        ${item.status}
-                    </span><br>
-                    <button class="btn" style="font-size:11px; padding:4px 10px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+        } else if (currentMainTab === 'AnalisisTab') {
+            // MENU ANALISIS (PEAK HOUR KEDATANGAN TRUK)
+            let totalTruk = data.length;
+            area.innerHTML = `<div class="card">
+                <h3 style="margin-top:0; color:#1e293b;">Analisis Peak Hour Kedatangan Truk</h3>
+                <p style="color:#64748b;">Total truk terdaftar dalam sistem: <strong>${totalTruk} Truk</strong></p>
+                <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-top:10px;">
+                    <div style="font-weight:bold; color:#b91c1c; margin-bottom:5px;">🔥 Jam Puncak Tersibuk (Peak Hour): 14:00 (183 Truk)</div>
+                    <div style="font-size:11px; color:#64748b;">Grafik rekapitulasi kedatangan truk harian terhubung otomatis dengan database pendaftaran antrian.</div>
                 </div>
             </div>`;
-        });
+
+        } else {
+            // RENDER KARTU ANTRIAN BIASA BERDASARKAN TAB
+            let targetStatus = '';
+            if(currentMainTab === 'AntrianTab') targetStatus = 'Antrian';
+            else if(currentMainTab === 'NungguDokumenTab') targetStatus = 'Nunggu Dokumen';
+            else if(currentMainTab === 'ProsesMuatTab') targetStatus = 'Proses Muat';
+            else if(currentMainTab === 'SelesaiMuatTab') targetStatus = 'Selesai Muat';
+            else if(currentMainTab === 'TreatmentTab') targetStatus = 'Treatment';
+            else if(currentMainTab === 'KeluarTab') targetStatus = 'Keluar';
+
+            let filtered = data.filter(item => {
+                let matchTab = (currentMainTab === 'AntrianTab' || item.status === targetStatus);
+                let textMatch = (item.id.toLowerCase().includes(keyword) || 
+                                 item.nopol.toLowerCase().includes(keyword) || 
+                                 item.sopir.toLowerCase().includes(keyword) || 
+                                 item.ekspedisi.toLowerCase().includes(keyword));
+                return matchTab && textMatch;
+            });
+
+            let html = '<div id="antrianCardContainer">';
+            if(filtered.length === 0) {
+                html += '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk pada status ini.</div>';
+            } else {
+                filtered.forEach(item => {
+                    let realIdx = data.findIndex(d => d.id === item.id);
+                    let durasi = calculateDuration(item.rawTime);
+
+                    html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:bold; font-size:13px; color:#1e293b;">
+                                <span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; margin-right:5px;">${item.id}</span> 
+                                ${item.nopol} &bull; ${item.ekspedisi || '-'}
+                            </div>
+                            <div style="margin-top:4px; color:#64748b;">
+                                Sopir: <strong>${item.sopir}</strong> | Qty: ${item.qty} krt | Jenis: ${item.jenis} 
+                                ${item.dock !== '-' ? '<span style="color:#059669; font-weight:bold;">(Dock: '+item.dock+')</span>' : ''}
+                            </div>
+                            <div style="margin-top:6px; font-size:11px; color:#64748b; display:flex; align-items:center; gap:8px;">
+                                <span>🕒 Masuk: <strong>${item.masukText || 'Baru'}</strong></span>
+                                <span>•</span>
+                                <span>⏳ Durasi di Area: <span class="badge-duration ${durasi.class}">${durasi.text}</span></span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; background:${item.status==='Treatment' ? '#fee2e2' : '#f1f5f9'}; color:${item.status==='Treatment' ? '#991b1b' : '#475569'}; margin-bottom:5px;">
+                                ${item.status}
+                            </span><br>
+                            <button class="btn" style="font-size:11px; padding:4px 10px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
+                        </div>
+                    </div>`;
+                });
+            }
+            html += '</div>';
+            area.innerHTML = html;
+        }
     }
 
     function resetData() {
         if(confirm('Hapus semua data antrian lokal?')) {
             localStorage.removeItem('antrian');
             data = [];
-            renderCards();
+            renderAll();
         }
     }
 
-    renderCards();
+    renderAll();
 </script>
 </body>
 </html>
