@@ -3,354 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Antrian & Dashboard Operator - PT. Mayora Indah Tbk</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Bootstrap 5 CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Portal Antrian - PT. Mayora Indah</title>
     <style>
-        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .app-page { display: none; }
-        .app-page.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Running Text (Marquee) Styling Light Pastel Theme */
-        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
-        .marquee-content { display: inline-block; animation: marquee 35s linear infinite; padding: 8px 0; }
-        @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
-
-        /* Soft Pastel Custom Theme Styles */
-        .card-custom { background-color: #ffffff; border: 1px solid #e2e8f0; }
-        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
-        .btn-pastel-primary { background-color: #818cf8 !important; border-color: #818cf8 !important; color: #ffffff !important; }
-        .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
+        /* CSS INTERNAL: Mencegah error loading dari luar */
+        body { background-color: #f8fafc; color: #334155; font-family: sans-serif; font-size: 13px; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-primary { background-color: #818cf8; color: white; }
+        .flex { display: flex; align-items: center; justify-content: space-between; }
+        .hidden { display: none; }
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .header { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 30px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col text-xs">
+<body>
 
-    <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shadow-2xs relative z-25">
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-50 text-indigo-500 p-2 rounded-xl border border-indigo-100">
-                <i class="fa-solid fa-truck-ramp-box text-base"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-slate-700 text-sm md:text-base tracking-wide">Dashboard Operator Antrian</h1>
-                <span class="text-[11px] text-slate-400 font-medium">LOADFLOW-v1.1.2 &bull; Gudang Finished Goods Jayanti 3</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="monitoring.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-left text-indigo-400"></i> <span>Monitoring Utama</span>
-            </a>
-            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
-            </a>
-        </div>
-    </header>
-
-    <!-- TICKER STATUS (RUNNING TEXT) -->
-    <div class="marquee-container text-xs font-semibold text-slate-600">
-        <div class="marquee-content flex gap-8">
-            <span>🟢 <span class="text-emerald-600">Keluar:</span> <span id="tickerKeluar">0</span> Truk</span> &bull;
-            <span>🔵 <span class="text-indigo-600">Lokal Proses:</span> <span id="tickerProsesMuat">0</span> Truk</span> &bull;
-            <span>✅ <span class="text-emerald-600">Lokal Selesai:</span> <span id="tickerSelesaiMuat">0</span> Truk</span> &bull;
-            <span>📦 <span class="text-amber-600">Antrian:</span> <span id="tickerAntrian">0</span> Truk</span> &bull;
-            <span>📄 <span class="text-purple-600">Nunggu Dokumen:</span> <span id="tickerNungguDokumen">0</span> Truk</span> &bull;
-            <!-- Duplikasi untuk looping mulus -->
-            <span>🟢 <span class="text-emerald-600">Keluar:</span> <span id="tickerKeluar2">0</span> Truk</span> &bull;
-            <span>🔵 <span class="text-indigo-600">Lokal Proses:</span> <span id="tickerProsesMuat2">0</span> Truk</span> &bull;
-            <span>✅ <span class="text-emerald-600">Lokal Selesai:</span> <span id="tickerSelesaiMuat2">0</span> Truk</span> &bull;
-            <span>📦 <span class="text-amber-600">Antrian:</span> <span id="tickerAntrian2">0</span> Truk</span> &bull;
+<header class="header">
+    <div class="flex">
+        <div><h2 style="margin:0;">Dashboard Operator Antrian</h2></div>
+        <div>
+            <a href="monitoring.html">Monitoring Utama</a> | <a href="index.html">Portal</a>
         </div>
     </div>
+</header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-4">
+<div class="container">
+    <!-- Tombol Aksi -->
+    <div class="card flex">
+        <input type="text" id="searchInput" placeholder="Cari nomor/nama/no.pol..." oninput="renderAntrianCards()" style="width: 60%;">
+        <button class="btn btn-primary" onclick="toggleDaftarManualModal()">+ Daftar Manual Truk</button>
+    </div>
 
-        <!-- KOTAK PENCARIAN & TOMBOL AKSI UTAMA -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="w-full md:w-1/3">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-slate-50 border-slate-200"><i class="fa-solid fa-magnifying-glass text-slate-400"></i></span>
-                    <input type="text" class="form-control border-slate-200 text-xs" id="searchInput" placeholder="Cari nomor / nama / no.pol / tujuan..." oninput="filterAntrian()">
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleDaftarManualModal()" class="btn btn-sm btn-pastel-primary fw-bold px-3 py-1.5 shadow-2xs">
-                    <i class="fa-solid fa-plus me-1"></i> Daftar Manual Truk
-                </button>
-            </div>
-        </div>
+    <!-- Status Tab -->
+    <div class="flex" style="margin-bottom: 20px; gap: 10px; overflow-x: auto;">
+        <button class="btn" onclick="filterByStatus('Semua')">Semua</button>
+        <button class="btn" onclick="filterByStatus('Antrian')">Antrian</button>
+        <button class="btn" onclick="filterByStatus('Proses Muat')">Proses Muat</button>
+    </div>
 
-        <!-- TAB STATUS ALUR TRUK (NAVIGATION STATUS PILLS) -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-semibold overflow-x-auto">
-            <button onclick="filterByStatus('Semua')" id="statusTab-Semua" class="status-tab-btn px-3 py-1.5 rounded-lg bg-indigo-400 text-white shadow-2xs transition">Semua <span id="countSemua" class="badge bg-white/20 ms-1">0</span></button>
-            <button onclick="filterByStatus('Antrian')" id="statusTab-Antrian" class="status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Antrian <span id="countAntrian" class="badge bg-slate-100 text-slate-600 ms-1">0</span></button>
-            <button onclick="filterByStatus('Nunggu Dokumen')" id="statusTab-Nunggu Dokumen" class="status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Nunggu Dokumen <span id="countNungguDokumen" class="badge bg-slate-100 text-slate-600 ms-1">0</span></button>
-            <button onclick="filterByStatus('Proses Muat')" id="statusTab-Proses Muat" class="status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Proses Muat <span id="countProsesMuat" class="badge bg-slate-100 text-slate-600 ms-1">0</span></button>
-            <button onclick="filterByStatus('Selesai Muat')" id="statusTab-Selesai Muat" class="status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Selesai Muat <span id="countSelesaiMuat" class="badge bg-slate-100 text-slate-600 ms-1">0</span></button>
-            <button onclick="filterByStatus('Keluar')" id="statusTab-Keluar" class="status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Keluar <span id="countKeluar" class="badge bg-slate-100 text-slate-600 ms-1">0</span></button>
-        </div>
+    <!-- List Antrian -->
+    <div id="antrianCardContainer"></div>
+</div>
 
-        <!-- CONTAINER LIST KARTU ANTRIAN TRUK -->
-        <div id="antrianCardContainer" class="space-y-3">
-            <!-- Rendered dynamically -->
-        </div>
+<!-- Modal Daftar Manual -->
+<div id="daftarManualModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center;">
+    <div class="card" style="width: 400px;">
+        <h3>Daftar Manual Truk</h3>
+        <form id="formDaftarManual" onsubmit="submitManualAntrian(event)">
+            <div class="form-group"><input type="text" id="mSopir" required placeholder="Nama Sopir"></div>
+            <div class="form-group"><input type="text" id="mNoPol" required placeholder="No Polisi"></div>
+            <button type="submit" class="btn btn-primary">Simpan Antrian</button>
+            <button type="button" class="btn" onclick="toggleDaftarManualModal()">Batal</button>
+        </form>
+    </div>
+</div>
 
-    </main>
+<script>
+    let antrianData = JSON.parse(localStorage.getItem('loadflowAntrianDataList')) || [];
 
-    <!-- MODAL POP-UP DAFTAR MANUAL TRUK (TERSEMBUNYI HINGGA DIKLIK) -->
-    <div id="daftarManualModal" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
-            <div class="bg-slate-50 px-6 py-3.5 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-slate-700 text-sm mb-0">Form Pendaftaran Manual Truk</h3>
-                <button onclick="toggleDaftarManualModal()" class="text-slate-400 hover:text-slate-600 text-base"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-6 max-h-[75vh] overflow-y-auto">
-                <form id="formDaftarManual" onsubmit="submitManualAntrian(event)" class="space-y-3">
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">Nama Sopir <span class="text-rose-500">*</span></label>
-                            <input type="text" class="form-control form-control-sm bg-white border-slate-200 text-xs" id="mSopir" required placeholder="Contoh: Aan Gunawan">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">Nama Ekspedisi <span class="text-rose-500">*</span></label>
-                            <input type="text" class="form-control form-control-sm bg-white border-slate-200 text-xs" id="mEkspedisi" required placeholder="Contoh: Kreatif, Seino, dll">
-                        </div>
-                    </div>
+    function toggleDaftarManualModal() {
+        const modal = document.getElementById('daftarManualModal');
+        modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
 
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">Jenis Kendaraan</label>
-                            <select class="form-select form-select-sm bg-white border-slate-200 text-xs" id="mJenisKendaraan">
-                                <option value="">— Pilih Jenis —</option>
-                                <option value="CDD">CDD (Colt Diesel Double)</option>
-                                <option value="FUSO">Fuso</option>
-                                <option value="TRONTON">Tronton</option>
-                                <option value="WINGBOX">Wingbox</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">No. Polisi Truk <span class="text-rose-500">*</span></label>
-                            <input type="text" class="form-control form-control-sm bg-white border-slate-200 text-xs uppercase" id="mNoPol" required placeholder="CONTOH: B 1234 XYZ">
-                        </div>
-                    </div>
+    function submitManualAntrian(e) {
+        e.preventDefault();
+        const sopir = document.getElementById('mSopir').value;
+        const nopol = document.getElementById('mNoPol').value;
+        antrianData.unshift({ id: "L0" + Math.floor(Math.random()*100), sopir, nopol, status: 'Antrian' });
+        localStorage.setItem('loadflowAntrianDataList', JSON.stringify(antrianData));
+        toggleDaftarManualModal();
+        renderAntrianCards();
+    }
 
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">No. Doc</label>
-                            <input type="text" class="form-control form-control-sm bg-white border-slate-200 text-xs" id="mNoDoc" placeholder="Contoh: 02205/MDSC">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">Quantity (Karton)</label>
-                            <input type="number" class="form-control form-control-sm bg-white border-slate-200 text-xs" id="mQty" min="0" placeholder="Contoh: 120">
-                        </div>
-                    </div>
+    function renderAntrianCards() {
+        const container = document.getElementById('antrianCardContainer');
+        container.innerHTML = antrianData.length === 0 ? '<p>Belum ada data antrian.</p>' : '';
+        antrianData.forEach(item => {
+            container.innerHTML += `<div class="card"><strong>${item.id}</strong> - ${item.nopol} (${item.sopir}) <span class="badge" style="background:#dcfce7">${item.status}</span></div>`;
+        });
+    }
 
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">Jenis Pengiriman <span class="text-rose-500">*</span></label>
-                            <select class="form-select form-select-sm bg-white border-slate-200 text-xs" id="mJenisKategori" required>
-                                <option value="">— Pilih Jenis —</option>
-                                <option value="LOKAL">Lokal</option>
-                                <option value="SUBDIST">Lokal &bull; SUBDIST</option>
-                                <option value="EKSPOR">Ekspor</option>
-                                <option value="RDC">RDC</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label text-[11px] fw-bold text-slate-600">No. HP</label>
-                            <input type="text" class="form-control form-control-sm bg-white border-slate-200 text-xs" id="mNoHp" placeholder="08123456789">
-                        </div>
-                    </div>
+    renderAntrianCards();
+</script>
 
-                    <button type="submit" class="btn btn-sm btn-pastel-primary w-full py-2.5 fw-bold mt-3 shadow-2xs">
-                        Ambil Nomor Antrian &rarr;
-                    </button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="text-center py-3 text-[11px] text-slate-400 border-t border-slate-200 bg-white mt-8">
-        &copy; 2026 PT. Mayora Indah Tbk, Jayanti 3 &bull; LOADFLOW Antrian System
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let antrianData = JSON.parse(localStorage.getItem('loadflowAntrianDataList')) || [];
-        let currentStatusFilter = 'Semua';
-
-        function toggleDaftarManualModal() {
-            const modal = document.getElementById('daftarManualModal');
-            modal.classList.toggle('hidden');
-        }
-
-        function submitManualAntrian(e) {
-            e.preventDefault();
-            const sopir = document.getElementById('mSopir').value.trim();
-            const ekspedisi = document.getElementById('mEkspedisi').value.trim();
-            const kendaraan = document.getElementById('mJenisKendaraan').value;
-            const nopol = document.getElementById('mNoPol').value.trim().toUpperCase();
-            const nodoc = document.getElementById('mNoDoc').value.trim();
-            const qty = parseInt(document.getElementById('mQty').value) || 0;
-            const jenis = document.getElementById('mJenisKategori').value;
-            const nohp = document.getElementById('mNoHp').value.trim();
-
-            const newId = "L0" + (Math.floor(Math.random() * 90) + 11);
-            const now = new Date();
-            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth()+1).padStart(2, '0') + '/' + now.getFullYear();
-
-            const newEntry = {
-                id: newId,
-                sopir: sopir,
-                ekspedisi: ekspedisi,
-                kendaraan: kendaraan || 'CDD',
-                nopol: nopol,
-                nodoc: nodoc || '-',
-                qty: qty,
-                jenis: jenis,
-                tujuan: 'KAB. SEMERANG',
-                nohp: nohp || '-',
-                tanggal: dateStr,
-                waktu: timeStr,
-                status: 'Antrian'
-            };
-
-            antrianData.unshift(newEntry);
-            localStorage.setItem('loadflowAntrianDataList', JSON.stringify(antrianData));
-
-            alert('Berhasil! Nomor antrian ' + newId + ' untuk nopol ' + nopol + ' berhasil didaftarkan.');
-            document.getElementById('formDaftarManual').reset();
-            toggleDaftarManualModal();
-            renderAntrianCards();
-        }
-
-        function filterByStatus(status) {
-            currentStatusFilter = status;
-            document.querySelectorAll('.status-tab-btn').forEach(btn => {
-                btn.className = "status-tab-btn px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition";
-            });
-            const activeBtn = document.getElementById(`statusTab-${status}`);
-            if(activeBtn) {
-                activeBtn.className = "status-tab-btn px-3 py-1.5 rounded-lg bg-indigo-400 text-white shadow-2xs transition";
-            }
-            renderAntrianCards();
-        }
-
-        function filterAntrian() {
-            renderAntrianCards();
-        }
-
-        function renderAntrianCards() {
-            const container = document.getElementById('antrianCardContainer');
-            container.innerHTML = '';
-
-            const keyword = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = antrianData.filter(item => {
-                let matchStatus = (currentStatusFilter === 'Semua' || item.status === currentStatusFilter);
-                let matchKeyword = (item.id.toLowerCase().includes(keyword) || 
-                                    item.sopir.toLowerCase().includes(keyword) || 
-                                    item.nopol.toLowerCase().includes(keyword) || 
-                                    item.ekspedisi.toLowerCase().includes(keyword) || 
-                                    item.tujuan.toLowerCase().includes(keyword));
-                return matchStatus && matchKeyword;
-            });
-
-            // Update badge counts & ticker stats
-            const countSemua = antrianData.length;
-            const countAntrian = antrianData.filter(i => i.status === 'Antrian').length;
-            const countNungguDokumen = antrianData.filter(i => i.status === 'Nunggu Dokumen').length;
-            const countProsesMuat = antrianData.filter(i => i.status === 'Proses Muat').length;
-            const countSelesaiMuat = antrianData.filter(i => i.status === 'Selesai Muat').length;
-            const countKeluar = antrianData.filter(i => i.status === 'Keluar').length;
-
-            document.getElementById('countSemua').innerText = countSemua;
-            document.getElementById('countAntrian').innerText = countAntrian;
-            document.getElementById('countNungguDokumen').innerText = countNungguDokumen;
-            document.getElementById('countProsesMuat').innerText = countProsesMuat;
-            document.getElementById('countSelesaiMuat').innerText = countSelesaiMuat;
-            document.getElementById('countKeluar').innerText = countKeluar;
-
-            // Update Ticker
-            ['tickerKeluar', 'tickerKeluar2'].forEach(id => document.getElementById(id).innerText = countKeluar);
-            ['tickerProsesMuat', 'tickerProsesMuat2'].forEach(id => document.getElementById(id).innerText = countProsesMuat);
-            ['tickerSelesaiMuat', 'tickerSelesaiMuat2'].forEach(id => document.getElementById(id).innerText = countSelesaiMuat);
-            ['tickerAntrian', 'tickerAntrian2'].forEach(id => document.getElementById(id).innerText = countAntrian);
-            ['tickerNungguDokumen', 'tickerNungguDokumen2'].forEach(id => {
-                let el = document.getElementById(id);
-                if(el) el.innerText = countNungguDokumen;
-            });
-
-            if(filtered.length === 0) {
-                container.innerHTML = '<div class="card card-custom p-8 rounded-2xl text-center text-slate-400 text-xs">Belum ada data truk yang terdaftar atau antrian kosong. Silakan klik tombol "Daftar Manual Truk" di atas untuk mulai memasukkan data.</div>';
-                return;
-            }
-
-            filtered.forEach((item) => {
-                let idx = antrianData.findIndex(d => d.id === item.id);
-
-                container.innerHTML += `
-                <div class="card card-custom p-4 rounded-2xl shadow-2xs space-y-3">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-indigo-50 text-indigo-600 font-bold px-3 py-2 rounded-xl text-xs border border-indigo-100 shadow-2xs">
-                                ${item.id}
-                            </div>
-                            <div>
-                                <div class="text-[11px] text-slate-400">${item.tanggal} &bull; ${item.waktu}</div>
-                                <h4 class="font-bold text-slate-700 text-xs tracking-wide">${item.jenis} &rarr; ${item.tujuan}</h4>
-                                <div class="font-bold text-indigo-600 text-xs">${item.nopol} &bull; ${item.ekspedisi}</div>
-                                <div class="text-[11px] text-slate-500">${item.sopir}</div>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="badge bg-slate-50 border border-slate-200 text-slate-600 py-1.5 px-2.5 text-[11px]">
-                                <i class="fa-solid fa-boxes-stacked text-amber-500 me-1"></i> ${item.qty} krt
-                            </span>
-                            <span class="badge bg-indigo-50 text-indigo-600 border border-indigo-100 py-1.5 px-2.5 text-[11px]">
-                                Stay 14m
-                            </span>
-                            <span class="badge bg-emerald-50 text-emerald-600 border border-emerald-100 py-1.5 px-2.5 text-[11px] fw-bold">
-                                Status: ${item.status}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-100 pt-2.5 flex justify-between items-center text-xs">
-                        <span class="text-slate-400 text-[11px]"><i class="fa-regular fa-clock me-1"></i> Masuk: ${item.waktu}</span>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle text-[11px]" type="button" data-bs-toggle="dropdown">
-                                Pindah Status
-                            </button>
-                            <ul class="dropdown-menu text-xs">
-                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Antrian')">Antrian</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Nunggu Dokumen')">Nunggu Dokumen</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Proses Muat')">Proses Muat</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Selesai Muat')">Selesai Muat</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Keluar')">Keluar Gudang</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>`;
-            });
-        }
-
-        function changeStatus(idx, newStatus) {
-            antrianData[idx].status = newStatus;
-            localStorage.setItem('loadflowAntrianDataList', JSON.stringify(antrianData));
-            renderAntrianCards();
-        }
-
-        window.onload = function() {
-            renderAntrianCards();
-        };
-    </script>
 </body>
 </html>
