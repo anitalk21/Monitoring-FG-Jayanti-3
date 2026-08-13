@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal Bin-Loc & Penerimaan - PT. Mayora Indah Tbk</title>
+    <style>
+        /* Desain Light Mode Pastel Profesional */
+        body { background-color: #f8fafc; color: #475569; font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 12px; }
+        
+        /* Bar Navigasi Atas */
+        .nav-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .nav-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-nav:hover { background: #f1f5f9; }
+
+        /* Container & Cards */
+        .container { max-width: 1100px; margin: 25px auto; padding: 0 20px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        
+        /* Buttons */
+        .btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
+        .btn-primary { background: #0d9488; color: white; border: none; } /* Hijau Tosca Pastel */
+        .btn-primary:hover { background: #0f766e; }
+        .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+        /* Modal Pop-up */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 12px; }
+        label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
+        
+        /* Tabel Distribusi Rak */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 11px; }
+        th { background: #f0fdf4; color: #166534; }
+    </style>
+</head>
+<body>
+
+<!-- BAR MENU NAVIGASI ATAS -->
+<header class="nav-bar">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-weight:bold; font-size:15px; color:#1e293b;">Portal Bin-Loc & Penerimaan Produksi</span>
+        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">--/--/---- --:--:--</span>
+    </div>
+    <div class="nav-actions">
+        <button class="btn-nav" onclick="openModal('modalPenerimaan')" style="background: #ccfbf1; color: #115e59; border-color: #99f6e4;">+ Penerimaan Barang Jadi</button>
+        <a href="monitoring.html" class="btn-nav" style="color:#0d9488;">Monitoring Utama</a>
+        <a href="antrian.html" class="btn-nav" style="color:#6366f1;">Dashboard Antrian</a>
+        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Ringkasan Gudang -->
+    <div class="card">
+        <h3 style="margin-top:0; color:#1e293b;">Daftar Stok & Lokasi Rak Aktif (Bin-Loc)</h3>
+        <p style="color:#64748b; font-size:11px;">Mendukung Gudang 1 & Gudang 2 (Jayanti 3). Sinkron otomatis dengan data produksi dan antrian pengiriman.</p>
+        <div id="stokContainer" style="margin-top: 15px;"></div>
+    </div>
+</div>
+
+<!-- MODAL FORM PENERIMAAN BARANG JADI (Gaya Pastel Referensi) -->
+<div id="modalPenerimaan" class="modal">
+    <div class="modal-content">
+        <div style="background: #f0fdf4; padding: 10px 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
+            <h4 style="margin:0; color:#166534; font-size:13px;">Form Masuk Barang (Mendukung Range No. Pallet & Info Ekspor)</h4>
+        </div>
+        
+        <form onsubmit="submitPenerimaan(event)">
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Tujuan Gudang *</label>
+                    <select id="pGudang" required>
+                        <option value="Gudang 1 (Induk)">Gudang 1 (Induk)</option>
+                        <option value="Gudang 2">Gudang 2</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Tanggal Masuk (FIFO & Aging)</label>
+                    <input type="text" id="pTanggal" readonly style="background:#f1f5f9;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Shift Kerja *</label>
+                    <select id="pShift"><option>Shift 1</option><option>Shift 2</option><option>Shift 3</option></select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Asal Masuk / Tipe Kategori *</label>
+                <select id="pAsal"><option>Dari Produksi Lokal</option><option>Dari Produksi Ekspor</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Cari & Pilih SKU Produk *</label>
+                <input type="text" id="pSku" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
+                <span style="font-size:10px; color:#64748b;">Standar: 70 Carton / Pallet</span>
+            </div>
+
+            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+                <label style="margin-bottom: 6px; color:#166534; font-weight:bold;">Distribusi Penempatan Rak & No. Pallet (Bisa Range: Cth PLT-01 s/d PLT-10)</label>
+                <table>
+                    <tr><th>Blok Rak</th><th>Lorong / Row</th><th>No. Pallet Fisik (Atau Range)</th><th>Jumlah Karton</th><th>Konversi</th></tr>
+                    <tr>
+                        <td>
+                            <select id="pBlok"><option>Blok A</option><option>Blok B</option><option>Blok C</option><option>Blok D</option><option>Blok E</option></select>
+                        </td>
+                        <td>
+                            <select id="pRow"><option>Row 1</option><option>Row 2</option><option>Row 3</option></select>
+                        </td>
+                        <td><input type="text" id="pPalletRange" required placeholder="PLT-01 s/d PLT-10"></td>
+                        <td><input type="number" id="pQtyKarton" required placeholder="700" oninput="hitungKonversi()"></td>
+                        <td><strong id="konversiPlt" style="color:#0d9488;">0 Plt</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="submit" class="btn btn-primary" style="flex:1; background:#0d9488;">Proses Barang Masuk</button>
+                <button type="button" class="btn" onclick="closeModal('modalPenerimaan')">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let binData = [];
+    try {
+        binData = JSON.parse(localStorage.getItem('binloc_stok')) || [];
+        if (!Array.isArray(binData)) binData = [];
+    } catch(e) { binData = []; }
+
+    // Set Tanggal Hari Ini Otomatis
+    const now = new Date();
+    const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+    document.getElementById('pTanggal').value = dateStr;
+
+    function updateClock() {
+        const n = new Date();
+        const tStr = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0') + ':' + String(n.getSeconds()).padStart(2, '0');
+        document.getElementById('realTimeClock').innerText = dateStr + ' ' + tStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function hitungKonversi() {
+        let karton = parseInt(document.getElementById('pQtyKarton').value) || 0;
+        let plt = (karton / 70).toFixed(1); // Standar 70 krt/plt
+        document.getElementById('konversiPlt').innerText = plt + " Plt";
+    }
+
+    function submitPenerimaan(e) {
+        e.preventDefault();
+        let item = {
+            gudang: document.getElementById('pGudang').value,
+            tanggal: document.getElementById('pTanggal').value,
+            shift: document.getElementById('pShift').value,
+            asal: document.getElementById('pAsal').value,
+            sku: document.getElementById('pSku').value,
+            lokasi: document.getElementById('pBlok').value + ' - ' + document.getElementById('pRow').value,
+            pallet: document.getElementById('pPalletRange').value,
+            karton: document.getElementById('pQtyKarton').value,
+            konversi: document.getElementById('konversiPlt').innerText
+        };
+
+        binData.unshift(item);
+        localStorage.setItem('binloc_stok', JSON.stringify(binData));
+        closeModal('modalPenerimaan');
+        e.target.reset();
+        document.getElementById('pTanggal').value = dateStr;
+        renderStok();
+    }
+
+    function renderStok() {
+        const cont = document.getElementById('stokContainer');
+        if(binData.length === 0) {
+            cont.innerHTML = '<p style="color:#94a3b8; font-style:italic;">Belum ada data penerimaan barang jadi di gudang. Silakan klik "+ Penerimaan Barang Jadi" di atas.</p>';
+            return;
+        }
+
+        let html = `<table>
+            <tr><th>Gudang</th><th>Tanggal</th><th>Shift</th><th>SKU Produk</th><th>Lokasi Rak</th><th>Range Pallet</th><th>Karton</th><th>Konversi</th></tr>`;
+        
+        binData.forEach(d => {
+            html += `<tr>
+                <td>${d.gudang}</td>
+                <td>${d.tanggal}</td>
+                <td>${d.shift}</td>
+                <td style="font-weight:bold; color:#1e293b;">${d.sku}</td>
+                <td><span style="background:#ccfbf1; color:#115e59; padding:2px 6px; border-radius:4px; font-weight:bold;">${d.lokasi}</span></td>
+                <td>${d.pallet}</td>
+                <td>${d.karton} krt</td>
+                <td style="color:#0d9488; font-weight:bold;">${d.konversi}</td>
+            </tr>`;
+        });
+        html += `</table>`;
+        cont.innerHTML = html;
+    }
+
+    renderStok();
+</script>
+</body>
+</html>
