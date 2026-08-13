@@ -2,206 +2,477 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Portal Bin-Loc & Penerimaan - PT. Mayora Indah Tbk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Bin-Loc & Warehouse - PT. Mayora Indah Tbk, Jayanti 3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Desain Light Mode Pastel Profesional */
-        body { background-color: #f8fafc; color: #475569; font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 12px; }
+        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .app-page { display: none; }
+        .app-page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Bar Navigasi Atas */
-        .nav-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .nav-actions { display: flex; gap: 8px; align-items: center; }
-        .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 5px; text-decoration: none; }
-        .btn-nav:hover { background: #f1f5f9; }
-
-        /* Container & Cards */
-        .container { max-width: 1100px; margin: 25px auto; padding: 0 20px; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        
-        /* Buttons */
-        .btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
-        .btn-primary { background: #0d9488; color: white; border: none; } /* Hijau Tosca Pastel */
-        .btn-primary:hover { background: #0f766e; }
-        .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-
-        /* Modal Pop-up */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 12px; }
-        label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
-        
-        /* Tabel Distribusi Rak */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 11px; }
-        th { background: #f0fdf4; color: #166534; }
+        .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-<!-- BAR MENU NAVIGASI ATAS -->
-<header class="nav-bar">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <span style="font-weight:bold; font-size:15px; color:#1e293b;">Portal Bin-Loc & Penerimaan Produksi</span>
-        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">--/--/---- --:--:--</span>
-    </div>
-    <div class="nav-actions">
-        <button class="btn-nav" onclick="openModal('modalPenerimaan')" style="background: #ccfbf1; color: #115e59; border-color: #99f6e4;">+ Penerimaan Barang Jadi</button>
-        <a href="monitoring.html" class="btn-nav" style="color:#0d9488;">Monitoring Utama</a>
-        <a href="antrian.html" class="btn-nav" style="color:#6366f1;">Dashboard Antrian</a>
-        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
-    </div>
-</header>
-
-<div class="container">
-    <!-- Ringkasan Gudang -->
-    <div class="card">
-        <h3 style="margin-top:0; color:#1e293b;">Daftar Stok & Lokasi Rak Aktif (Bin-Loc)</h3>
-        <p style="color:#64748b; font-size:11px;">Mendukung Gudang 1 & Gudang 2 (Jayanti 3). Sinkron otomatis dengan data produksi dan antrian pengiriman.</p>
-        <div id="stokContainer" style="margin-top: 15px;"></div>
-    </div>
-</div>
-
-<!-- MODAL FORM PENERIMAAN BARANG JADI (Gaya Pastel Referensi) -->
-<div id="modalPenerimaan" class="modal">
-    <div class="modal-content">
-        <div style="background: #f0fdf4; padding: 10px 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
-            <h4 style="margin:0; color:#166534; font-size:13px;">Form Masuk Barang (Mendukung Range No. Pallet & Info Ekspor)</h4>
+    <!-- TOP HEADER -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative z-20">
+        <div class="flex items-center space-x-3">
+            <div>
+                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Warehouse Management</h1>
+                <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
+            </div>
         </div>
-        
-        <form onsubmit="submitPenerimaan(event)">
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>Tujuan Gudang *</label>
-                    <select id="pGudang" required>
-                        <option value="Gudang 1 (Induk)">Gudang 1 (Induk)</option>
-                        <option value="Gudang 2">Gudang 2</option>
-                    </select>
+        <div class="flex items-center gap-2">
+            <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
+                <i class="fa-regular fa-clock text-teal-500 mr-1"></i> Memuat waktu...
+            </span>
+            <a href="monitoring.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-indigo-400"></i> <span>Monitoring</span>
+            </a>
+            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+        <!-- MENU UTAMA: PILIH TIPE BARANG -->
+        <div id="section-home" class="app-page active space-y-6">
+            <div class="text-center max-w-xl mx-auto py-4">
+                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc</h2>
+                <p class="text-xs text-slate-400 mt-1">Sesi pengelolaan lokasi rak, penerimaan barang produksi, dan penelusuran stok.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-emerald-700 text-base">Lokal</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Pallet + Prodate</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Tanggal Masuk (FIFO & Aging)</label>
-                    <input type="text" id="pTanggal" readonly style="background:#f1f5f9;">
+
+                <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-violet-50 text-violet-600 p-3 rounded-xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-violet-700 text-base">Ekspor</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Pallet + Prodate + Quotation / Negara</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Shift Kerja *</label>
-                    <select id="pShift"><option>Shift 1</option><option>Shift 2</option><option>Shift 3</option></select>
+
+                <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-amber-700 text-base">Cari Posisi Barang</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Cari bin loc berdasarkan SKU / Prodate / Buyer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="switchSection('peta')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-indigo-700 text-base">Peta Kapasitas Gudang</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Visualisasi Layout Gudang Induk (A-X) & Aging (A-O)</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Asal Masuk / Tipe Kategori *</label>
-                <select id="pAsal"><option>Dari Produksi Lokal</option><option>Dari Produksi Ekspor</option></select>
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs mt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-700 text-sm">Riwayat Penerimaan Barang Produksi Terbaru</h3>
+                    <button onclick="resetBinData()" class="text-xs text-rose-500 hover:underline">Reset Data</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Gudang</th>
+                                <th>SKU / Produk</th>
+                                <th>Lokasi Rak</th>
+                                <th>No. Pallet</th>
+                                <th>Info Ekspor / Buyer</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentStokTableBody">
+                            <tr><td colspan="6" class="text-muted">Belum ada data penerimaan masuk.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: CARI POSISI BARANG -->
+        <div id="section-cari" class="app-page space-y-6 max-w-3xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h3 class="font-bold text-slate-700 text-base">Cari Posisi Barang (Bin Loc)</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div>
+                    <label class="form-label small fw-bold text-slate-600">Kata Kunci (SKU / Nama Produk / No. Pallet / Buyer)</label>
+                    <input type="text" id="searchKeyword" class="form-control bg-white border-slate-200" placeholder="Ketik kata kunci pencarian..." oninput="executeSearch()">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Lokasi Rak</th>
+                                <th>No. Pallet</th>
+                                <th>Info Ekspor / Buyer</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultTableBody">
+                            <tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: PETA KAPASITAS GUDANG -->
+        <div id="section-peta" class="app-page space-y-6">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-slate-700 text-base">Peta Kapasitas Gudang (Jayanti 3)</h3>
+                    <p class="text-xs text-slate-400">Menampilkan blok rak sesuai layout Gudang Induk (A-X) dan Gudang Aging (A-O).</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchWarehouse('INDUK')" id="btnWhInduk" class="btn btn-sm btn-primary">Gudang Induk (A-X)</button>
+                    <button onclick="switchWarehouse('AGING')" id="btnWhAging" class="btn btn-sm btn-outline-secondary">Gudang Aging (A-O)</button>
+                    <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary ms-2"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Cari & Pilih SKU Produk *</label>
-                <input type="text" id="pSku" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
-                <span style="font-size:10px; color:#64748b;">Standar: 70 Carton / Pallet</span>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
+                <div id="binMapContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 min-w-[700px]">
+                    <!-- Rendered dynamically -->
+                </div>
             </div>
+        </div>
 
-            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
-                <label style="margin-bottom: 6px; color:#166534; font-weight:bold;">Distribusi Penempatan Rak & No. Pallet (Bisa Range: Cth PLT-01 s/d PLT-10)</label>
-                <table>
-                    <tr><th>Blok Rak</th><th>Lorong / Row</th><th>No. Pallet Fisik (Atau Range)</th><th>Jumlah Karton</th><th>Konversi</th></tr>
-                    <tr>
-                        <td>
-                            <select id="pBlok"><option>Blok A</option><option>Blok B</option><option>Blok C</option><option>Blok D</option><option>Blok E</option></select>
-                        </td>
-                        <td>
-                            <select id="pRow"><option>Row 1</option><option>Row 2</option><option>Row 3</option></select>
-                        </td>
-                        <td><input type="text" id="pPalletRange" required placeholder="PLT-01 s/d PLT-10"></td>
-                        <td><input type="number" id="pQtyKarton" required placeholder="700" oninput="hitungKonversi()"></td>
-                        <td><strong id="konversiPlt" style="color:#0d9488;">0 Plt</strong></td>
-                    </tr>
-                </table>
-            </div>
+    </main>
 
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button type="submit" class="btn btn-primary" style="flex:1; background:#0d9488;">Proses Barang Masuk</button>
-                <button type="button" class="btn" onclick="closeModal('modalPenerimaan')">Batal</button>
+    <!-- MODAL PENERIMAAN BARANG JADI -->
+    <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
+                <h3 id="modalPenerimaanTitle" class="font-bold text-emerald-800 text-sm">Form Masuk Barang - Lokal</h3>
+                <button onclick="closeModal('modalPenerimaan')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-        </form>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+                <form onsubmit="submitPenerimaan(event)">
+                    <input type="hidden" id="pCategory" value="Lokal">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Tujuan Gudang *</label>
+                        <select id="pGudang" class="form-select form-select-sm" required onchange="updateBlockOptions()">
+                            <option value="Gudang Induk">Gudang Induk (Blok A-X)</option>
+                            <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Tanggal Masuk</label>
+                        <input type="text" id="pTanggal" class="form-control form-control-sm bg-slate-50" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Shift Kerja *</label>
+                        <select id="pShift" class="form-select form-select-sm">
+                            <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+                        </select>
+                    </div>
+
+                    <!-- INFORMASI TAMBAHAN PRODUK EKSPOR DENGAN DROPDOWN -->
+                    <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
+                        <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Nomor QT (Quality Test)</label>
+                                <input type="text" id="pQt" class="form-control form-control-sm" placeholder="No QT...">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Prodate (Tanggal Produksi)</label>
+                                <input type="date" id="pProdate" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Exp Date (Kedaluwarsa)</label>
+                                <input type="date" id="pExpDate" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Buyer & Negara Tujuan *</label>
+                                <select id="pBuyer" class="form-select form-select-sm">
+                                    <option value="">-- Pilih Buyer & Negara --</option>
+                                    <option value="Buyer A / Amerika Serikat">Buyer A / Amerika Serikat</option>
+                                    <option value="Buyer B / China">Buyer B / China</option>
+                                    <option value="Buyer C / Korea Selatan">Buyer C / Korea Selatan</option>
+                                    <option value="Buyer D / Jepang">Buyer D / Jepang</option>
+                                    <option value="Buyer E / Timur Tengah">Buyer E / Timur Tengah</option>
+                                    <option value="Buyer F / Asia Tenggara">Buyer F / Asia Tenggara</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
+                        <input type="text" id="pSku" class="form-control form-control-sm" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Blok Rak *</label>
+                            <select id="pBlok" class="form-select form-select-sm">
+                                <!-- Terisi dinamis -->
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Lorong / Row *</label>
+                            <select id="pRow" class="form-select form-select-sm">
+                                <option>Row 1</option><option>Row 2</option><option>Row 3</option><option>Row 4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">No. Pallet Fisik (Atau Range) *</label>
+                        <input type="text" id="pPalletRange" class="form-control form-control-sm" required placeholder="Cth: PLT-01 s/d PLT-10">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Jumlah Karton *</label>
+                        <input type="number" id="pQtyKarton" class="form-control form-control-sm" required min="1" placeholder="700" oninput="hitungKonversi()">
+                        <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPlt">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
+                    </div>
+                    <div class="flex gap-2 pt-2 border-t border-slate-100">
+                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2">Proses Barang Masuk</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalPenerimaan')">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    let binData = [];
-    try {
-        binData = JSON.parse(localStorage.getItem('binloc_stok')) || [];
-        if (!Array.isArray(binData)) binData = [];
-    } catch(e) { binData = []; }
+    <!-- SCRIPT LOGIC -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            const clockEl = document.getElementById('realTimeClock');
+            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-teal-500 mr-1"></i> ${dateStr} ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-    // Set Tanggal Hari Ini Otomatis
-    const now = new Date();
-    const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-    document.getElementById('pTanggal').value = dateStr;
+        let binData = [];
+        try {
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            if (!Array.isArray(binData)) binData = [];
+        } catch(e) { binData = []; }
 
-    function updateClock() {
-        const n = new Date();
-        const tStr = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0') + ':' + String(n.getSeconds()).padStart(2, '0');
-        document.getElementById('realTimeClock').innerText = dateStr + ' ' + tStr;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+        const now = new Date();
+        const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+        document.getElementById('pTanggal').value = currentDateStr;
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+        const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
-    function hitungKonversi() {
-        let karton = parseInt(document.getElementById('pQtyKarton').value) || 0;
-        let plt = (karton / 70).toFixed(1); // Standar 70 krt/plt
-        document.getElementById('konversiPlt').innerText = plt + " Plt";
-    }
-
-    function submitPenerimaan(e) {
-        e.preventDefault();
-        let item = {
-            gudang: document.getElementById('pGudang').value,
-            tanggal: document.getElementById('pTanggal').value,
-            shift: document.getElementById('pShift').value,
-            asal: document.getElementById('pAsal').value,
-            sku: document.getElementById('pSku').value,
-            lokasi: document.getElementById('pBlok').value + ' - ' + document.getElementById('pRow').value,
-            pallet: document.getElementById('pPalletRange').value,
-            karton: document.getElementById('pQtyKarton').value,
-            konversi: document.getElementById('konversiPlt').innerText
-        };
-
-        binData.unshift(item);
-        localStorage.setItem('binloc_stok', JSON.stringify(binData));
-        closeModal('modalPenerimaan');
-        e.target.reset();
-        document.getElementById('pTanggal').value = dateStr;
-        renderStok();
-    }
-
-    function renderStok() {
-        const cont = document.getElementById('stokContainer');
-        if(binData.length === 0) {
-            cont.innerHTML = '<p style="color:#94a3b8; font-style:italic;">Belum ada data penerimaan barang jadi di gudang. Silakan klik "+ Penerimaan Barang Jadi" di atas.</p>';
-            return;
+        function updateBlockOptions() {
+            const gudang = document.getElementById('pGudang').value;
+            const blokSelect = document.getElementById('pBlok');
+            blokSelect.innerHTML = '';
+            let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
+            blocks.forEach(b => {
+                blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`;
+            });
         }
 
-        let html = `<table>
-            <tr><th>Gudang</th><th>Tanggal</th><th>Shift</th><th>SKU Produk</th><th>Lokasi Rak</th><th>Range Pallet</th><th>Karton</th><th>Konversi</th></tr>`;
-        
-        binData.forEach(d => {
-            html += `<tr>
-                <td>${d.gudang}</td>
-                <td>${d.tanggal}</td>
-                <td>${d.shift}</td>
-                <td style="font-weight:bold; color:#1e293b;">${d.sku}</td>
-                <td><span style="background:#ccfbf1; color:#115e59; padding:2px 6px; border-radius:4px; font-weight:bold;">${d.lokasi}</span></td>
-                <td>${d.pallet}</td>
-                <td>${d.karton} krt</td>
-                <td style="color:#0d9488; font-weight:bold;">${d.konversi}</td>
-            </tr>`;
-        });
-        html += `</table>`;
-        cont.innerHTML = html;
-    }
+        function switchSection(sectionId) {
+            ['section-home', 'section-cari', 'section-peta'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
+            });
+            const target = document.getElementById('section-' + sectionId);
+            if(target) { target.classList.remove('hidden'); target.classList.add('active'); }
+            if(sectionId === 'peta') renderBinMap();
+        }
 
-    renderStok();
-</script>
+        function openPenerimaanModal(category) {
+            document.getElementById('pCategory').value = category;
+            document.getElementById('modalPenerimaanTitle').innerText = 'Form Masuk Barang - ' + category;
+            updateBlockOptions();
+            const eksporGroup = document.getElementById('eksporFieldGroup');
+            if(category === 'Ekspor') {
+                eksporGroup.style.display = 'block';
+                document.getElementById('pBuyer').setAttribute('required', 'true');
+            } else {
+                eksporGroup.style.display = 'none';
+                document.getElementById('pBuyer').removeAttribute('required');
+                document.getElementById('pBuyer').value = '';
+                document.getElementById('pQt').value = '';
+                document.getElementById('pProdate').value = '';
+                document.getElementById('pExpDate').value = '';
+            }
+            document.getElementById('modalPenerimaan').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function hitungKonversi() {
+            let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
+            let plt = (krt / 70).toFixed(1);
+            document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar 70 krt/plt)`;
+        }
+
+        function submitPenerimaan(e) {
+            e.preventDefault();
+            let category = document.getElementById('pCategory').value;
+            let buyerInfo = category === 'Ekspor' ? document.getElementById('pBuyer').value : 'Lokal / Domestik';
+
+            let newItem = {
+                category: category,
+                gudang: document.getElementById('pGudang').value,
+                tanggal: document.getElementById('pTanggal').value,
+                shift: document.getElementById('pShift').value,
+                sku: document.getElementById('pSku').value,
+                qt: document.getElementById('pQt').value || '-',
+                prodate: document.getElementById('pProdate').value || '-',
+                expDate: document.getElementById('pExpDate').value || '-',
+                buyer: buyerInfo,
+                lokasi: document.getElementById('pBlok').value + ' - ' + document.getElementById('pRow').value,
+                pallet: document.getElementById('pPalletRange').value,
+                karton: document.getElementById('pQtyKarton').value,
+                konversi: document.getElementById('konversiPlt').innerText
+            };
+
+            binData.unshift(newItem);
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            closeModal('modalPenerimaan');
+            e.target.reset();
+            document.getElementById('pTanggal').value = currentDateStr;
+            renderRecentStok();
+            alert('Penerimaan barang berhasil disimpan ke Bin-Loc!');
+        }
+
+        function renderRecentStok() {
+            let tbody = document.getElementById('recentStokTableBody');
+            tbody.innerHTML = '';
+            if(binData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada data penerimaan masuk.</td></tr>';
+                return;
+            }
+            binData.slice(0, 5).forEach(item => {
+                let badgeColor = item.category === 'Ekspor' ? 'bg-violet-100 text-violet-700' : 'bg-emerald-100 text-emerald-700';
+                let infoDisplay = item.category === 'Ekspor' ? `${item.buyer} (QT: ${item.qt})` : 'Domestik';
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge ${badgeColor}">${item.category}</span></td>
+                    <td>${item.gudang}</td>
+                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
+                    <td class="fw-bold">${item.pallet}</td>
+                    <td class="text-slate-600 text-[11px]">${infoDisplay}</td>
+                </tr>`;
+            });
+        }
+
+        function resetBinData() {
+            if(confirm('Hapus seluruh riwayat data Bin-Loc?')) {
+                localStorage.removeItem('binloc_stok_jayanti3');
+                binData = [];
+                renderRecentStok();
+            }
+        }
+
+        function executeSearch() {
+            let keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
+            let tbody = document.getElementById('searchResultTableBody');
+            tbody.innerHTML = '';
+
+            if(!keyword) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>';
+                return;
+            }
+
+            let filtered = binData.filter(i => 
+                i.sku.toLowerCase().includes(keyword) || 
+                i.lokasi.toLowerCase().includes(keyword) || 
+                i.pallet.toLowerCase().includes(keyword) ||
+                i.buyer.toLowerCase().includes(keyword) ||
+                i.qt.toLowerCase().includes(keyword)
+            );
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai dengan kata kunci.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                let infoDisplay = item.category === 'Ekspor' ? `${item.buyer} (QT: ${item.qt})` : 'Domestik';
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge bg-slate-100 text-slate-700">${item.sku}</span></td>
+                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
+                    <td class="fw-bold">${item.pallet}</td>
+                    <td class="text-slate-600 text-[11px]">${infoDisplay}</td>
+                </tr>`;
+            });
+        }
+
+        let currentWarehouse = 'INDUK';
+        function switchWarehouse(wh) {
+            currentWarehouse = wh;
+            if(wh === 'INDUK') {
+                document.getElementById('btnWhInduk').className = "btn btn-sm btn-primary";
+                document.getElementById('btnWhAging').className = "btn btn-sm btn-outline-secondary";
+            } else {
+                document.getElementById('btnWhAging').className = "btn btn-sm btn-primary";
+                document.getElementById('btnWhInduk').className = "btn btn-sm btn-outline-secondary";
+            }
+            renderBinMap();
+        }
+
+        function renderBinMap() {
+            const container = document.getElementById('binMapContainer');
+            container.innerHTML = '';
+            let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
+
+            blocks.forEach(b => {
+                let statusClass = 'bin-empty';
+                let labelStatus = 'Kosong';
+                let rand = Math.random();
+                if(rand > 0.7) { statusClass = 'bin-full'; labelStatus = 'Penuh'; }
+                else if(rand > 0.4) { statusClass = 'bin-low'; labelStatus = 'Terisi'; }
+
+                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs ${statusClass}">
+                    <div class="font-bold text-sm">Blok ${b} FG</div>
+                    <div class="text-[10px] mt-1 font-semibold">${labelStatus}</div>
+                </div>`;
+            });
+        }
+
+        renderRecentStok();
+    </script>
 </body>
 </html>
