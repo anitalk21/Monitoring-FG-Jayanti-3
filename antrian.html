@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Antrian & Dashboard Operator - PT. Mayora Indah Tbk</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .app-page { display: none; }
+        .app-page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Running Text (Marquee) Styling */
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; background: #1e293b; border-bottom: 1px solid #334155; }
+        .marquee-content { display: inline-block; animation: marquee 35s linear infinite; padding: 8px 0; }
+        @keyframes marquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+
+        /* Custom Soft Theme */
+        .card-custom { background-color: #1e293b; border: 1px solid #334155; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- TOP HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex justify-between items-center shadow-md relative z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600/30 text-indigo-400 p-2 rounded-xl border border-indigo-500/30">
+                <i class="fa-solid fa-truck-ramp-box text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-100 text-base md:text-lg tracking-wide">Dashboard Operator Antrian</h1>
+                <span class="text-xs text-slate-400 font-medium">LOADFLOW-v1.1.2 &bull; Gudang Finished Goods Jayanti 3</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="switchTab('antrian')" class="btn btn-sm btn-outline-light text-xs font-semibold"><i class="fa-solid fa-list-check me-1"></i> Daftar Antrian</button>
+            <button onclick="switchTab('daftar-manual')" class="btn btn-sm btn-primary text-xs font-semibold" style="background-color: #4f46e5;"><i class="fa-solid fa-user-plus me-1"></i> Daftar Manual</button>
+            <a href="monitoring.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-lg border border-slate-700 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-indigo-400"></i> <span>Monitoring Utama</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- TICKER STATUS (RUNNING TEXT) -->
+    <div class="marquee-container text-xs font-semibold text-slate-300">
+        <div class="marquee-content flex gap-8">
+            <span>🟢 <span class="text-emerald-400">Keluar:</span> 4 Truk</span> &bull;
+            <span>🔵 <span class="text-indigo-400">Lokal Proses:</span> 4 Truk</span> &bull;
+            <span>✅ <span class="text-emerald-400">Lokal Selesai:</span> 4 Truk</span> &bull;
+            <span>📦 <span class="text-amber-400">Ekspor Proses:</span> 6 Truk</span> &bull;
+            <span>🏁 <span class="text-slate-400">Ekspor Selesai:</span> 0 Truk</span> &bull;
+            <span>🏭 <span class="text-blue-400">RDC Proses:</span> 1 Truk</span> &bull;
+            <span>🚚 <span class="text-purple-400">SUBDIST Proses:</span> 3 Truk</span> &bull;
+            <span>⚡ <span class="text-rose-400">Loading Dock Aktif:</span> 9/9</span> &bull;
+            <!-- Duplikasi untuk looping mulus -->
+            <span>🟢 <span class="text-emerald-400">Keluar:</span> 4 Truk</span> &bull;
+            <span>🔵 <span class="text-indigo-400">Lokal Proses:</span> 4 Truk</span> &bull;
+            <span>✅ <span class="text-emerald-400">Lokal Selesai:</span> 4 Truk</span> &bull;
+            <span>📦 <span class="text-amber-400">Ekspor Proses:</span> 6 Truk</span> &bull;
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-6 space-y-6">
+
+        <!-- TAB 1: DAFTAR MANUAL (FORM AMBIL NOMOR ANTRIAN MASUK) -->
+        <div id="section-daftar-manual" class="app-page active space-y-6">
+            <div class="card card-custom p-6 rounded-2xl shadow-xl">
+                <div class="border-b border-slate-800 pb-4 mb-4">
+                    <h3 class="font-bold text-slate-100 text-base">Gudang Finished Goods</h3>
+                    <p class="text-xs text-slate-400">Ambil Nomor Antrian Masuk & Daftarkan Kendaraan Logistik</p>
+                </div>
+
+                <form id="formDaftarManual" onsubmit="submitManualAntrian(event)" class="space-y-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">Nama Sopir <span class="text-rose-500">*</span></label>
+                            <input type="text" class="form-control bg-slate-900 border-slate-700 text-slate-100" id="mSopir" required placeholder="Contoh: Aan Gunawan">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">Nama Ekspedisi <span class="text-rose-500">*</span></label>
+                            <input type="text" class="form-control bg-slate-900 border-slate-700 text-slate-100" id="mEkspedisi" required placeholder="Contoh: Kreatif, Seino, dll">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">Jenis Kendaraan <span class="text-slate-500">(opsional)</span></label>
+                            <select class="form-select bg-slate-900 border-slate-700 text-slate-100" id="mJenisKendaraan">
+                                <option value="">— Pilih Jenis —</option>
+                                <option value="CDD">CDD (Colt Diesel Double)</option>
+                                <option value="FUSO">Fuso</option>
+                                <option value="TRONTON">Tronton</option>
+                                <option value="WINGBOX">Wingbox</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">No. Polisi Truk <span class="text-rose-500">*</span></label>
+                            <input type="text" class="form-control bg-slate-900 border-slate-700 text-slate-100 uppercase" id="mNoPol" required placeholder="CONTOH: B 1234 XYZ">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">No. Doc <span class="text-slate-500">(opsional)</span></label>
+                            <input type="text" class="form-control bg-slate-900 border-slate-700 text-slate-100" id="mNoDoc" placeholder="Contoh: 02205/MDSC">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">Quantity (Karton) <span class="text-slate-500">(opsional)</span></label>
+                            <input type="number" class="form-control bg-slate-900 border-slate-700 text-slate-100" id="mQty" min="0" placeholder="Contoh: 120">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">Jenis Pengiriman <span class="text-rose-500">*</span></label>
+                            <select class="form-select bg-slate-900 border-slate-700 text-slate-100" id="mJenisKategori" required>
+                                <option value="">— Pilih Jenis —</option>
+                                <option value="LOKAL">Lokal</option>
+                                <option value="SUBDIST">Lokal &bull; SUBDIST</option>
+                                <option value="EKSPOR">Ekspor</option>
+                                <option value="RDC">RDC</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-300">No. HP <span class="text-slate-500">(opsional)</span></label>
+                            <input type="text" class="form-control bg-slate-900 border-slate-700 text-slate-100" id="mNoHp" placeholder="08123456789">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full py-3 fw-bold mt-4 shadow-lg" style="background-color: #3b82f6; border-color: #3b82f6;">
+                        Ambil Nomor Antrian &rarr;
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 2: DAFTAR ANTRIAN & MONITORING LIVE -->
+        <div id="section-antrian" class="app-page space-y-6">
+            <div class="flex justify-between items-center bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                <h3 class="font-bold text-slate-100 text-base mb-0">Daftar Antrian Truk Masuk (Live)</h3>
+                <button onclick="switchTab('daftar-manual')" class="btn btn-sm btn-primary">+ Tambah Manual Truk</button>
+            </div>
+
+            <!-- CONTAINER LIST KARTU ANTRIAN TRUK -->
+            <div id="antrianCardContainer" class="space-y-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800 bg-slate-900 mt-8">
+        &copy; 2026 PT. Mayora Indah Tbk, Jayanti 3 &bull; LOADFLOW Antrian System
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let antrianData = JSON.parse(localStorage.getItem('loadflowAntrianDataList')) || [
+            {
+                id: "L010",
+                sopir: "Heru Kusnandar",
+                ekspedisi: "Cahaya baru",
+                kendaraan: "CDD",
+                nopol: "H 8942 OH",
+                nodoc: "02205/MDSC",
+                qty: 927,
+                jenis: "LOKAL • SUBDIST",
+                tujuan: "KAB. SEMERANG",
+                nohp: "08123456789",
+                tanggal: "11/08/2026",
+                waktu: "09:45",
+                status: "Antrian"
+            }
+        ];
+
+        function switchTab(tabName) {
+            ['section-daftar-manual', 'section-antrian'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
+            });
+
+            if(tabName === 'daftar-manual') {
+                document.getElementById('section-daftar-manual').classList.remove('hidden');
+                document.getElementById('section-daftar-manual').classList.add('active');
+            } else if(tabName === 'antrian') {
+                document.getElementById('section-antrian').classList.remove('hidden');
+                document.getElementById('section-antrian').classList.add('active');
+                renderAntrianCards();
+            }
+        }
+
+        function submitManualAntrian(e) {
+            e.preventDefault();
+            const sopir = document.getElementById('mSopir').value.trim();
+            const ekspedisi = document.getElementById('mEkspedisi').value.trim();
+            const kendaraan = document.getElementById('mJenisKendaraan').value;
+            const nopol = document.getElementById('mNoPol').value.trim().toUpperCase();
+            const nodoc = document.getElementById('mNoDoc').value.trim();
+            const qty = parseInt(document.getElementById('mQty').value) || 0;
+            const jenis = document.getElementById('mJenisKategori').value;
+            const nohp = document.getElementById('mNoHp').value.trim();
+
+            const newId = "L0" + (Math.floor(Math.random() * 90) + 11);
+            const now = new Date();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth()+1).padStart(2, '0') + '/' + now.getFullYear();
+
+            const newEntry = {
+                id: newId,
+                sopir: sopir,
+                ekspedisi: ekspedisi,
+                kendaraan: kendaraan || 'CDD',
+                nopol: nopol,
+                nodoc: nodoc || '-',
+                qty: qty,
+                jenis: jenis,
+                tujuan: 'KAB. SEMERANG (Default)',
+                nohp: nohp || '-',
+                tanggal: dateStr,
+                waktu: timeStr,
+                status: 'Antrian'
+            };
+
+            antrianData.unshift(newEntry);
+            localStorage.setItem('loadflowAntrianDataList', JSON.stringify(antrianData));
+
+            alert('Berhasil! Nomor antrian ' + newId + ' untuk nopol ' + nopol + ' berhasil didaftarkan.');
+            document.getElementById('formDaftarManual').reset();
+            switchTab('antrian');
+        }
+
+        function renderAntrianCards() {
+            const container = document.getElementById('antrianCardContainer');
+            container.innerHTML = '';
+
+            if(antrianData.length === 0) {
+                container.innerHTML = '<div class="card card-custom p-6 text-center text-slate-400 text-xs">Belum ada antrian truk terdaftar. Silakan tambah lewat Daftar Manual.</div>';
+                return;
+            }
+
+            antrianData.forEach((item, idx) => {
+                container.innerHTML += `
+                <div class="card card-custom p-4 rounded-2xl shadow-md space-y-3">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-600 text-white font-bold px-3 py-2 rounded-xl text-sm shadow-inner">
+                                ${item.id}
+                            </div>
+                            <div>
+                                <div class="text-[11px] text-slate-400">${item.tanggal} &bull; ${item.waktu}</div>
+                                <h4 class="font-bold text-slate-100 text-sm tracking-wide">${item.jenis} &rarr; ${item.tujuan}</h4>
+                                <div class="font-bold text-indigo-400 text-sm">${item.nopol} &bull; ${item.ekspedisi}</div>
+                                <div class="text-xs text-slate-300">${item.sopir}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="badge bg-slate-800 border border-slate-700 text-slate-300 py-2 px-3">
+                                <i class="fa-solid fa-boxes-stacked text-amber-400 me-1"></i> ${item.qty} krt
+                            </span>
+                            <span class="badge bg-indigo-950 text-indigo-300 border border-indigo-800 py-2 px-3">
+                                Stay 14m
+                            </span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-800 pt-3 flex justify-between items-center text-xs">
+                        <span class="text-slate-400"><i class="fa-regular fa-clock me-1"></i> Masuk: ${item.waktu}</span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle text-xs" type="button" data-bs-toggle="dropdown">
+                                Pindah Status (${item.status})
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark text-xs">
+                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Antrian')">Antrian</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Nunggu Dokumen')">Nunggu Dokumen</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Proses Muat')">Proses Muat</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Selesai Muat')">Selesai Muat</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="changeStatus(${idx}, 'Keluar')">Keluar Gudang</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function changeStatus(idx, newStatus) {
+            antrianData[idx].status = newStatus;
+            localStorage.setItem('loadflowAntrianDataList', JSON.stringify(antrianData));
+            renderAntrianCards();
+        }
+
+        // Jalankan render awal jika berada di halaman antrian
+        window.onload = function() {
+            if(document.getElementById('antrianCardContainer')) {
+                renderAntrianCards();
+            }
+        };
+    </script>
+</body>
+</html>
