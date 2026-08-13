@@ -27,7 +27,7 @@
     <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative z-20">
         <div class="flex items-center space-x-3">
             <div>
-                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Warehouse Management</h1>
+                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Operasional Gudang</h1>
                 <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
             </div>
         </div>
@@ -47,19 +47,19 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA: PILIH TIPE BARANG -->
+        <!-- MENU UTAMA: PILIH AKTIVITAS -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
-                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc</h2>
-                <p class="text-xs text-slate-400 mt-1">Sesi pengelolaan lokasi rak, penerimaan barang produksi, dan penelusuran stok.</p>
+                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang masuk, stock opname harian, dan peta lokasi rak.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
                 <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
                     <div class="flex items-center gap-3">
                         <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-lg"></i></div>
                         <div>
-                            <h3 class="font-bold text-emerald-700 text-base">Lokal</h3>
+                            <h3 class="font-bold text-emerald-700 text-base">Masuk Lokal</h3>
                             <p class="text-[11px] text-slate-400 font-medium">Pallet + Prodate</p>
                         </div>
                     </div>
@@ -69,8 +69,8 @@
                     <div class="flex items-center gap-3">
                         <div class="bg-violet-50 text-violet-600 p-3 rounded-xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-lg"></i></div>
                         <div>
-                            <h3 class="font-bold text-violet-700 text-base">Ekspor</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Pallet + Prodate + Quotation / Negara</p>
+                            <h3 class="font-bold text-violet-700 text-base">Masuk Ekspor</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Buyer + QT + Pallet</p>
                         </div>
                     </div>
                 </div>
@@ -80,25 +80,37 @@
                         <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i></div>
                         <div>
                             <h3 class="font-bold text-amber-700 text-base">Cari Posisi Barang</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Cari bin loc berdasarkan SKU / Prodate / Buyer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div onclick="switchSection('peta')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-indigo-700 text-base">Peta Kapasitas Gudang</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Visualisasi Layout Gudang Induk (A-X) & Aging (A-O)</p>
+                            <p class="text-[11px] text-slate-400 font-medium">Cari bin loc / rak</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs mt-8">
+            <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-indigo-700 text-base">Input Stock Opname Harian</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Catat audit fisik hitung karton per rak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-purple-700 text-base">Peta Kapasitas Gudang</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Visualisasi Induk (A-X) & Aging (A-O)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs mt-8">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-700 text-sm">Riwayat Penerimaan Barang Produksi Terbaru</h3>
+                    <h3 class="font-bold text-slate-700 text-sm">Riwayat Aktivitas & Masuk Barang Terbaru</h3>
                     <button onclick="resetBinData()" class="text-xs text-rose-500 hover:underline">Reset Data</button>
                 </div>
                 <div class="table-responsive">
@@ -110,19 +122,61 @@
                                 <th>SKU / Produk</th>
                                 <th>Lokasi Rak</th>
                                 <th>No. Pallet</th>
-                                <th>Info Ekspor / Buyer</th>
+                                <th>Info Detail</th>
                             </tr>
                         </thead>
                         <tbody id="recentStokTableBody">
-                            <tr><td colspan="6" class="text-muted">Belum ada data penerimaan masuk.</td></tr>
+                            <tr><td colspan="6" class="text-muted">Belum ada data aktivitas tercatat.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- SECTION: INPUT STOCK OPNAME HARIAN -->
+        <div id="section-opname" class="app-page space-y-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h3 class="font-bold text-slate-700 text-base">Input Stock Opname & Audit Fisik Rak</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <form onsubmit="submitOpname(event)">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Gudang</label>
+                            <select id="opGudang" class="form-select form-select-sm" onchange="updateOpnameBlockOptions()">
+                                <option value="Gudang Induk">Gudang Induk (Blok A-X)</option>
+                                <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-slate-600">Blok Rak</label>
+                            <select id="opBlok" class="form-select form-select-sm">
+                                <!-- Terisi dinamis -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-slate-600">Lorong / Row</label>
+                            <input type="text" id="opRow" class="form-control form-control-sm" required placeholder="Cth: Row 01">
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-600">SKU Produk</label>
+                            <input type="text" id="opSku" class="form-control form-control-sm" required placeholder="Contoh: 313360 - ASTOR">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-slate-600">Jumlah Fisik (Karton)</label>
+                            <input type="number" id="opKarton" class="form-control form-control-sm" required min="1" placeholder="700">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2">Simpan Hasil Opname Fisik</button>
+                </form>
+            </div>
+        </div>
+
         <!-- SECTION: CARI POSISI BARANG -->
-        <div id="section-cari" class="app-page space-y-6 max-w-3xl mx-auto">
+        <div id="section-cari" class="app-page space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Cari Posisi Barang (Bin Loc)</h3>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
@@ -140,7 +194,7 @@
                                 <th class="text-start">Nama Produk</th>
                                 <th>Lokasi Rak</th>
                                 <th>No. Pallet</th>
-                                <th>Info Ekspor / Buyer</th>
+                                <th>Info Detail</th>
                             </tr>
                         </thead>
                         <tbody id="searchResultTableBody">
@@ -202,28 +256,28 @@
                         </select>
                     </div>
 
-                    <!-- INFORMASI TAMBAHAN PRODUK EKSPOR DENGAN DROPDOWN -->
+                    <!-- INFORMASI EKSPOR -->
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
                         <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
                         <div class="row g-2 mb-2">
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Nomor QT (Quality Test)</label>
+                                <label class="form-label fw-bold text-slate-600">Nomor QT</label>
                                 <input type="text" id="pQt" class="form-control form-control-sm" placeholder="No QT...">
                             </div>
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Prodate (Tanggal Produksi)</label>
+                                <label class="form-label fw-bold text-slate-600">Prodate</label>
                                 <input type="date" id="pProdate" class="form-control form-control-sm">
                             </div>
                         </div>
                         <div class="row g-2">
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Exp Date (Kedaluwarsa)</label>
+                                <label class="form-label fw-bold text-slate-600">Exp Date</label>
                                 <input type="date" id="pExpDate" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Buyer & Negara Tujuan *</label>
+                                <label class="form-label fw-bold text-slate-600">Buyer & Negara *</label>
                                 <select id="pBuyer" class="form-select form-select-sm">
-                                    <option value="">-- Pilih Buyer & Negara --</option>
+                                    <option value="">-- Pilih Buyer --</option>
                                     <option value="Buyer A / Amerika Serikat">Buyer A / Amerika Serikat</option>
                                     <option value="Buyer B / China">Buyer B / China</option>
                                     <option value="Buyer C / Korea Selatan">Buyer C / Korea Selatan</option>
@@ -242,9 +296,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label fw-bold text-slate-600">Blok Rak *</label>
-                            <select id="pBlok" class="form-select form-select-sm">
-                                <!-- Terisi dinamis -->
-                            </select>
+                            <select id="pBlok" class="form-select form-select-sm"></select>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold text-slate-600">Lorong / Row *</label>
@@ -254,7 +306,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-slate-600">No. Pallet Fisik (Atau Range) *</label>
+                        <label class="form-label fw-bold text-slate-600">No. Pallet Fisik *</label>
                         <input type="text" id="pPalletRange" class="form-control form-control-sm" required placeholder="Cth: PLT-01 s/d PLT-10">
                     </div>
                     <div class="mb-3">
@@ -307,8 +359,19 @@
             });
         }
 
+        function updateOpnameBlockOptions() {
+            const gudang = document.getElementById('opGudang').value;
+            const blokSelect = document.getElementById('opBlok');
+            blokSelect.innerHTML = '';
+            let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
+            blocks.forEach(b => {
+                blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`;
+            });
+        }
+        updateOpnameBlockOptions();
+
         function switchSection(sectionId) {
-            ['section-home', 'section-cari', 'section-peta'].forEach(id => {
+            ['section-home', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -373,19 +436,45 @@
             e.target.reset();
             document.getElementById('pTanggal').value = currentDateStr;
             renderRecentStok();
-            alert('Penerimaan barang berhasil disimpan ke Bin-Loc!');
+            alert('Penerimaan barang berhasil disimpan!');
+        }
+
+        function submitOpname(e) {
+            e.preventDefault();
+            let newItem = {
+                category: 'Stock Opname',
+                gudang: document.getElementById('opGudang').value,
+                tanggal: currentDateStr,
+                shift: 'Audit Fisik',
+                sku: document.getElementById('opSku').value,
+                qt: '-',
+                prodate: '-',
+                expDate: '-',
+                buyer: 'Audit Gudang',
+                lokasi: document.getElementById('opBlok').value + ' - ' + document.getElementById('opRow').value,
+                pallet: 'OPNAME-AUDIT',
+                karton: document.getElementById('opKarton').value,
+                konversi: (parseFloat(document.getElementById('opKarton').value) / 70).toFixed(1) + ' Pallet'
+            };
+
+            binData.unshift(newItem);
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            e.target.reset();
+            switchSection('home');
+            renderRecentStok();
+            alert('Data Stock Opname berhasil dicatat!');
         }
 
         function renderRecentStok() {
             let tbody = document.getElementById('recentStokTableBody');
             tbody.innerHTML = '';
             if(binData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada data penerimaan masuk.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada data aktivitas tercatat.</td></tr>';
                 return;
             }
             binData.slice(0, 5).forEach(item => {
-                let badgeColor = item.category === 'Ekspor' ? 'bg-violet-100 text-violet-700' : 'bg-emerald-100 text-emerald-700';
-                let infoDisplay = item.category === 'Ekspor' ? `${item.buyer} (QT: ${item.qt})` : 'Domestik';
+                let badgeColor = item.category === 'Ekspor' ? 'bg-violet-100 text-violet-700' : (item.category === 'Stock Opname' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700');
+                let infoDisplay = item.category === 'Ekspor' ? `${item.buyer} (QT: ${item.qt})` : (item.category === 'Stock Opname' ? 'Audit Fisik Rak' : 'Domestik');
                 tbody.innerHTML += `<tr>
                     <td><span class="badge ${badgeColor}">${item.category}</span></td>
                     <td>${item.gudang}</td>
@@ -398,7 +487,7 @@
         }
 
         function resetBinData() {
-            if(confirm('Hapus seluruh riwayat data Bin-Loc?')) {
+            if(confirm('Hapus seluruh riwayat data aktivitas?')) {
                 localStorage.removeItem('binloc_stok_jayanti3');
                 binData = [];
                 renderRecentStok();
@@ -424,7 +513,7 @@
             );
 
             if(filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai dengan kata kunci.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai.</td></tr>';
                 return;
             }
 
