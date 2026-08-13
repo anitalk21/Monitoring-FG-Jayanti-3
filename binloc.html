@@ -27,7 +27,7 @@
     <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative z-20">
         <div class="flex items-center space-x-3">
             <div>
-                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Operasional Gudang</h1>
+                <h1 class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Operasional Gudang</h1>
                 <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
             </div>
         </div>
@@ -47,20 +47,20 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA: PILIH AKTIVITAS -->
+        <!-- MENU UTAMA -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
-                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang masuk, stock opname harian, dan peta lokasi rak.</p>
+                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Karantina QC</h2>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC (Hold/Release), opname, dan peta rak.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
                 <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
                     <div class="flex items-center gap-3">
                         <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-lg"></i></div>
                         <div>
                             <h3 class="font-bold text-emerald-700 text-base">Masuk Lokal</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Pallet + Prodate</p>
+                            <p class="text-[11px] text-slate-400">Pallet + Prodate</p>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,17 @@
                         <div class="bg-violet-50 text-violet-600 p-3 rounded-xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-lg"></i></div>
                         <div>
                             <h3 class="font-bold text-violet-700 text-base">Masuk Ekspor</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Buyer + QT + Pallet</p>
+                            <p class="text-[11px] text-slate-400">Buyer + QT + Pallet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-rose-50 text-rose-600 p-3 rounded-xl border border-rose-100 group-hover:scale-105 transition"><i class="fa-solid fa-shield-halved text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-rose-700 text-base">Form Karantina QC</h3>
+                            <p class="text-[11px] text-slate-400">Hold / Release Pallet</p>
                         </div>
                     </div>
                 </div>
@@ -79,14 +89,14 @@
                     <div class="flex items-center gap-3">
                         <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i></div>
                         <div>
-                            <h3 class="font-bold text-amber-700 text-base">Cari Posisi Barang</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Cari bin loc / rak</p>
+                            <h3 class="font-bold text-amber-700 text-base">Cari Posisi</h3>
+                            <p class="text-[11px] text-slate-400">Cari bin loc / rak</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
                     <div class="flex items-center gap-3">
                         <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-lg"></i></div>
@@ -108,7 +118,7 @@
                 </div>
             </div>
 
-            <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs mt-8">
+            <div class="max-w-5xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs mt-8">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-700 text-sm">Riwayat Aktivitas & Masuk Barang Terbaru</h3>
                     <button onclick="resetBinData()" class="text-xs text-rose-500 hover:underline">Reset Data</button>
@@ -133,7 +143,44 @@
             </div>
         </div>
 
-        <!-- SECTION: INPUT STOCK OPNAME HARIAN -->
+        <!-- SECTION: FORM KARANTINA QC (HOLD/RELEASE) -->
+        <div id="section-qc" class="app-page space-y-6 max-w-3xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Form Karantina QC (Hold / Release)</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <form onsubmit="saveQcAction(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-slate-600">Tindakan QC *</label>
+                        <select class="form-select form-select-sm" id="qcActionType">
+                            <option value="HOLD">Karantina Barang (HOLD)</option>
+                            <option value="RELEASED">Release Barang (Bisa Kirim)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
+                        <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik yang Diproses *</label>
+                        <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Masukkan No. Pallet / Range...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-slate-600">Jumlah Karton *</label>
+                        <input type="number" class="form-control form-control-sm" id="qcCartonInput" required min="1" placeholder="700" oninput="calcQcPallet()">
+                        <span class="text-[11px] text-indigo-600 fw-bold mt-1 block" id="qcPalletBadge">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-slate-600">Keterangan / Alasan QC</label>
+                        <input type="text" class="form-control form-control-sm" id="qcReason" placeholder="Misal: Out of spec, kemasan rusak...">
+                    </div>
+                    <button type="submit" class="btn btn-sm fw-bold w-100 text-white py-2" style="background-color: #f43f5e;">Simpan Status Karantina QC</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION: INPUT STOCK OPNAME -->
         <div id="section-opname" class="app-page space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Input Stock Opname & Audit Fisik Rak</h3>
@@ -151,9 +198,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-slate-600">Blok Rak</label>
-                            <select id="opBlok" class="form-select form-select-sm">
-                                <!-- Terisi dinamis -->
-                            </select>
+                            <select id="opBlok" class="form-select form-select-sm"></select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-slate-600">Lorong / Row</label>
@@ -220,9 +265,7 @@
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
-                <div id="binMapContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 min-w-[700px]">
-                    <!-- Rendered dynamically -->
-                </div>
+                <div id="binMapContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 min-w-[700px]"></div>
             </div>
         </div>
 
@@ -323,7 +366,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGIC -->
+    <!-- SCRIPT BINLOC -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function updateClock() {
@@ -337,10 +380,13 @@
         updateClock();
 
         let binData = [];
+        let qcHistoryData = [];
         try {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
             if (!Array.isArray(binData)) binData = [];
-        } catch(e) { binData = []; }
+            if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
+        } catch(e) { binData = []; qcHistoryData = []; }
 
         const now = new Date();
         const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -354,9 +400,7 @@
             const blokSelect = document.getElementById('pBlok');
             blokSelect.innerHTML = '';
             let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
-            blocks.forEach(b => {
-                blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`;
-            });
+            blocks.forEach(b => { blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`; });
         }
 
         function updateOpnameBlockOptions() {
@@ -364,14 +408,12 @@
             const blokSelect = document.getElementById('opBlok');
             blokSelect.innerHTML = '';
             let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
-            blocks.forEach(b => {
-                blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`;
-            });
+            blocks.forEach(b => { blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`; });
         }
         updateOpnameBlockOptions();
 
         function switchSection(sectionId) {
-            ['section-home', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
+            ['section-home', 'section-qc', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -399,14 +441,43 @@
             document.getElementById('modalPenerimaan').classList.remove('hidden');
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
+        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
 
         function hitungKonversi() {
             let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
             let plt = (krt / 70).toFixed(1);
             document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar 70 krt/plt)`;
+        }
+
+        function calcQcPallet() {
+            let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
+            let plt = (krt / 70).toFixed(1);
+            document.getElementById('qcPalletBadge').innerText = `Konversi: ${plt} Pallet (Standar 70 krt/plt)`;
+        }
+
+        function saveQcAction(e) {
+            e.preventDefault();
+            let action = document.getElementById('qcActionType').value;
+            let skuVal = document.getElementById('qcSkuInput').value;
+            let palletNo = document.getElementById('qcPalletNumber').value;
+            let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
+            let reason = document.getElementById('qcReason').value || '-';
+            let pallets = (krt / 70).toFixed(2);
+
+            let qcItem = {
+                action: action,
+                sku: skuVal.split(' - ')[0],
+                name: skuVal,
+                palletNo: palletNo,
+                pallets: pallets,
+                reason: reason
+            };
+
+            qcHistoryData.unshift(qcItem);
+            localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
+            alert('Status Karantina QC Berhasil Disimpan (' + action + ')!');
+            e.target.reset();
+            switchSection('home');
         }
 
         function submitPenerimaan(e) {
@@ -447,10 +518,7 @@
                 tanggal: currentDateStr,
                 shift: 'Audit Fisik',
                 sku: document.getElementById('opSku').value,
-                qt: '-',
-                prodate: '-',
-                expDate: '-',
-                buyer: 'Audit Gudang',
+                qt: '-', prodate: '-', expDate: '-', buyer: 'Audit Gudang',
                 lokasi: document.getElementById('opBlok').value + ' - ' + document.getElementById('opRow').value,
                 pallet: 'OPNAME-AUDIT',
                 karton: document.getElementById('opKarton').value,
@@ -489,7 +557,9 @@
         function resetBinData() {
             if(confirm('Hapus seluruh riwayat data aktivitas?')) {
                 localStorage.removeItem('binloc_stok_jayanti3');
+                localStorage.removeItem('binloc_qc_jayanti3');
                 binData = [];
+                qcHistoryData = [];
                 renderRecentStok();
             }
         }
@@ -498,33 +568,22 @@
             let keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
             let tbody = document.getElementById('searchResultTableBody');
             tbody.innerHTML = '';
-
             if(!keyword) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>';
                 return;
             }
-
-            let filtered = binData.filter(i => 
-                i.sku.toLowerCase().includes(keyword) || 
-                i.lokasi.toLowerCase().includes(keyword) || 
-                i.pallet.toLowerCase().includes(keyword) ||
-                i.buyer.toLowerCase().includes(keyword) ||
-                i.qt.toLowerCase().includes(keyword)
-            );
-
+            let filtered = binData.filter(i => i.sku.toLowerCase().includes(keyword) || i.lokasi.toLowerCase().includes(keyword) || i.pallet.toLowerCase().includes(keyword));
             if(filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai.</td></tr>';
                 return;
             }
-
             filtered.forEach(item => {
-                let infoDisplay = item.category === 'Ekspor' ? `${item.buyer} (QT: ${item.qt})` : 'Domestik';
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-slate-100 text-slate-700">${item.sku}</span></td>
                     <td class="text-start fw-semibold">${item.sku}</td>
                     <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
                     <td class="fw-bold">${item.pallet}</td>
-                    <td class="text-slate-600 text-[11px]">${infoDisplay}</td>
+                    <td class="text-slate-600 text-[11px]">${item.category}</td>
                 </tr>`;
             });
         }
@@ -546,14 +605,12 @@
             const container = document.getElementById('binMapContainer');
             container.innerHTML = '';
             let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
-
             blocks.forEach(b => {
                 let statusClass = 'bin-empty';
                 let labelStatus = 'Kosong';
                 let rand = Math.random();
                 if(rand > 0.7) { statusClass = 'bin-full'; labelStatus = 'Penuh'; }
                 else if(rand > 0.4) { statusClass = 'bin-low'; labelStatus = 'Terisi'; }
-
                 container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs ${statusClass}">
                     <div class="font-bold text-sm">Blok ${b} FG</div>
                     <div class="text-[10px] mt-1 font-semibold">${labelStatus}</div>
