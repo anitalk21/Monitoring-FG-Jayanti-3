@@ -195,6 +195,8 @@
                 <h4 class="fw-bold mb-0 text-slate-700 text-base">Database Master SKU Produk</h4>
                 <button onclick="switchMenu('kapasitas')" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Kembali ke Kapasitas</button>
             </div>
+            
+            <!-- FORM INPUT PASTE MASTER SKU -->
             <div class="card shadow-2xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
                 <div class="card-body">
                     <div class="alert alert-light border small mb-3 text-slate-600">
@@ -202,6 +204,29 @@
                     </div>
                     <textarea class="form-control font-monospace text-nowrap mb-4" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR TRIPLE CHOCOLATE 30GBX6P    1    PALLET    60    CAR"></textarea>
                     <button type="button" class="btn btn-pastel-primary px-4 fw-bold" onclick="processPasteData()">Simpan Data Master Database</button>
+                </div>
+            </div>
+
+            <!-- TABEL / LIST DAFTAR MASTER SKU YANG SUDAH DIINPUT (POSISI DI BAWAH SESUAI PERMINTAAN) -->
+            <div class="card shadow-2xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-purple fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small flex justify-between items-center">
+                    <span><i class="fa-solid fa-list text-purple-600 mr-2"></i> Daftar Master SKU Finished Goods yang Tersimpan</span>
+                    <button type="button" class="btn btn-sm btn-light border text-purple-700 bg-white shadow-2xs fw-bold" onclick="renderMasterSkuTable()">Refresh List</button>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center text-xs">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>No</th>
+                                <th>SKU ID</th>
+                                <th class="text-start">Nama Produk Finished Goods</th>
+                                <th>Standar Karton / Pallet</th>
+                            </tr>
+                        </thead>
+                        <tbody id="masterSkuTableBody">
+                            <tr><td colspan="4" class="text-muted small">Belum ada data Master SKU. Silakan paste data dari Excel di atas lalu klik Simpan.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -518,6 +543,7 @@
                 document.getElementById('section-master').classList.remove('hidden');
                 document.getElementById('section-master').classList.add('active');
                 document.getElementById('topHeaderTitle').innerText = 'Database Master SKU Produk';
+                renderMasterSkuTable(); // Render tabel list SKU saat menu Master dibuka
             } else if (menuName === 'realisasi') {
                 document.getElementById('section-realisasi').classList.remove('hidden');
                 document.getElementById('section-realisasi').classList.add('active');
@@ -562,6 +588,63 @@
             }
 
             if (window.innerWidth < 768) toggleSidebar();
+        }
+
+        /* FUNGSI PROSES PASTE & SIMPAN MASTER SKU */
+        function processPasteData() {
+            const text = document.getElementById('pasteArea').value.trim();
+            if(!text) { alert('Data paste masih kosong!'); return; }
+            
+            let lines = text.split('\n');
+            let count = 0;
+            
+            lines.forEach(line => {
+                let cols = line.split('\t');
+                if(cols.length >= 2) {
+                    let skuId = cols[0].trim();
+                    let skuName = cols[1].trim();
+                    let cartonPlt = cols[4] ? parseFloat(cols[4].trim()) || 70 : 70;
+                    if(skuId) {
+                        stockData[skuId] = {
+                            sku: skuId,
+                            name: skuName,
+                            cartonPerPallet: cartonPlt
+                        };
+                        count++;
+                    }
+                }
+            });
+
+            // Simpan ke localStorage dengan key terpusat
+            localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
+            document.getElementById('pasteArea').value = '';
+            alert(`Berhasil menyimpan ${count} Master SKU Produk! Data kini terhubung ke Portal Bin-Loc.`);
+            renderMasterSkuTable();
+        }
+
+        /* FUNGSI RENDER TABEL LIST MASTER SKU DI BAWAH INPUT */
+        function renderMasterSkuTable() {
+            stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+            let tbody = document.getElementById('masterSkuTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let keys = Object.keys(stockData);
+            if(keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-muted small">Belum ada data Master SKU. Silakan paste data dari Excel di atas lalu klik Simpan.</td></tr>';
+                return;
+            }
+
+            let no = 1;
+            keys.forEach(sku => {
+                let item = stockData[sku];
+                tbody.innerHTML += `<tr>
+                    <td>${no++}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku}</span></td>
+                    <td class="text-start fw-semibold">${item.name}</td>
+                    <td class="fw-bold text-indigo-600">${item.cartonPerPallet} Karton</td>
+                </tr>`;
+            });
         }
 
         /* RENDER TABEL MONITORING RDC (16 KOLOM & SLA 6 JAM) */
@@ -842,15 +925,9 @@
 
         function closeBinModal() { document.getElementById('binModal').classList.add('hidden'); }
 
-        function processPasteData() {
-            const text = document.getElementById('pasteArea').value.trim();
-            if(!text) { alert('Data paste masih kosong!'); return; }
-            alert('Data Master berhasil diproses!');
-            switchMenu('kapasitas');
-        }
-
         updateSummaryHoldCount();
         renderQcHistoryTable();
+        renderMasterSkuTable();
     </script>
 </body>
 </html>
