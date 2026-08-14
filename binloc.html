@@ -17,6 +17,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
+        .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
@@ -52,7 +53,7 @@
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, rekonsiliasi SAP, karantina QC, opname, dan peta rak.</p>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, rekonsiliasi SAP, karantina QC, aging 8 hari, opname, dan peta rak.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -71,7 +72,7 @@
                         <div class="bg-violet-50 text-violet-600 p-3 rounded-xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-lg"></i></div>
                         <div>
                             <h3 class="font-bold text-violet-700 text-base">Masuk Ekspor</h3>
-                            <p class="text-[11px] text-slate-400">Buyer + QT + Pallet</p>
+                            <p class="text-[11px] text-slate-400">Buyer (Ketik) + QT</p>
                         </div>
                     </div>
                 </div>
@@ -86,6 +87,18 @@
                     </div>
                 </div>
 
+                <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-lg"></i></div>
+                        <div>
+                            <h3 class="font-bold text-amber-700 text-base">Monitoring Aging</h3>
+                            <p class="text-[11px] text-slate-400">Masa Aging 8 Hari</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
                     <div class="flex items-center gap-3">
                         <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i></div>
@@ -95,15 +108,13 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
                     <div class="flex items-center gap-3">
                         <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-lg"></i></div>
                         <div>
-                            <h3 class="font-bold text-indigo-700 text-base">Input Stock Opname & Rekonsiliasi SAP</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Audit fisik multi-baris & perbandingan SAP vs Fisik</p>
+                            <h3 class="font-bold text-indigo-700 text-base">Stock Opname & SAP</h3>
+                            <p class="text-[11px] text-slate-400">Audit fisik multi-baris</p>
                         </div>
                     </div>
                 </div>
@@ -112,10 +123,44 @@
                     <div class="flex items-center gap-3">
                         <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-lg"></i></div>
                         <div>
-                            <h3 class="font-bold text-purple-700 text-base">Peta Kapasitas Gudang</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">Visualisasi Induk (A-X) & Aging (A-O)</p>
+                            <h3 class="font-bold text-purple-700 text-base">Peta Kapasitas</h3>
+                            <p class="text-[11px] text-slate-400">Visualisasi Induk & Aging</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: MONITORING GUDANG AGING (8 HARI) -->
+        <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-amber-800 text-base"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Monitoring Gudang Aging (Masa Aging 8 Hari)</h3>
+                    <p class="text-xs text-slate-400">Sistem otomatis memantau masa aging produk sejak tanggal masuk (FIFO). Mencapai 8 hari status menjadi Ready.</p>
+                </div>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div class="alert alert-warning text-xs py-2 px-3 mb-3 border-amber-200 bg-amber-50 text-amber-800">
+                    <i class="fa-solid fa-circle-info me-1"></i> Produk di Gudang Aging wajib memenuhi masa karantina/aging minimal 8 hari sebelum dinyatakan <b>Ready</b> untuk dikirim.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-yellow">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Tanggal Masuk (FIFO)</th>
+                                <th>Lama Aging</th>
+                                <th>Lokasi Gudang Aging</th>
+                                <th>Jumlah Pallet</th>
+                                <th>Status Readiness</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agingTableBody">
+                            <tr><td colspan="7" class="text-muted">Belum ada data produk di Gudang Aging.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -157,14 +202,13 @@
             </div>
         </div>
 
-        <!-- SECTION: INPUT STOCK OPNAME & REKONSILIASI SAP (SESUAI GAMBAR KEDUA) -->
+        <!-- SECTION: INPUT STOCK OPNAME & REKONSILIASI SAP -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
 
-            <!-- TOMBOL INPUT DATA SAP & KARANTINA QC PILIHAN (GAMBAR 2) -->
             <div class="row g-3 mb-3">
                 <div class="col-md-12">
                     <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
@@ -286,7 +330,7 @@
 
     </main>
 
-    <!-- MODAL PENERIMAAN BARANG JADI -->
+    <!-- MODAL PENERIMAAN BARANG JADI (BUYER DIKETIK BEBAS) -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -314,7 +358,7 @@
                         </select>
                     </div>
 
-                    <!-- INFORMASI EKSPOR -->
+                    <!-- INFORMASI EKSPOR (BUYER KETIK BEBAS) -->
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
                         <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
                         <div class="row g-2 mb-2">
@@ -333,16 +377,8 @@
                                 <input type="date" id="pExpDate" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Buyer & Negara *</label>
-                                <select id="pBuyer" class="form-select form-select-sm">
-                                    <option value="">-- Pilih Buyer --</option>
-                                    <option value="Buyer A / Amerika Serikat">Buyer A / Amerika Serikat</option>
-                                    <option value="Buyer B / China">Buyer B / China</option>
-                                    <option value="Buyer C / Korea Selatan">Buyer C / Korea Selatan</option>
-                                    <option value="Buyer D / Jepang">Buyer D / Jepang</option>
-                                    <option value="Buyer E / Timur Tengah">Buyer E / Timur Tengah</option>
-                                    <option value="Buyer F / Asia Tenggara">Buyer F / Asia Tenggara</option>
-                                </select>
+                                <label class="form-label fw-bold text-slate-600">Buyer & Negara Tujuan *</label>
+                                <input type="text" id="pBuyerText" class="form-control form-control-sm" placeholder="Ketik nama buyer & negara...">
                             </div>
                         </div>
                     </div>
@@ -475,13 +511,14 @@
         }
 
         function switchSection(sectionId) {
-            ['section-home', 'section-qc', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
+            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
             const target = document.getElementById('section-' + sectionId);
             if(target) { target.classList.remove('hidden'); target.classList.add('active'); }
             if(sectionId === 'peta') renderBinMap();
+            if(sectionId === 'aging') renderAgingTable();
         }
 
         function openPenerimaanModal(category) {
@@ -491,11 +528,11 @@
             const eksporGroup = document.getElementById('eksporFieldGroup');
             if(category === 'Ekspor') {
                 eksporGroup.style.display = 'block';
-                document.getElementById('pBuyer').setAttribute('required', 'true');
+                document.getElementById('pBuyerText').setAttribute('required', 'true');
             } else {
                 eksporGroup.style.display = 'none';
-                document.getElementById('pBuyer').removeAttribute('required');
-                document.getElementById('pBuyer').value = '';
+                document.getElementById('pBuyerText').removeAttribute('required');
+                document.getElementById('pBuyerText').value = '';
                 document.getElementById('pQt').value = '';
                 document.getElementById('pProdate').value = '';
                 document.getElementById('pExpDate').value = '';
@@ -537,12 +574,13 @@
         function submitPenerimaan(e) {
             e.preventDefault();
             let category = document.getElementById('pCategory').value;
-            let buyerInfo = category === 'Ekspor' ? document.getElementById('pBuyer').value : 'Lokal / Domestik';
+            let buyerInfo = category === 'Ekspor' ? document.getElementById('pBuyerText').value : 'Lokal / Domestik';
 
             let newItem = {
                 category: category,
                 gudang: document.getElementById('pGudang').value,
                 tanggal: document.getElementById('pTanggal').value,
+                timestamp: new Date().getTime(),
                 shift: document.getElementById('pShift').value,
                 sku: document.getElementById('pSku').value,
                 qt: document.getElementById('pQt').value || '-',
@@ -563,6 +601,42 @@
             alert('Penerimaan barang berhasil disimpan!');
         }
 
+        function renderAgingTable() {
+            let tbody = document.getElementById('agingTableBody');
+            tbody.innerHTML = '';
+            
+            // Filter barang yang masuk ke Gudang Aging
+            let agingItems = binData.filter(item => item.gudang && item.gudang.includes('Aging'));
+
+            if(agingItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Belum ada data produk di Gudang Aging.</td></tr>';
+                return;
+            }
+
+            const nowTime = new Date().getTime();
+            agingItems.forEach(item => {
+                // Hitung selisih hari dari timestamp atau tanggal masuk
+                let itemTime = item.timestamp || new Date().getTime();
+                let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
+                if(diffDays < 0) diffDays = 0;
+
+                let isReady = diffDays >= 8;
+                let statusBadge = isReady ? 
+                    '<span class="badge bg-success px-2 py-1">Ready</span>' : 
+                    `<span class="badge bg-warning text-dark px-2 py-1">Aging (${8 - diffDays} hari lagi)</span>`;
+
+                tbody.innerHTML += `<tr>
+                    <td class="fw-bold">${item.sku.split(' - ')[0]}</td>
+                    <td class="text-start">${item.sku}</td>
+                    <td>${item.tanggal}</td>
+                    <td class="fw-semibold text-indigo-600">${diffDays} Hari</td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
+                    <td class="fw-bold">${item.konversi}</td>
+                    <td>${statusBadge}</td>
+                </tr>`;
+            });
+        }
+
         function saveBulkOpname(e) {
             e.preventDefault();
             let rows = document.getElementById('multiOpnameBody').children;
@@ -580,6 +654,7 @@
                     category: 'Stock Opname',
                     gudang: document.getElementById('opDestWarehouse').value,
                     tanggal: document.getElementById('opGlobalDate').value,
+                    timestamp: new Date().getTime(),
                     shift: document.getElementById('opPlantCode').value,
                     sku: sku, qt: '-', prodate: '-', expDate: '-', buyer: document.getElementById('opStockKeeper').value,
                     lokasi: block + ' - ' + row,
