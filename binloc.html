@@ -50,7 +50,7 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA (IKON DI ATAS, TEKS DI BAWAH) -->
+        <!-- MENU UTAMA -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
@@ -149,14 +149,13 @@
             </div>
         </div>
 
-        <!-- SECTION: FORM KARANTINA QC (BERKESINAMBUNGAN: HOLD -> RELEASE / SCRAP) -->
+        <!-- SECTION: FORM KARANTINA QC -->
         <div id="section-qc" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Manajemen Karantina QC (Hold, Release & Pemusnahan)</h3>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
 
-            <!-- Form Input Hold Baru -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold) Baru</h5>
                 <form onsubmit="saveQcAction(event)">
@@ -213,7 +212,6 @@
                 </form>
             </div>
 
-            <!-- Tabel Daftar Aktif Karantina (Hold) Berkesinambungan -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
                 <div class="table-responsive">
@@ -238,7 +236,7 @@
             </div>
         </div>
 
-        <!-- SECTION: INPUT STOCK OPNAME & REKONSILIASI SAP -->
+        <!-- SECTION: STOCK OPNAME -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
@@ -345,7 +343,7 @@
             </div>
         </div>
 
-        <!-- SECTION: PETA KAPASITAS GUDANG (DEFAULT 0 / KOSONG SEMUA & DENGAN KLIK RELOKASI) -->
+        <!-- SECTION: PETA KAPASITAS GUDANG -->
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -389,7 +387,7 @@
         </div>
     </div>
 
-    <!-- MODAL PENERIMAAN BARANG JADI -->
+    <!-- MODAL PENERIMAAN BARANG JADI (DENGAN PILIHAN PLANT & LINE PRODUKSI) -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -406,15 +404,33 @@
                             <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-slate-600">Tanggal Masuk</label>
-                        <input type="text" id="pTanggal" class="form-control form-control-sm bg-slate-50" readonly>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Pilih Plant *</label>
+                            <select class="form-select form-select-sm" id="pPlant" required onchange="updatePenerimaanLines()">
+                                <option value="">-- Pilih Plant --</option>
+                                <option value="1115">Plant 1115</option>
+                                <option value="1116">Plant 1116</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Pilih Line Produksi *</label>
+                            <select class="form-select form-select-sm" id="pLine" required>
+                                <option value="">-- Pilih Plant Dulu --</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-slate-600">Shift Kerja *</label>
-                        <select id="pShift" class="form-select form-select-sm">
-                            <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
-                        </select>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Tanggal Masuk</label>
+                            <input type="text" id="pTanggal" class="form-control form-control-sm bg-slate-50" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Shift Kerja *</label>
+                            <select id="pShift" class="form-select form-select-sm">
+                                <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
@@ -540,6 +556,28 @@
             let maxRow = getRowMax(gudang, blokVal);
             for(let i = 1; i <= maxRow; i++) {
                 rowSelect.innerHTML += `<option value="Row ${i < 10 ? '0' + i : i}">Row ${i < 10 ? '0' + i : i} (Maks ${maxRow})</option>`;
+            }
+        }
+
+        // FUNGSI PILIHAN LINE UNTUK FORM PENERIMAAN
+        function updatePenerimaanLines() {
+            const plant = document.getElementById('pPlant').value;
+            const lineSelect = document.getElementById('pLine');
+            lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
+            if(plant === '1115') {
+                for(let i = 1; i <= 13; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+                for(let i = 1; i <= 6; i++) {
+                    let name = `GA${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            } else if(plant === '1116') {
+                for(let i = 1; i <= 20; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
             }
         }
 
@@ -749,6 +787,8 @@
             let newItem = {
                 category: category,
                 gudang: document.getElementById('pGudang').value,
+                plant: document.getElementById('pPlant').value,
+                line: document.getElementById('pLine').value,
                 tanggal: document.getElementById('pTanggal').value,
                 timestamp: new Date().getTime(),
                 shift: document.getElementById('pShift').value,
@@ -875,7 +915,6 @@
             renderBinMap();
         }
 
-        // FUNGSI RELOKASI RAK
         function openRelokasiModal(blokName) {
             document.getElementById('relocAsal').value = blokName;
             document.getElementById('relocSku').value = '';
@@ -902,7 +941,6 @@
             closeModal('modalRelokasi');
         }
 
-        // Peta Kapasitas Default Kosong (0)
         function renderBinMap() {
             const container = document.getElementById('binMapContainer');
             container.innerHTML = '';
