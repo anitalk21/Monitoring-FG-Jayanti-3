@@ -20,6 +20,8 @@
         .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
         .pastel-header-rose { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .bin-item { cursor: pointer; transition: transform 0.1s; }
+        .bin-item:hover { transform: scale(1.02); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -343,12 +345,12 @@
             </div>
         </div>
 
-        <!-- SECTION: PETA KAPASITAS GUDANG (DEFAULT 0 / KOSONG SEMUA) -->
+        <!-- SECTION: PETA KAPASITAS GUDANG (DEFAULT 0 / KOSONG SEMUA & DENGAN KLIK RELOKASI) -->
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
-                    <h3 class="font-bold text-slate-700 text-base">Peta Kapasitas Gudang (Jayanti 3)</h3>
-                    <p class="text-xs text-slate-400">Menampilkan blok rak sesuai layout Gudang Induk (A-X) dan Gudang Aging (A-O).</p>
+                    <h3 class="font-bold text-slate-700 text-base">Peta Kapasitas Gudang & Relokasi (Jayanti 3)</h3>
+                    <p class="text-xs text-slate-400">Klik blok rak untuk memindahkan lokasi barang (Relokasi).</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="switchWarehouse('INDUK')" id="btnWhInduk" class="btn btn-sm btn-primary">Gudang Induk (A-X)</button>
@@ -363,6 +365,29 @@
         </div>
 
     </main>
+
+    <!-- MODAL RELOKASI RAK -->
+    <div id="modalRelokasi" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-xs">
+            <h5 class="fw-bold mb-3 text-indigo-700 text-sm"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Relokasi Barang (Pindah Rak)</h5>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Cari SKU Produk *</label>
+                <input type="text" id="relocSku" class="form-control form-control-sm" placeholder="Ketik SKU...">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Lokasi Asal / Terpilih</label>
+                <input type="text" id="relocAsal" class="form-control form-control-sm bg-slate-50" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Lokasi Tujuan Baru *</label>
+                <input type="text" id="relocTujuan" class="form-control form-control-sm" placeholder="Contoh: Blok T - Row 05">
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button class="btn btn-sm btn-primary w-100 fw-bold" onclick="processRelokasi()">Update Lokasi Rak</button>
+                <button class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalRelokasi')">Batal</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL PENERIMAAN BARANG JADI -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
@@ -690,8 +715,6 @@
         function renderActiveHoldTable() {
             let tbody = document.getElementById('activeHoldTableBody');
             tbody.innerHTML = '';
-            
-            // Filter hanya yang statusnya HOLD
             let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
 
             if(activeHolds.length === 0) {
@@ -852,12 +875,40 @@
             renderBinMap();
         }
 
+        // FUNGSI RELOKASI RAK
+        function openRelokasiModal(blokName) {
+            document.getElementById('relocAsal').value = blokName;
+            document.getElementById('relocSku').value = '';
+            document.getElementById('relocTujuan').value = '';
+            document.getElementById('modalRelokasi').classList.remove('hidden');
+        }
+
+        function processRelokasi() {
+            let sku = document.getElementById('relocSku').value.trim();
+            let tujuan = document.getElementById('relocTujuan').value.trim();
+            let asal = document.getElementById('relocAsal').value;
+            if(!sku || !tujuan) { alert('Harap isi SKU dan lokasi tujuan baru!'); return; }
+
+            let updatedCount = 0;
+            binData.forEach(item => {
+                if(item.sku.toLowerCase().includes(sku.toLowerCase())) {
+                    item.lokasi = tujuan;
+                    updatedCount++;
+                }
+            });
+
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            alert(`Berhasil merelokasi ${updatedCount} data barang dari ${asal} ke ${tujuan}!`);
+            closeModal('modalRelokasi');
+        }
+
+        // Peta Kapasitas Default Kosong (0)
         function renderBinMap() {
             const container = document.getElementById('binMapContainer');
             container.innerHTML = '';
             let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
             blocks.forEach(b => {
-                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-empty">
+                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item bin-empty" onclick="openRelokasiModal('Blok ${b}')">
                     <div class="font-bold text-sm">Blok ${b} FG</div>
                     <div class="text-[10px] mt-1 font-semibold text-slate-400">Kosong</div>
                 </div>`;
