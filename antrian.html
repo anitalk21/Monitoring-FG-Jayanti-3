@@ -24,6 +24,8 @@
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
         .btn-primary { background: #6366f1; color: white; border: none; }
         .btn-primary:hover { background: #4f46e5; }
+        .btn-success { background: #10b981; color: white; border: none; }
+        .btn-success:hover { background: #059669; }
         .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
         .btn-danger:hover { background: #fecaca; }
         
@@ -49,7 +51,7 @@
 
         /* Modal Pop-up */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 12px; }
         label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
@@ -107,17 +109,33 @@
     </div>
 </div>
 
-<!-- MODAL DAFTAR MANUAL (Sesuai Alur Gambar Referensi) -->
+<!-- MODAL DAFTAR MANUAL (Sesuai Alur Gambar Referensi) + INPUT DETAIL BARANG UNTUK PICKING LIST -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
-        <h4 style="margin-top:0; color:#1e293b;">Ambil Nomor Antrian Masuk</h4>
+        <h4 style="margin-top:0; color:#1e293b;">Ambil Nomor Antrian Masuk & Picking List</h4>
         <form onsubmit="submitAntrian(event)">
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
             <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
             <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
             <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
-            <div class="form-group"><label>Quantity (Karton)</label><input type="number" id="mQty" placeholder="120"></div>
             
+            <!-- Input Rincian Item Barang untuk Picking List Otomatis -->
+            <div class="form-group" style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                <label style="color:#4f46e5; margin-bottom:6px;">📦 Perincian Barang Picking List (FIFO)</label>
+                <div class="row g-2" style="display:flex; gap:6px; margin-bottom:6px;">
+                    <input type="text" id="itemSku" placeholder="SKU (Cth: 410069)" style="flex:1;">
+                    <input type="text" id="itemNama" placeholder="Nama Barang / Jenis" style="flex:2;">
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" id="itemRak" placeholder="Lokasi Rak (Cth: Blok A | Row 02)" style="flex:2;">
+                    <input type="date" id="itemProdate" style="flex:1;" title="Tanggal Produksi (FIFO)">
+                    <input type="number" id="itemReceh" placeholder="Receh" style="width:70px;" title="Jumlah Receh">
+                    <input type="number" id="itemJumlah" placeholder="Total Krt" style="width:80px;" title="Jumlah Karton">
+                </div>
+                <button type="button" class="btn" style="margin-top:6px; font-size:10px; background:#e0e7ff; color:#4338ca; width:100%;" onclick="addItemToDraft()">+ Tambah Item Barang ke Picking List</button>
+                <ul id="draftItemsList" style="margin:6px 0 0 15px; padding:0; font-size:11px; color:#64748b;"></ul>
+            </div>
+
             <!-- Jenis Pengiriman Utama -->
             <div class="form-group">
                 <label>Jenis *</label>
@@ -145,7 +163,7 @@
                 <input type="text" id="mContainer" placeholder="CONTOH: TCKU1234567">
             </div>
 
-            <!-- Tujuan Pengiriman (Muncul di bawah sebelum No. HP) -->
+            <!-- Tujuan Pengiriman -->
             <div class="form-group">
                 <label>Tujuan Pengiriman *</label>
                 <input type="text" id="mTujuan" required placeholder="Masukkan tujuan pengiriman">
@@ -161,10 +179,10 @@
     </div>
 </div>
 
-<!-- MODAL PINDAH STATUS & OUTBOUND -->
+<!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
-        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Outbound Pengiriman</h4>
+        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
         
         <div class="form-group">
             <label>Pilih Status Truk</label>
@@ -172,7 +190,7 @@
                 <option value="Antrian">Antrian</option>
                 <option value="Menunggu Dokumen">Menunggu Dokumen</option>
                 <option value="Proses Muat">Proses Muat</option>
-                <option value="Selesai Muat">Selesai Muat (Menunggu Surat Jalan di Parkiran)</option>
+                <option value="Selesai Muat">Selesai Muat (Verifikasi Goods Issue & Menunggu Surat Jalan di Parkiran)</option>
                 <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
                 <option value="Keluar">Keluar Gudang (Permanen)</option>
             </select>
@@ -184,7 +202,8 @@
         </div>
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
-            <strong style="color:#e11d48; display:block; margin-bottom:8px;">Form Pengiriman & Outbound Parsial</strong>
+            <strong style="color:#e11d48; display:block; margin-bottom:8px;">Verifikasi Barang Keluar (Goods Issue)</strong>
+            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang berdasarkan FIFO.</p>
             <label>Cari SKU Produk</label>
             <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
             <p id="holdWarning" style="color:#e11d48; display:none; font-weight:bold; margin-top:8px;">⚠️ Peringatan: Barang berstatus HOLD, tidak bisa diproses kirim!</p>
@@ -197,8 +216,27 @@
     </div>
 </div>
 
+<!-- MODAL TAMPILAN PICKING LIST -->
+<div id="modalPickingList" class="modal">
+    <div class="modal-content" style="width: 650px; background: #fff;">
+        <div style="border-bottom: 2px solid #334155; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="margin:0; color:#1e293b; font-size:14px;">PT. MAYORA INDAH - JAYANTI 3</h3>
+                <span style="font-size:11px; font-weight:bold; color:#64748b;">PICKING LIST LOKAL / EKSPOR (FIFO)</span>
+            </div>
+            <button class="btn" onclick="window.print()" style="font-size:10px;">🖨️ Cetak</button>
+        </div>
+        <div id="pickingListContent" style="font-size:11px; color:#334155;"></div>
+        <div style="margin-top:20px; text-align:right;">
+            <button class="btn" onclick="closeModal('modalPickingList')">Tutup</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let data = [];
+    let draftItems = [];
+
     try {
         data = JSON.parse(localStorage.getItem('antrian')) || [];
         if (!Array.isArray(data)) data = [];
@@ -229,7 +267,40 @@
     function openModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'flex'; }
     function closeModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
 
-    // Logika Dinamis Dropdown Jenis Pilihan (Lokal / Ekspor)
+    function addItemToDraft() {
+        const sku = document.getElementById('itemSku').value;
+        const nama = document.getElementById('itemNama').value;
+        const rak = document.getElementById('itemRak').value;
+        const prodate = document.getElementById('itemProdate').value || '2026-08-01';
+        const receh = document.getElementById('itemReceh').value || 0;
+        const jumlah = document.getElementById('itemJumlah').value || 0;
+
+        if(!sku || !nama) {
+            alert('SKU dan Nama Barang wajib diisi!');
+            return;
+        }
+
+        draftItems.push({ sku, nama, rak, prodate, receh: parseInt(receh), jumlah: parseInt(jumlah) });
+        // Urutkan secara FIFO berdasarkan tanggal prodate tertua
+        draftItems.sort((a, b) => new Date(a.prodate) - new Date(b.prodate));
+
+        document.getElementById('itemSku').value = '';
+        document.getElementById('itemNama').value = '';
+        document.getElementById('itemRak').value = '';
+        document.getElementById('itemProdate').value = '';
+        document.getElementById('itemReceh').value = '';
+        document.getElementById('itemJumlah').value = '';
+        renderDraftList();
+    }
+
+    function renderDraftList() {
+        const list = document.getElementById('draftItemsList');
+        list.innerHTML = '';
+        draftItems.forEach((it, idx) => {
+            list.innerHTML += `<li><b>${it.sku}</b> - ${it.nama} (Rak: ${it.rak || '-'}, Tgl: ${it.prodate}) | Krt: ${it.jumlah}, Receh: ${it.receh}</li>`;
+        });
+    }
+
     function handleJenisChange() {
         const jenis = document.getElementById('mJenis').value;
         const groupTipe = document.getElementById('groupTipePengiriman');
@@ -259,7 +330,7 @@
     function checkStatusChange() {
         const status = document.getElementById('selectStatus').value;
         document.getElementById('dockDiv').style.display = (status === 'Proses Muat') ? 'block' : 'none';
-        document.getElementById('outboundSection').style.display = (status === 'Proses Muat') ? 'block' : 'none';
+        document.getElementById('outboundSection').style.display = (status === 'Selesai Muat') ? 'block' : 'none';
     }
 
     function checkSKUHold() {
@@ -282,6 +353,8 @@
             jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
         }
 
+        let totalQty = draftItems.reduce((sum, item) => sum + item.jumlah, 0);
+
         data.unshift({ 
             id: "L0" + Math.floor(Math.random() * 90 + 10), 
             sopir: document.getElementById('mSopir').value, 
@@ -290,18 +363,22 @@
             nodoc: document.getElementById('mNoDoc').value,
             nohp: document.getElementById('mNoHp').value || '-',
             tujuan: document.getElementById('mTujuan').value.toUpperCase(),
-            qty: document.getElementById('mQty').value || 0,
+            qty: totalQty || 0,
+            items: [...draftItems],
             jenis: jenisFull,
             status: 'Antrian',
             dock: '-',
             rawTime: now.getTime(), 
             masukText: String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear() + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0')
         });
+
         localStorage.setItem('antrian', JSON.stringify(data));
+        draftItems = [];
         closeModal('modalManual');
         e.target.reset();
         document.getElementById('groupTipePengiriman').style.display = 'none';
         document.getElementById('groupContainer').style.display = 'none';
+        document.getElementById('draftItemsList').innerHTML = '';
         renderAll();
     }
 
@@ -309,7 +386,7 @@
         activeIdx = idx;
         const item = data[idx];
         if (item.status === 'Keluar') {
-            alert('Truk ini sudah berstatus "Keluar" dan dikunci secara permanen (tidak dapat diubah statusnya lagi).');
+            alert('Truk ini sudah berstatus "Keluar" dan dikunci secara permanen.');
             return;
         }
         document.getElementById('selectStatus').value = item.status || 'Antrian';
@@ -319,18 +396,86 @@
 
     function saveStatus() {
         if(document.getElementById('holdWarning').style.display === 'block') {
-            alert('Gagal: Barang berstatus HOLD, tidak bisa diproses muat/kirim!');
+            alert('Gagal: Barang berstatus HOLD, tidak bisa diproses kirim!');
             return;
         }
-        data[activeIdx].status = document.getElementById('selectStatus').value;
-        if(data[activeIdx].status === 'Proses Muat') {
+
+        let nextStatus = document.getElementById('selectStatus').value;
+        let prevStatus = data[activeIdx].status;
+
+        data[activeIdx].status = nextStatus;
+        if(nextStatus === 'Proses Muat') {
             data[activeIdx].dock = document.getElementById('selectDock').value;
-        } else {
+        } else if(nextStatus !== 'Proses Muat') {
             data[activeIdx].dock = '-';
         }
+
+        // Jika berpindah ke Selesai Muat, lakukan Goods Issue otomatis mengurangi stok binloc
+        if(nextStatus === 'Selesai Muat' && prevStatus !== 'Selesai Muat') {
+            try {
+                let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+                if(data[activeIdx].items && data[activeIdx].items.length > 0) {
+                    data[activeIdx].items.forEach(soldItem => {
+                        let target = binStock.find(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                        if(target) {
+                            target.karton = Math.max(0, parseInt(target.karton || 0) - soldItem.jumlah);
+                        }
+                    });
+                    localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+                }
+            } catch(e) { console.error('Gagal sinkronisasi Goods Issue ke Bin-Loc', e); }
+        }
+
         localStorage.setItem('antrian', JSON.stringify(data));
         closeModal('modalStatus');
         renderAll();
+    }
+
+    function viewPickingList(idx) {
+        const item = data[idx];
+        let content = `<div style="margin-bottom:10px;">
+            <strong>No. DO / Doc:</strong> ${item.nodoc} &nbsp;&nbsp;|&nbsp;&nbsp; 
+            <strong>Ekspedisi:</strong> ${item.ekspedisi} &nbsp;&nbsp;|&nbsp;&nbsp; 
+            <strong>No. Polisi:</strong> ${item.nopol} <br>
+            <strong>Tujuan:</strong> ${item.tujuan} &nbsp;&nbsp;|&nbsp;&nbsp; 
+            <strong>Tanggal:</strong> ${item.masukText}
+        </div>`;
+
+        if(!item.items || item.items.length === 0) {
+            content += `<p style="color:#94a3b8; font-style:italic;">Tidak ada perincian item barang di dalam picking list ini.</p>`;
+        } else {
+            content += `<table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Lokasi Rak</th>
+                        <th>Jenis Barang</th>
+                        <th>SKU</th>
+                        <th>Tgl Prod (FIFO)</th>
+                        <th>Karton</th>
+                        <th>Receh</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            
+            // Urutkan berdasarkan FIFO tanggal produksi
+            let sortedItems = [...item.items].sort((a,b) => new Date(a.prodate) - new Date(b.prodate));
+            sortedItems.forEach((it, i) => {
+                content += `<tr>
+                    <td>${i+1}</td>
+                    <td><b>${it.rak || '-'}</b></td>
+                    <td style="text-align:left;">${it.nama}</td>
+                    <td>${it.sku}</td>
+                    <td>${it.prodate}</td>
+                    <td><b>${it.jumlah}</b></td>
+                    <td>${it.receh}</td>
+                </tr>`;
+            });
+            content += `</tbody></table>`;
+        }
+
+        document.getElementById('pickingListContent').innerHTML = content;
+        openModal('modalPickingList');
     }
 
     function deleteTruck(idx) {
@@ -396,6 +541,7 @@
                     dockHtml += `<div class="card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; background:white;">
                         <div><strong>${t.nopol}</strong> &bull; ${t.ekspedisi} &bull; Tujuan: ${t.tujuan} &bull; Sopir: ${t.sopir}</div>
                         <div style="display:flex; gap:6px;">
+                            <button class="btn" style="font-size:11px;" onclick="viewPickingList(${realIdx})">📄 Picking List</button>
                             <button class="btn" style="font-size:11px;" onclick="openStatusModal(${realIdx})">Pindah Status</button>
                             <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${realIdx})">Hapus</button>
                         </div>
@@ -452,7 +598,7 @@
                                 ${item.nopol} &bull; ${item.ekspedisi || '-'} &bull; <span style="color:#0284c7;">Doc: ${item.nodoc || '-'}</span>
                             </div>
                             <div style="margin-top:4px; color:#64748b;">
-                                Sopir: <strong>${item.sopir}</strong> (HP: ${item.nohp || '-'}) | Jenis: ${item.jenis} &rarr; <strong>Tujuan: ${item.tujuan || '-'}</strong> | Qty: ${item.qty} krt 
+                                Sopir: <strong>${item.sopir}</strong> (HP: ${item.nohp || '-'}) | Jenis: ${item.jenis} &rarr; <strong>Tujuan: ${item.tujuan || '-'}</strong> | Qty Total: ${item.qty} krt 
                                 ${item.dock !== '-' ? '<span style="color:#059669; font-weight:bold;">(Dock: '+item.dock+')</span>' : ''}
                             </div>
                             <div style="margin-top:6px; font-size:11px; color:#64748b; display:flex; align-items:center; gap:8px;">
@@ -466,6 +612,7 @@
                                 ${item.status} ${isKeluar ? '🔒' : ''}
                             </span><br>
                             <div style="display:flex; gap:5px; justify-content:flex-end;">
+                                <button class="btn" style="font-size:11px; padding:4px 10px; background:#f0fdf4; color:#15803d; border-color:#bbf7d0;" onclick="viewPickingList(${realIdx})">📄 Picking List</button>
                                 <button class="btn" style="font-size:11px; padding:4px 10px; ${isKeluar ? 'opacity: 0.6;' : ''}" onclick="openStatusModal(${realIdx})">${isKeluar ? 'Terkunci' : 'Pindah Status'}</button>
                                 <button class="btn btn-danger" style="font-size:11px; padding:4px 8px;" onclick="deleteTruck(${realIdx})">Hapus</button>
                             </div>
