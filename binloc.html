@@ -19,7 +19,14 @@
         .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
         .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
         .pastel-header-rose { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
+        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; }
+
+        /* Bin Loc Capacity Colors */
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .bin-med { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .bin-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .bin-item { cursor: pointer; transition: transform 0.1s; }
         .bin-item:hover { transform: scale(1.02); }
     </style>
@@ -54,7 +61,7 @@
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC berkesinambungan, aging 8 hari, opname, dan peta rak.</p>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC berkesinambungan, aging 8 hari, opname, report penerimaan, dan peta rak.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -91,7 +98,15 @@
                 </div>
             </div>
 
-            <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div onclick="switchSection('report')" class="bg-white hover:border-sky-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-sky-50 text-sky-600 p-4 rounded-2xl border border-sky-100 group-hover:scale-105 transition"><i class="fa-solid fa-clipboard-list text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-sky-700 text-sm">Report Penerimaan</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Log barang masuk gudang</p>
+                    </div>
+                </div>
+
                 <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
                     <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
                     <div>
@@ -104,7 +119,7 @@
                     <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-indigo-700 text-sm">Stock Opname & SAP</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik multi-baris</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik & rekon</p>
                     </div>
                 </div>
 
@@ -114,6 +129,37 @@
                         <h3 class="font-bold text-purple-700 text-sm">Peta Kapasitas</h3>
                         <p class="text-[10px] text-slate-400 mt-0.5">Visualisasi Induk & Aging</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: REPORT PENERIMAAN BARANG -->
+        <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-sky-700 text-base"><i class="fa-solid fa-clipboard-list mr-2"></i> Report / Log Riwayat Penerimaan Barang Masuk</h3>
+                    <p class="text-xs text-slate-400">Daftar seluruh barang yang berhasil masuk dan tercatat di sistem Bin-Loc.</p>
+                </div>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-blue">
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Tanggal & Waktu</th>
+                                <th>Plant / Line</th>
+                                <th>SKU & Produk</th>
+                                <th>Lokasi Rak (Bin Loc)</th>
+                                <th>No. Pallet</th>
+                                <th>Jumlah Karton & Konversi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <tr><td colspan="7" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -236,13 +282,14 @@
             </div>
         </div>
 
-        <!-- SECTION: STOCK OPNAME -->
+        <!-- SECTION: STOCK OPNAME & REKONSILIASI SAP VS FISIK -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
 
+            <!-- CARD INPUT SAP -->
             <div class="row g-3 mb-3">
                 <div class="col-md-12">
                     <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
@@ -259,6 +306,29 @@
                 </div>
             </div>
 
+            <!-- TABEL REKONSILIASI SAP VS FISIK -->
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-purple fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center text-xs">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Stok SAP (Pallet)</th>
+                                <th>Total Fisik (Pallet)</th>
+                                <th>Selisih Variance</th>
+                                <th>Status Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reconciliationBody">
+                            <tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FORM OPNAME FISIK -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <form onsubmit="saveBulkOpname(event)">
                     <div class="row g-3 p-4 rounded-2xl mb-4 border border-slate-100" style="background-color: #f8fafc;">
@@ -296,7 +366,6 @@
 
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle text-xs text-center">
-                            <pastel-header-purple>
                             <thead class="pastel-header-purple">
                                 <tr>
                                     <th>Blok Rak (Bin Loc)</th>
@@ -391,19 +460,19 @@
         </div>
     </div>
 
-    <!-- MODAL PENERIMAAN BARANG JADI (DENGAN PILIHAN PLANT & LINE PRODUKSI) -->
+    <!-- MODAL PENERIMAAN BARANG (DENGAN MULTI-ROW RACKING & KONVERSI STANDAR MASTER) -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
                 <h3 id="modalPenerimaanTitle" class="font-bold text-emerald-800 text-sm">Form Masuk Barang - Lokal</h3>
                 <button onclick="closeModal('modalPenerimaan')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
                 <form onsubmit="submitPenerimaan(event)">
                     <input type="hidden" id="pCategory" value="Lokal">
                     <div class="mb-3">
                         <label class="form-label fw-bold text-slate-600">Tujuan Gudang *</label>
-                        <select id="pGudang" class="form-select form-select-sm" required onchange="updateBlockOptions()">
+                        <select id="pGudang" class="form-select form-select-sm" required onchange="updateAllBlockRows()">
                             <option value="Gudang Induk">Gudang Induk (Blok A-X)</option>
                             <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
                         </select>
@@ -463,27 +532,41 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
-                        <input type="text" id="pSku" class="form-control form-control-sm" list="datalistSkus" required placeholder="Contoh: 313360 - ASTOR">
+                        <input type="text" id="pSku" class="form-control form-control-sm" list="datalistSkus" required placeholder="Ketik SKU atau nama barang..." oninput="onSkuSelected()">
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label class="form-label fw-bold text-slate-600">Blok Rak *</label>
-                            <select id="pBlok" class="form-select form-select-sm" onchange="updateRowOptions()"></select>
+                            <label class="form-label fw-bold text-slate-600">No. Pallet Fisik *</label>
+                            <input type="text" id="pPalletRange" class="form-control form-control-sm" required placeholder="Cth: PLT-01 s/d PLT-10">
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-bold text-slate-600">Lorong / Row *</label>
-                            <select id="pRow" class="form-select form-select-sm"></select>
+                            <label class="form-label fw-bold text-slate-600">Jumlah Karton Total *</label>
+                            <input type="number" id="pQtyKarton" class="form-control form-control-sm" required min="1" placeholder="700" oninput="hitungKonversi()">
+                            <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPlt">Konversi: 0 Pallet (Standar master)</span>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-slate-600">No. Pallet Fisik *</label>
-                        <input type="text" id="pPalletRange" class="form-control form-control-sm" required placeholder="Cth: PLT-01 s/d PLT-10">
+
+                    <!-- MULTI-ROW RACKING (BLOK & ROW) -->
+                    <div class="border-t border-slate-100 pt-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-slate-700 mb-0">Distribusi Rak / Racking (Multi-Row) *</label>
+                            <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 fw-bold" onclick="addPenerimaanRow()">+ Tambah Rak</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center text-xs mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Blok Rak</th>
+                                        <th>Lorong / Row</th>
+                                        <th>Karton di Rak Ini</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="penerimaanRowsBody"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-slate-600">Jumlah Karton *</label>
-                        <input type="number" id="pQtyKarton" class="form-control form-control-sm" required min="1" placeholder="700" oninput="hitungKonversi()">
-                        <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPlt">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
-                    </div>
+
                     <div class="flex gap-2 pt-2 border-t border-slate-100">
                         <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2">Proses Barang Masuk</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalPenerimaan')">Batal</button>
@@ -515,14 +598,13 @@
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
             sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
-            // Sinkronisasi kunci master SKU dari Portal Monitoring
             masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
 
             if (!Array.isArray(binData)) binData = [];
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
         } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
 
-        // FUNGSI POPULATE DATALIST MASTER SKU AGAR BISA AUTO-COMPLETE DI SEMUA FORM BIN-LOC
+        // FUNGSI POPULATE DATALIST MASTER SKU AGAR MUNCUL OTOMATIS SAAT DIKETIK
         function populateMasterSkuDatalist() {
             const datalist = document.getElementById('datalistSkus');
             if(!datalist) return;
@@ -544,40 +626,67 @@
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
         function getRowMax(wh, block) {
+            let cleanBlock = block.replace('Blok ', '');
             if (wh.includes('Induk')) {
-                if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(block)) return 11;
-                if (['F', 'J', 'N', 'R', 'V'].includes(block)) return 17;
-                if (['W', 'S'].includes(block)) return 22;
-                if (['T', 'X'].includes(block)) return 12;
-                if (['D'].includes(block)) return 21;
-                if (['H', 'L', 'P'].includes(block)) return 28;
-                if (['G', 'K', 'O', 'C'].includes(block)) return 29;
+                if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(cleanBlock)) return 11;
+                if (['F', 'J', 'N', 'R', 'V'].includes(cleanBlock)) return 17;
+                if (['W', 'S'].includes(cleanBlock)) return 22;
+                if (['T', 'X'].includes(cleanBlock)) return 12;
+                if (['D'].includes(cleanBlock)) return 21;
+                if (['H', 'L', 'P'].includes(cleanBlock)) return 28;
+                if (['G', 'K', 'O', 'C'].includes(cleanBlock)) return 29;
                 return 20;
             } else {
-                if (['B', 'E', 'H', 'K', 'N'].includes(block)) return 32;
-                if (['O'].includes(block)) return 6;
+                if (['B', 'E', 'H', 'K', 'N'].includes(cleanBlock)) return 32;
+                if (['O'].includes(cleanBlock)) return 6;
                 return 29;
             }
         }
 
-        function updateBlockOptions() {
-            const gudang = document.getElementById('pGudang').value;
-            const blokSelect = document.getElementById('pBlok');
-            blokSelect.innerHTML = '';
+        // MULTI-ROW RACKING DI FORM PENERIMAAN
+        let penerimaanRowIdx = 0;
+        function addPenerimaanRow() {
+            penerimaanRowIdx++;
+            let gudang = document.getElementById('pGudang').value;
+            let tbody = document.getElementById('penerimaanRowsBody');
+            let tr = document.createElement('tr');
+            tr.id = 'pRowTr_' + penerimaanRowIdx;
+
             let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
-            blocks.forEach(b => { blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`; });
-            updateRowOptions();
+            let blockOpts = '<option value="">-- Pilih Blok --</option>';
+            blocks.forEach(b => { blockOpts += `<option value="Blok ${b}">Blok ${b}</option>`; });
+
+            tr.innerHTML = `
+                <td><select class="form-select form-select-sm" id="pBlock_${penerimaanRowIdx}" required onchange="updateRowDropdown(${penerimaanRowIdx})">${blockOpts}</select></td>
+                <td><select class="form-select form-select-sm" id="pRowSelect_${penerimaanRowIdx}" required><option value="">-- Pilih Row --</option></select></td>
+                <td><input type="number" class="form-control form-control-sm text-center" id="pCarton_${penerimaanRowIdx}" required min="1" placeholder="Jml karton"></td>
+                <td><button type="button" class="btn btn-xs btn-outline-danger py-0 px-2" onclick="removePenerimaanRow(${penerimaanRowIdx})">X</button></td>
+            `;
+            tbody.appendChild(tr);
         }
 
-        function updateRowOptions() {
-            const gudang = document.getElementById('pGudang').value;
-            const blokVal = document.getElementById('pBlok').value.replace('Blok ', '');
-            const rowSelect = document.getElementById('pRow');
-            rowSelect.innerHTML = '';
-            let maxRow = getRowMax(gudang, blokVal);
+        function removePenerimaanRow(idx) {
+            let tr = document.getElementById('pRowTr_' + idx);
+            if(tr) tr.remove();
+        }
+
+        function updateRowDropdown(idx) {
+            let gudang = document.getElementById('pGudang').value;
+            let blockVal = document.getElementById('pBlock_' + idx).value;
+            let rowSelect = document.getElementById('pRowSelect_' + idx);
+            rowSelect.innerHTML = '<option value="">-- Pilih Row --</option>';
+            if(!blockVal) return;
+            let maxRow = getRowMax(gudang, blockVal);
             for(let i = 1; i <= maxRow; i++) {
-                rowSelect.innerHTML += `<option value="Row ${i < 10 ? '0' + i : i}">Row ${i < 10 ? '0' + i : i} (Maks ${maxRow})</option>`;
+                let rNum = i < 10 ? '0' + i : i;
+                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${maxRow})</option>`;
             }
+        }
+
+        function updateAllBlockRows() {
+            let tbody = document.getElementById('penerimaanRowsBody');
+            tbody.innerHTML = '';
+            addPenerimaanRow();
         }
 
         function updatePenerimaanLines() {
@@ -673,10 +782,11 @@
             localStorage.setItem('binloc_sap_jayanti3', JSON.stringify(sapStockData));
             alert('Berhasil memproses ' + count + ' data stok SAP!');
             toggleSapInput();
+            renderReconciliationTable();
         }
 
         function switchSection(sectionId) {
-            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-cari', 'section-peta'].forEach(id => {
+            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-cari', 'section-peta', 'section-report'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -685,12 +795,14 @@
             if(sectionId === 'peta') renderBinMap();
             if(sectionId === 'aging') renderAgingTable();
             if(sectionId === 'qc') renderActiveHoldTable();
+            if(sectionId === 'report') renderReportTable();
+            if(sectionId === 'opname') renderReconciliationTable();
         }
 
         function openPenerimaanModal(category) {
             document.getElementById('pCategory').value = category;
             document.getElementById('modalPenerimaanTitle').innerText = 'Form Masuk Barang - ' + category;
-            updateBlockOptions();
+            updateAllBlockRows();
             const eksporGroup = document.getElementById('eksporFieldGroup');
             if(category === 'Ekspor') {
                 eksporGroup.style.display = 'block';
@@ -708,16 +820,34 @@
 
         function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
 
+        // MENDAPATKAN STANDAR KARTON PER PALLET DARI MASTER SKU
+        function getCartonPerPallet(skuString) {
+            if(!skuString) return 70;
+            let skuCode = skuString.split('|')[0].trim();
+            if(masterStockData[skuCode] && masterStockData[skuCode].cartonPerPallet) {
+                return parseFloat(masterStockData[skuCode].cartonPerPallet) || 70;
+            }
+            return 70;
+        }
+
         function hitungKonversi() {
             let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
-            let plt = (krt / 70).toFixed(1);
-            document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar 70 krt/plt)`;
+            let skuVal = document.getElementById('pSku').value;
+            let standardKrt = getCartonPerPallet(skuVal);
+            let plt = (krt / standardKrt).toFixed(2);
+            document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar ${standardKrt} krt/plt)`;
+        }
+
+        function onSkuSelected() {
+            hitungKonversi();
         }
 
         function calcQcPallet() {
             let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
-            let plt = (krt / 70).toFixed(1);
-            document.getElementById('qcPalletBadge').innerText = `Konversi: ${plt} Pallet (Standar 70 krt/plt)`;
+            let skuVal = document.getElementById('qcSkuInput').value;
+            let standardKrt = getCartonPerPallet(skuVal);
+            let plt = (krt / standardKrt).toFixed(2);
+            document.getElementById('qcPalletBadge').innerText = `Konversi: ${plt} Pallet (Standar ${standardKrt} krt/plt)`;
         }
 
         function saveQcAction(e) {
@@ -730,7 +860,8 @@
             let palletNo = document.getElementById('qcPalletNumber').value;
             let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
             let reason = document.getElementById('qcReason').value || '-';
-            let pallets = (krt / 70).toFixed(2);
+            let stdKrt = getCartonPerPallet(skuVal);
+            let pallets = (krt / stdKrt).toFixed(2);
 
             let qcItem = { 
                 id: 'QC-' + Date.now(),
@@ -757,7 +888,7 @@
             let idx = qcHistoryData.findIndex(item => item.id === id);
             if(idx !== -1) {
                 if(newStatus === 'SCRAPPED') {
-                    let scrapReason = prompt('Masukkan alasan pemusnahan / scrap (Contoh: Kontaminasi berat):', 'Kontaminasi berat');
+                    let scrapReason = prompt('Masukkan alasan pemusnahan / scrap:', 'Kontaminasi berat');
                     if(!scrapReason) return;
                     qcHistoryData[idx].status = 'SCRAPPED';
                     qcHistoryData[idx].reason += ` | [DIMUSNAHKAN: ${scrapReason}]`;
@@ -772,6 +903,7 @@
 
         function renderActiveHoldTable() {
             let tbody = document.getElementById('activeHoldTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
 
@@ -799,40 +931,88 @@
             });
         }
 
+        // SIMPAN PENERIMAAN BARANG DENGAN MULTI-ROW RACKING
         function submitPenerimaan(e) {
             e.preventDefault();
             let category = document.getElementById('pCategory').value;
-            let buyerInfo = category === 'Ekspor' ? document.getElementById('pBuyerText').value : 'Lokal / Domestik';
+            let gudang = document.getElementById('pGudang').value;
+            let plant = document.getElementById('pPlant').value;
+            let line = document.getElementById('pLine').value;
+            let tanggal = document.getElementById('pTanggal').value;
+            let shift = document.getElementById('pShift').value;
+            let sku = document.getElementById('pSku').value;
+            let qt = document.getElementById('pQt').value || '-';
+            let prodate = document.getElementById('pProdate').value || '-';
+            let expDate = document.getElementById('pExpDate').value || '-';
+            let buyer = category === 'Ekspor' ? document.getElementById('pBuyerText').value : 'Lokal / Domestik';
+            let palletRange = document.getElementById('pPalletRange').value;
+            let totalKarton = parseFloat(document.getElementById('pQtyKarton').value) || 0;
+            let stdKrt = getCartonPerPallet(sku);
 
-            let newItem = {
-                category: category,
-                gudang: document.getElementById('pGudang').value,
-                plant: document.getElementById('pPlant').value,
-                line: document.getElementById('pLine').value,
-                tanggal: document.getElementById('pTanggal').value,
-                timestamp: new Date().getTime(),
-                shift: document.getElementById('pShift').value,
-                sku: document.getElementById('pSku').value,
-                qt: document.getElementById('pQt').value || '-',
-                prodate: document.getElementById('pProdate').value || '-',
-                expDate: document.getElementById('pExpDate').value || '-',
-                buyer: buyerInfo,
-                lokasi: document.getElementById('pBlok').value + ' - ' + document.getElementById('pRow').value,
-                pallet: document.getElementById('pPalletRange').value,
-                karton: document.getElementById('pQtyKarton').value,
-                konversi: document.getElementById('konversiPlt').innerText
-            };
+            let rowTrs = document.getElementById('penerimaanRowsBody').children;
+            if(rowTrs.length === 0) { alert('Harap tambahkan minimal 1 baris lokasi rak!'); return; }
 
-            binData.unshift(newItem);
+            for(let tr of rowTrs) {
+                let idx = tr.id.split('_')[1];
+                let blockVal = document.getElementById('pBlock_' + idx).value;
+                let rowVal = document.getElementById('pRowSelect_' + idx).value;
+                let krtVal = parseFloat(document.getElementById('pCarton_' + idx).value) || 0;
+                let pltVal = (krtVal / stdKrt).toFixed(2);
+
+                let newItem = {
+                    category: category,
+                    gudang: gudang,
+                    plant: plant,
+                    line: line,
+                    tanggal: tanggal,
+                    timestamp: new Date().getTime(),
+                    shift: shift,
+                    sku: sku,
+                    qt: qt,
+                    prodate: prodate,
+                    expDate: expDate,
+                    buyer: buyer,
+                    lokasi: `${blockVal} - ${rowVal}`,
+                    pallet: palletRange,
+                    karton: krtVal,
+                    konversi: `${pltVal} Pallet (${krtVal} krt)`
+                };
+                binData.unshift(newItem);
+            }
+
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = currentDateStr;
-            alert('Penerimaan barang berhasil disimpan!');
+            alert('Penerimaan barang berhasil disimpan ke beberapa rak sekaligus!');
+        }
+
+        // RENDER REPORT PENERIMAAN
+        function renderReportTable() {
+            let tbody = document.getElementById('reportTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            if(binData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
+                return;
+            }
+            binData.forEach(item => {
+                let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge ${catBadge} px-2 py-1 fw-bold">${item.category}</span></td>
+                    <td>${item.tanggal}</td>
+                    <td>Plant ${item.plant} - ${item.line}</td>
+                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
+                    <td class="fw-bold">${item.pallet}</td>
+                    <td class="fw-bold text-emerald-600">${item.konversi}</td>
+                </tr>`;
+            });
         }
 
         function renderAgingTable() {
             let tbody = document.getElementById('agingTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let agingItems = binData.filter(item => item.gudang && item.gudang.includes('Aging'));
 
@@ -875,7 +1055,8 @@
                 let row = document.getElementById('opRow_' + idx).value;
                 let sku = document.getElementById('opSku_' + idx).value;
                 let carton = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
-                let pallets = (carton / 70).toFixed(2);
+                let stdKrt = getCartonPerPallet(sku);
+                let pallets = (carton / stdKrt).toFixed(2);
 
                 let newItem = {
                     category: 'Stock Opname',
@@ -896,6 +1077,46 @@
             alert('Hasil Stock Opname berhasil disimpan!');
             clearOpnameRows();
             switchSection('home');
+        }
+
+        // TABEL REKONSILIASI SAP VS FISIK
+        function renderReconciliationTable() {
+            let tbody = document.getElementById('reconciliationBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let keys = Object.keys(sapStockData);
+            if(keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan. Silakan klik "Input Data SAP" di atas.</td></tr>';
+                return;
+            }
+            keys.forEach(skuCode => {
+                let sapQty = parseFloat(sapStockData[skuCode]) || 0;
+                let foundItems = binData.filter(i => i.sku && i.sku.includes(skuCode));
+                let totalFisikPlt = 0;
+                let sampleName = 'SKU ' + skuCode;
+
+                foundItems.forEach(item => {
+                    if(item.konversi) {
+                        let num = parseFloat(item.konversi.split(' ')[0]) || 0;
+                        totalFisikPlt += num;
+                    }
+                    if(item.sku) sampleName = item.sku;
+                });
+
+                let variance = totalFisikPlt - sapQty;
+                let balanceBadge = Math.abs(variance) < 0.01 ? 
+                    '<span class="badge bg-success-subtle text-success border px-2 py-1">Balance</span>' : 
+                    '<span class="badge bg-danger-subtle text-danger border px-2 py-1">Selisih</span>';
+
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge bg-slate-100 text-slate-600">${skuCode}</span></td>
+                    <td class="text-start fw-semibold">${sampleName}</td>
+                    <td class="fw-bold text-indigo-600">${sapQty.toFixed(2)} Plt</td>
+                    <td class="fw-bold text-emerald-600">${totalFisikPlt.toFixed(2)} Plt</td>
+                    <td class="fw-bold">${variance.toFixed(2)} Plt</td>
+                    <td>${balanceBadge}</td>
+                </tr>`;
+            });
         }
 
         function executeSearch() {
@@ -959,16 +1180,49 @@
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             alert(`Berhasil merelokasi ${updatedCount} data barang dari ${asal} ke ${tujuan}!`);
             closeModal('modalRelokasi');
+            renderBinMap();
         }
 
+        // PETA KAPASITAS DENGAN INDIKATOR WARNA OTOMATIS
         function renderBinMap() {
             const container = document.getElementById('binMapContainer');
+            if(!container) return;
             container.innerHTML = '';
             let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
+            let targetGudang = currentWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
+
             blocks.forEach(b => {
-                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item bin-empty" onclick="openRelokasiModal('Blok ${b}')">
+                let blockNameCode = `Blok ${b}`;
+                let totalPltInBlock = 0;
+                binData.forEach(item => {
+                    if(item.gudang && item.gudang.includes(targetGudang) && item.lokasi && item.lokasi.includes(blockNameCode)) {
+                        if(item.konversi) {
+                            let p = parseFloat(item.konversi.split(' ')[0]) || 0;
+                            totalPltInBlock += p;
+                        }
+                    }
+                });
+
+                // Menentukan warna status kapasitas rak secara otomatis
+                let colorClass = 'bin-empty';
+                let statusText = 'Kosong (0 Plt)';
+                if(totalPltInBlock > 0 && totalPltInBlock < 50) {
+                    colorClass = 'bin-low';
+                    statusText = `${totalPltInBlock.toFixed(1)} Plt (<50%)`;
+                } else if(totalPltInBlock >= 50 && totalPltInBlock < 100) {
+                    colorClass = 'bin-med';
+                    statusText = `${totalPltInBlock.toFixed(1)} Plt (50-75%)`;
+                } else if(totalPltInBlock >= 100 && totalPltInBlock < 150) {
+                    colorClass = 'bin-high';
+                    statusText = `${totalPltInBlock.toFixed(1)} Plt (75-99%)`;
+                } else if(totalPltInBlock >= 150) {
+                    colorClass = 'bin-full';
+                    statusText = `${totalPltInBlock.toFixed(1)} Plt (Penuh)`;
+                }
+
+                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item ${colorClass}" onclick="openRelokasiModal('Blok ${b}')">
                     <div class="font-bold text-sm">Blok ${b} FG</div>
-                    <div class="text-[10px] mt-1 font-semibold text-slate-400">Kosong</div>
+                    <div class="text-[10px] mt-1 font-semibold">${statusText}</div>
                 </div>`;
             });
         }
