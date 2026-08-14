@@ -190,7 +190,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
-                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Contoh: 313360 - ASTOR">
+                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" list="datalistSkus" required placeholder="Ketik atau pilih SKU...">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik *</label>
@@ -296,6 +296,7 @@
 
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle text-xs text-center">
+                            <pastel-header-purple>
                             <thead class="pastel-header-purple">
                                 <tr>
                                     <th>Blok Rak (Bin Loc)</th>
@@ -364,13 +365,16 @@
 
     </main>
 
+    <!-- DATALIST GLOBAL UNTUK AUTO-COMPLETE SKU -->
+    <datalist id="datalistSkus"></datalist>
+
     <!-- MODAL RELOKASI RAK -->
     <div id="modalRelokasi" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-xs">
             <h5 class="fw-bold mb-3 text-indigo-700 text-sm"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Relokasi Barang (Pindah Rak)</h5>
             <div class="mb-3">
                 <label class="form-label fw-bold text-slate-600">Cari SKU Produk *</label>
-                <input type="text" id="relocSku" class="form-control form-control-sm" placeholder="Ketik SKU...">
+                <input type="text" id="relocSku" class="form-control form-control-sm" list="datalistSkus" placeholder="Ketik SKU...">
             </div>
             <div class="mb-3">
                 <label class="form-label fw-bold text-slate-600">Lokasi Asal / Terpilih</label>
@@ -459,7 +463,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
-                        <input type="text" id="pSku" class="form-control form-control-sm" required placeholder="Contoh: 313360 - ASTOR">
+                        <input type="text" id="pSku" class="form-control form-control-sm" list="datalistSkus" required placeholder="Contoh: 313360 - ASTOR">
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
@@ -505,13 +509,30 @@
         let binData = [];
         let qcHistoryData = [];
         let sapStockData = {};
+        let masterStockData = {};
+
         try {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
             sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
+            // Sinkronisasi kunci master SKU dari Portal Monitoring
+            masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+
             if (!Array.isArray(binData)) binData = [];
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
-        } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; }
+        } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
+
+        // FUNGSI POPULATE DATALIST MASTER SKU AGAR BISA AUTO-COMPLETE DI SEMUA FORM BIN-LOC
+        function populateMasterSkuDatalist() {
+            const datalist = document.getElementById('datalistSkus');
+            if(!datalist) return;
+            datalist.innerHTML = '';
+            for (let sku in masterStockData) {
+                let item = masterStockData[sku];
+                datalist.innerHTML += `<option value="${item.sku} | ${item.name}">`;
+            }
+        }
+        populateMasterSkuDatalist();
 
         const now = new Date();
         const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -559,7 +580,6 @@
             }
         }
 
-        // FUNGSI PILIHAN LINE UNTUK FORM PENERIMAAN
         function updatePenerimaanLines() {
             const plant = document.getElementById('pPlant').value;
             const lineSelect = document.getElementById('pLine');
@@ -618,7 +638,7 @@
 
             tr.innerHTML = `<td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_${opnameRowIdx}" required>${blockOpts}</select></td>
                            <td><input type="text" class="form-control form-control-sm border-slate-200" id="opRow_${opnameRowIdx}" required placeholder="Row 01"></td>
-                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" required placeholder="SKU Produk"></td>
+                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" list="datalistSkus" required placeholder="SKU Produk"></td>
                            <td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_${opnameRowIdx}" required min="0" oninput="calcMultiRow(${opnameRowIdx})" placeholder="Karton"></td>
                            <td class="fw-bold text-indigo-600" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>`;
             tbody.appendChild(tr);
