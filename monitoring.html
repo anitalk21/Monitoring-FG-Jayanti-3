@@ -25,13 +25,6 @@
         .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
 
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
-        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .bin-med { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .bin-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
-        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .bin-item { cursor: pointer; transition: transform 0.1s; }
-        .bin-item:hover { transform: scale(1.02); }
-
         table th, table td { font-size: 12px !important; }
     </style>
 </head>
@@ -110,7 +103,7 @@
 
     <main class="flex-1 max-w-[98%] w-full mx-auto p-4 space-y-6">
         
-        <!-- SECTION KAPASITAS DENGAN LENGKAP KEMBALI -->
+        <!-- SECTION KAPASITAS DENGAN WARNA KOTAK PASTEL SESUAI PERMINTAAN -->
         <div id="section-kapasitas" class="app-page active space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -132,34 +125,34 @@
                 <button onclick="switchKapasitasTab('HOLD')" id="btnCapHold" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">GDFG (HOLD QC)</button>
             </div>
 
-            <!-- 6 CARD DASHBOARD KAPASITAS -->
+            <!-- 6 CARD DASHBOARD KAPASITAS DENGAN WARNA PASTEL ASLI -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">TOTAL PALLET INDUK</div>
-                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div id="cardIndukVal" class="text-xl font-bold text-slate-700">0 Plt</div>
                     <div class="text-[10px] text-slate-400">Dari 16.008 Pallet</div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-amber-50/40 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wide">TOTAL PALLET AGING</div>
-                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div id="cardAgingVal" class="text-xl font-bold text-slate-700">0 Plt</div>
                     <div class="text-[10px] text-slate-400">Dari 15.372 Pallet</div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-purple-50/40 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-purple-600 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
-                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div id="cardGabunganVal" class="text-xl font-bold text-slate-700">0 Plt</div>
                     <div class="text-[10px] text-slate-400">Dari 31.380 Total</div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
                     <div id="summaryHoldCount" class="text-xl font-bold text-rose-600">0.00 Plt</div>
                     <div class="text-[10px] text-slate-400">Pallet Tidak Bisa Kirim</div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">REALISASI MUAT</div>
                     <div class="text-xl font-bold text-slate-700">0 Truk</div>
                     <div class="text-[10px] text-emerald-500 font-semibold">Sesuai target jadwal</div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
                     <div class="text-xl font-bold text-slate-700">0 Truk</div>
                     <a href="antrian.html" class="text-[10px] text-indigo-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
@@ -369,6 +362,33 @@
             }
         }
 
+        // FUNGSI LINK OTOMATIS KAPASITAS DARI BIN-LOC
+        function updateDashboardCapacity() {
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let totalIndukPlt = 0;
+            let totalAgingPlt = 0;
+
+            binData.forEach(item => {
+                let pltValue = 0;
+                if(item.konversi) {
+                    pltValue = parseFloat(item.konversi.split(' ')[0]) || 0;
+                }
+                if (item.gudang) {
+                    if (item.gudang.includes('Gudang Induk')) {
+                        totalIndukPlt += pltValue;
+                    } else if (item.gudang.includes('Gudang Aging')) {
+                        totalAgingPlt += pltValue;
+                    }
+                } else {
+                    totalIndukPlt += pltValue;
+                }
+            });
+
+            document.getElementById('cardIndukVal').innerText = totalIndukPlt.toFixed(1) + ' Plt';
+            document.getElementById('cardAgingVal').innerText = totalAgingPlt.toFixed(1) + ' Plt';
+            document.getElementById('cardGabunganVal').innerText = (totalIndukPlt + totalAgingPlt).toFixed(1) + ' Plt';
+        }
+
         function processPasteData() {
             const text = document.getElementById('pasteArea').value.trim();
             if(!text) { alert('Data kosong!'); return; }
@@ -540,7 +560,12 @@
         }
 
         function closeBinModal() { document.getElementById('binModal').classList.add('hidden'); }
-        renderMasterSkuTable();
+
+        // Inisialisasi awal saat halaman dimuat
+        document.addEventListener("DOMContentLoaded", () => {
+            renderMasterSkuTable();
+            updateDashboardCapacity();
+        });
     </script>
 </body>
 </html>
