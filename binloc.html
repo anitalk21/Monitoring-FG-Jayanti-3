@@ -49,89 +49,75 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA -->
+        <!-- MENU UTAMA (DESAIN IKON DI ATAS, TEKS DI BAWAH) -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
                 <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, rekonsiliasi SAP, karantina QC, aging 8 hari, opname, dan peta rak.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-emerald-700 text-base">Masuk Lokal</h3>
-                            <p class="text-[11px] text-slate-400">Pallet + Prodate</p>
-                        </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-emerald-700 text-sm">Masuk Lokal</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Pallet + Prodate</p>
                     </div>
                 </div>
 
-                <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-violet-50 text-violet-600 p-3 rounded-xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-violet-700 text-base">Masuk Ekspor</h3>
-                            <p class="text-[11px] text-slate-400">Buyer (Ketik) + QT</p>
-                        </div>
+                <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-violet-50 text-violet-600 p-4 rounded-2xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-violet-700 text-sm">Masuk Ekspor</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Buyer (Ketik) + QT</p>
                     </div>
                 </div>
 
-                <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-rose-50 text-rose-600 p-3 rounded-xl border border-rose-100 group-hover:scale-105 transition"><i class="fa-solid fa-shield-halved text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-rose-700 text-base">Form Karantina QC</h3>
-                            <p class="text-[11px] text-slate-400">Hold / Release Pallet</p>
-                        </div>
+                <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-rose-50 text-rose-600 p-4 rounded-2xl border border-rose-100 group-hover:scale-105 transition"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-rose-700 text-sm">Form Karantina QC</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Hold / Release Pallet</p>
                     </div>
                 </div>
 
-                <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-amber-700 text-base">Monitoring Aging</h3>
-                            <p class="text-[11px] text-slate-400">Masa Aging 8 Hari</p>
-                        </div>
+                <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-amber-700 text-sm">Monitoring Aging</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Masa Aging 8 Hari</p>
                     </div>
                 </div>
             </div>
 
             <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-amber-700 text-base">Cari Posisi</h3>
-                            <p class="text-[11px] text-slate-400">Cari bin loc / rak</p>
-                        </div>
+                <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-amber-700 text-sm">Cari Posisi</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Cari bin loc / rak</p>
                     </div>
                 </div>
 
-                <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-indigo-700 text-base">Stock Opname & SAP</h3>
-                            <p class="text-[11px] text-slate-400">Audit fisik multi-baris</p>
-                        </div>
+                <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-indigo-700 text-sm">Stock Opname & SAP</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik multi-baris</p>
                     </div>
                 </div>
 
-                <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs space-y-2 group">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-lg"></i></div>
-                        <div>
-                            <h3 class="font-bold text-purple-700 text-base">Peta Kapasitas</h3>
-                            <p class="text-[11px] text-slate-400">Visualisasi Induk & Aging</p>
-                        </div>
+                <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-purple-50 text-purple-600 p-4 rounded-2xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-purple-700 text-sm">Peta Kapasitas</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Visualisasi Induk & Aging</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION: MONITORING GUDANG AGING (8 HARI) -->
+        <!-- SECTION: MONITORING GUDANG AGING -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -165,7 +151,7 @@
             </div>
         </div>
 
-        <!-- SECTION: FORM KARANTINA QC -->
+        <!-- SECTION: FORM KARANTINA QC (DENGAN TANGGAL PRODUKSI & PILIHAN PLANT / LINE) -->
         <div id="section-qc" class="app-page space-y-6 max-w-3xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Form Karantina QC (Hold / Release)</h3>
@@ -179,6 +165,34 @@
                             <option value="HOLD">Karantina Barang (HOLD)</option>
                             <option value="RELEASED">Release Barang (Bisa Kirim)</option>
                         </select>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Plant *</label>
+                            <select class="form-select form-select-sm" id="qcPlant" required onchange="updateQcLines()">
+                                <option value="">-- Pilih Plant --</option>
+                                <option value="1115">Plant 1115</option>
+                                <option value="1116">Plant 1116</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Line Produksi *</label>
+                            <select class="form-select form-select-sm" id="qcLine" required>
+                                <option value="">-- Pilih Plant Terlebih Dahulu --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Tanggal Produksi (Prodate) *</label>
+                            <input type="date" class="form-control form-control-sm" id="qcProdate" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Shift Kerja *</label>
+                            <select class="form-select form-select-sm" id="qcShift" required>
+                                <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
@@ -309,7 +323,7 @@
             </div>
         </div>
 
-        <!-- SECTION: PETA KAPASITAS GUDANG -->
+        <!-- SECTION: PETA KAPASITAS GUDANG (DEFAULT 0 / KOSONG SEMUA) -->
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -330,7 +344,7 @@
 
     </main>
 
-    <!-- MODAL PENERIMAAN BARANG JADI (BUYER DIKETIK BEBAS) -->
+    <!-- MODAL PENERIMAAN BARANG JADI (DENGAN ROW BERDASARKAN LAYOUT) -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -358,7 +372,7 @@
                         </select>
                     </div>
 
-                    <!-- INFORMASI EKSPOR (BUYER KETIK BEBAS) -->
+                    <!-- INFORMASI EKSPOR -->
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
                         <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
                         <div class="row g-2 mb-2">
@@ -390,13 +404,11 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label fw-bold text-slate-600">Blok Rak *</label>
-                            <select id="pBlok" class="form-select form-select-sm"></select>
+                            <select id="pBlok" class="form-select form-select-sm" onchange="updateRowOptions()"></select>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold text-slate-600">Lorong / Row *</label>
-                            <select id="pRow" class="form-select form-select-sm">
-                                <option>Row 1</option><option>Row 2</option><option>Row 3</option><option>Row 4</option>
-                            </select>
+                            <select id="pRow" class="form-select form-select-sm"></select>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -445,9 +457,28 @@
         const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
         document.getElementById('pTanggal').value = currentDateStr;
         document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('qcProdate').value = new Date().toISOString().split('T')[0];
 
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
+
+        // Kapasitas Row Layout Presisi
+        function getRowMax(wh, block) {
+            if (wh.includes('Induk')) {
+                if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(block)) return 11;
+                if (['F', 'J', 'N', 'R', 'V'].includes(block)) return 17;
+                if (['W', 'S'].includes(block)) return 22;
+                if (['T', 'X'].includes(block)) return 12;
+                if (['D'].includes(block)) return 21;
+                if (['H', 'L', 'P'].includes(block)) return 28;
+                if (['G', 'K', 'O', 'C'].includes(block)) return 29;
+                return 20;
+            } else {
+                if (['B', 'E', 'H', 'K', 'N'].includes(block)) return 32;
+                if (['O'].includes(block)) return 6;
+                return 29; // A, C, D, F, G, I, J, L, M
+            }
+        }
 
         function updateBlockOptions() {
             const gudang = document.getElementById('pGudang').value;
@@ -455,6 +486,39 @@
             blokSelect.innerHTML = '';
             let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
             blocks.forEach(b => { blokSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`; });
+            updateRowOptions();
+        }
+
+        function updateRowOptions() {
+            const gudang = document.getElementById('pGudang').value;
+            const blokVal = document.getElementById('pBlok').value.replace('Blok ', '');
+            const rowSelect = document.getElementById('pRow');
+            rowSelect.innerHTML = '';
+            let maxRow = getRowMax(gudang, blokVal);
+            for(let i = 1; i <= maxRow; i++) {
+                rowSelect.innerHTML += `<option value="Row ${i < 10 ? '0' + i : i}">Row ${i < 10 ? '0' + i : i} (Maks ${maxRow})</option>`;
+            }
+        }
+
+        function updateQcLines() {
+            const plant = document.getElementById('qcPlant').value;
+            const lineSelect = document.getElementById('qcLine');
+            lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
+            if(plant === '1115') {
+                for(let i = 1; i <= 13; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+                for(let i = 1; i <= 6; i++) {
+                    let name = `GA${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            } else if(plant === '1116') {
+                for(let i = 1; i <= 20; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            }
         }
 
         let opnameRowIdx = 0;
@@ -557,13 +621,28 @@
         function saveQcAction(e) {
             e.preventDefault();
             let action = document.getElementById('qcActionType').value;
+            let plant = document.getElementById('qcPlant').value;
+            let line = document.getElementById('qcLine').value;
+            let prodate = document.getElementById('qcProdate').value;
+            let shift = document.getElementById('qcShift').value;
             let skuVal = document.getElementById('qcSkuInput').value;
             let palletNo = document.getElementById('qcPalletNumber').value;
             let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
             let reason = document.getElementById('qcReason').value || '-';
             let pallets = (krt / 70).toFixed(2);
 
-            let qcItem = { action: action, sku: skuVal.split(' - ')[0], name: skuVal, palletNo: palletNo, pallets: pallets, reason: reason };
+            let qcItem = { 
+                action: action, 
+                plant: plant, 
+                line: line, 
+                prodate: prodate, 
+                shift: shift, 
+                sku: skuVal.split(' - ')[0], 
+                name: skuVal, 
+                palletNo: palletNo, 
+                pallets: pallets, 
+                reason: reason 
+            };
             qcHistoryData.unshift(qcItem);
             localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
             alert('Status Karantina QC Berhasil Disimpan (' + action + ')!');
@@ -604,8 +683,6 @@
         function renderAgingTable() {
             let tbody = document.getElementById('agingTableBody');
             tbody.innerHTML = '';
-            
-            // Filter barang yang masuk ke Gudang Aging
             let agingItems = binData.filter(item => item.gudang && item.gudang.includes('Aging'));
 
             if(agingItems.length === 0) {
@@ -615,7 +692,6 @@
 
             const nowTime = new Date().getTime();
             agingItems.forEach(item => {
-                // Hitung selisih hari dari timestamp atau tanggal masuk
                 let itemTime = item.timestamp || new Date().getTime();
                 let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
                 if(diffDays < 0) diffDays = 0;
@@ -671,16 +747,6 @@
             switchSection('home');
         }
 
-        function resetBinData() {
-            if(confirm('Hapus seluruh riwayat data aktivitas?')) {
-                localStorage.removeItem('binloc_stok_jayanti3');
-                localStorage.removeItem('binloc_qc_jayanti3');
-                binData = [];
-                qcHistoryData = [];
-                alert('Data berhasil direset.');
-            }
-        }
-
         function executeSearch() {
             let keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
             let tbody = document.getElementById('searchResultTableBody');
@@ -718,19 +784,15 @@
             renderBinMap();
         }
 
+        // Peta Kapasitas Default 0 / Kosong Semua
         function renderBinMap() {
             const container = document.getElementById('binMapContainer');
             container.innerHTML = '';
             let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
             blocks.forEach(b => {
-                let statusClass = 'bin-empty';
-                let labelStatus = 'Kosong';
-                let rand = Math.random();
-                if(rand > 0.7) { statusClass = 'bin-full'; labelStatus = 'Penuh'; }
-                else if(rand > 0.4) { statusClass = 'bin-low'; labelStatus = 'Terisi'; }
-                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs ${statusClass}">
+                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-empty">
                     <div class="font-bold text-sm">Blok ${b} FG</div>
-                    <div class="text-[10px] mt-1 font-semibold">${labelStatus}</div>
+                    <div class="text-[10px] mt-1 font-semibold text-slate-400">Kosong</div>
                 </div>`;
             });
         }
