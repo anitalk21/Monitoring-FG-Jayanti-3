@@ -110,6 +110,7 @@
 
     <main class="flex-1 max-w-[98%] w-full mx-auto p-4 space-y-6">
         
+        <!-- SECTION KAPASITAS DENGAN LENGKAP KEMBALI -->
         <div id="section-kapasitas" class="app-page active space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -118,26 +119,50 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Master SKU</button>
+                    <button onclick="alert('Membuka Spreadsheet...')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel text-emerald-500"></i> Spreadsheet</button>
+                    <button onclick="location.reload()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
-                    <div class="text-xs font-bold text-indigo-600 uppercase tracking-wide">TOTAL PALLET INDUK</div>
-                    <div class="text-xl font-bold text-slate-700">0 Pallet</div>
+            <!-- SUB TABS KATEGORI -->
+            <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
+                <button onclick="switchKapasitasTab('SUMMARY')" id="btnCapSummary" class="px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs">SUMMARY</button>
+                <button onclick="switchKapasitasTab('LOKAL')" id="btnCapLokal" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">LOKAL</button>
+                <button onclick="switchKapasitasTab('EKSPOR')" id="btnCapEkspor" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">EKSPOR</button>
+                <button onclick="switchKapasitasTab('HOLD')" id="btnCapHold" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">GDFG (HOLD QC)</button>
+            </div>
+
+            <!-- 6 CARD DASHBOARD KAPASITAS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">TOTAL PALLET INDUK</div>
+                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div class="text-[10px] text-slate-400">Dari 16.008 Pallet</div>
                 </div>
-                <div class="bg-amber-50/40 p-4 rounded-2xl border border-amber-100 shadow-2xs space-y-1">
-                    <div class="text-xs font-bold text-amber-600 uppercase tracking-wide">TOTAL PALLET AGING</div>
-                    <div class="text-xl font-bold text-slate-700">0 Pallet</div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wide">TOTAL PALLET AGING</div>
+                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div class="text-[10px] text-slate-400">Dari 15.372 Pallet</div>
                 </div>
-                <div class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
-                    <div class="text-xs font-bold text-rose-600 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
-                    <div id="summaryHoldCount" class="text-xl font-bold text-rose-600">0 Plt</div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-purple-600 uppercase tracking-wide">KAPASITAS GABUNGAN</div>
+                    <div class="text-xl font-bold text-slate-700">0</div>
+                    <div class="text-[10px] text-slate-400">Dari 31.380 Total</div>
                 </div>
-                <div class="bg-purple-50/40 p-4 rounded-2xl border border-purple-100 shadow-2xs space-y-1">
-                    <div class="text-xs font-bold text-purple-600 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
+                    <div id="summaryHoldCount" class="text-xl font-bold text-rose-600">0.00 Plt</div>
+                    <div class="text-[10px] text-slate-400">Pallet Tidak Bisa Kirim</div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">REALISASI MUAT</div>
                     <div class="text-xl font-bold text-slate-700">0 Truk</div>
-                    <a href="antrian.html" class="text-xs text-indigo-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
+                    <div class="text-[10px] text-emerald-500 font-semibold">Sesuai target jadwal</div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
+                    <div class="text-xl font-bold text-slate-700">0 Truk</div>
+                    <a href="antrian.html" class="text-[10px] text-indigo-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
                 </div>
             </div>
         </div>
@@ -329,6 +354,19 @@
             if(menuName === 'opname') { renderQcHistoryTable(); renderReconciliationTable(); renderOpnameHistory(); }
             if(menuName === 'rdc') { renderRdcMonitoringTable(); }
             if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function switchKapasitasTab(tab) {
+            ['SUMMARY', 'LOKAL', 'EKSPOR', 'HOLD'].forEach(t => {
+                let btn = document.getElementById('btnCap' + t.charAt(0) + t.slice(1).toLowerCase());
+                if(btn) {
+                    btn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600';
+                }
+            });
+            let activeBtn = document.getElementById('btnCap' + tab.charAt(0) + tab.slice(1).toLowerCase());
+            if(activeBtn) {
+                activeBtn.className = 'px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs';
+            }
         }
 
         function processPasteData() {
