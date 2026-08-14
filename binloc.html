@@ -18,9 +18,8 @@
         
         .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
         .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
+        .pastel-header-rose { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
-        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -49,11 +48,11 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA (DESAIN IKON DI ATAS, TEKS DI BAWAH) -->
+        <!-- MENU UTAMA (IKON DI ATAS, TEKS DI BAWAH) -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, rekonsiliasi SAP, karantina QC, aging 8 hari, opname, dan peta rak.</p>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC berkesinambungan, aging 8 hari, opname, dan peta rak.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -76,8 +75,8 @@
                 <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
                     <div class="bg-rose-50 text-rose-600 p-4 rounded-2xl border border-rose-100 group-hover:scale-105 transition"><i class="fa-solid fa-shield-halved text-xl"></i></div>
                     <div>
-                        <h3 class="font-bold text-rose-700 text-sm">Form Karantina QC</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Hold / Release Pallet</p>
+                        <h3 class="font-bold text-rose-700 text-sm">Karantina QC</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Hold, Release, Scrap</p>
                     </div>
                 </div>
 
@@ -127,9 +126,6 @@
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-                <div class="alert alert-warning text-xs py-2 px-3 mb-3 border-amber-200 bg-amber-50 text-amber-800">
-                    <i class="fa-solid fa-circle-info me-1"></i> Produk di Gudang Aging wajib memenuhi masa karantina/aging minimal 8 hari sebelum dinyatakan <b>Ready</b> untuk dikirim.
-                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center text-xs">
                         <thead class="pastel-header-yellow">
@@ -151,21 +147,17 @@
             </div>
         </div>
 
-        <!-- SECTION: FORM KARANTINA QC (DENGAN TANGGAL PRODUKSI & PILIHAN PLANT / LINE) -->
-        <div id="section-qc" class="app-page space-y-6 max-w-3xl mx-auto">
+        <!-- SECTION: FORM KARANTINA QC (BERKESINAMBUNGAN: HOLD -> RELEASE / SCRAP) -->
+        <div id="section-qc" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Form Karantina QC (Hold / Release)</h3>
+                <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Manajemen Karantina QC (Hold, Release & Pemusnahan)</h3>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
+
+            <!-- Form Input Hold Baru -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold) Baru</h5>
                 <form onsubmit="saveQcAction(event)">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-slate-600">Tindakan QC *</label>
-                        <select class="form-select form-select-sm" id="qcActionType">
-                            <option value="HOLD">Karantina Barang (HOLD)</option>
-                            <option value="RELEASED">Release Barang (Bisa Kirim)</option>
-                        </select>
-                    </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-slate-600">Pilih Plant *</label>
@@ -194,25 +186,53 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
-                        <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
+                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Contoh: 313360 - ASTOR">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Cth: PLT-01 s/d PLT-05">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik yang Diproses *</label>
-                        <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Masukkan No. Pallet / Range...">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Jumlah Karton *</label>
+                            <input type="number" class="form-control form-control-sm" id="qcCartonInput" required min="1" placeholder="700" oninput="calcQcPallet()">
+                            <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="qcPalletBadge">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
+                            <input type="text" class="form-control form-control-sm" id="qcReason" required placeholder="Misal: Out of spec kemasan...">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-slate-600">Jumlah Karton *</label>
-                        <input type="number" class="form-control form-control-sm" id="qcCartonInput" required min="1" placeholder="700" oninput="calcQcPallet()">
-                        <span class="text-[11px] text-indigo-600 fw-bold mt-1 block" id="qcPalletBadge">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-slate-600">Keterangan / Alasan QC</label>
-                        <input type="text" class="form-control form-control-sm" id="qcReason" placeholder="Misal: Out of spec, kemasan rusak...">
-                    </div>
-                    <button type="submit" class="btn btn-sm fw-bold w-100 text-white py-2" style="background-color: #f43f5e;">Simpan Status Karantina QC</button>
+                    <button type="submit" class="btn btn-sm fw-bold w-100 text-white py-2" style="background-color: #f43f5e;">Simpan & Karantina Barang (HOLD)</button>
                 </form>
+            </div>
+
+            <!-- Tabel Daftar Aktif Karantina (Hold) Berkesinambungan -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-rose">
+                            <tr>
+                                <th>Plant / Line</th>
+                                <th>Prodate</th>
+                                <th>Shift</th>
+                                <th>SKU & Produk</th>
+                                <th>No. Pallet</th>
+                                <th>Alasan Hold</th>
+                                <th>Status Aktif</th>
+                                <th>Tindak Lanjut Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeHoldTableBody">
+                            <tr><td colspan="8" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -301,7 +321,7 @@
             </div>
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <div>
-                    <label class="form-label small fw-bold text-slate-600">Kata Kunci (SKU / Nama Produk / No. Pallet / Buyer)</label>
+                    <label class="form-label small fw-bold text-slate-600">Kata Kunci (SKU / Nama Produk / No. Pallet)</label>
                     <input type="text" id="searchKeyword" class="form-control bg-white border-slate-200" placeholder="Ketik kata kunci pencarian..." oninput="executeSearch()">
                 </div>
                 <div class="table-responsive">
@@ -344,7 +364,7 @@
 
     </main>
 
-    <!-- MODAL PENERIMAAN BARANG JADI (DENGAN ROW BERDASARKAN LAYOUT) -->
+    <!-- MODAL PENERIMAAN BARANG JADI -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -372,7 +392,6 @@
                         </select>
                     </div>
 
-                    <!-- INFORMASI EKSPOR -->
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
                         <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
                         <div class="row g-2 mb-2">
@@ -391,15 +410,15 @@
                                 <input type="date" id="pExpDate" class="form-control form-control-sm">
                             </div>
                             <div class="col-6">
-                                <label class="form-label fw-bold text-slate-600">Buyer & Negara Tujuan *</label>
-                                <input type="text" id="pBuyerText" class="form-control form-control-sm" placeholder="Ketik nama buyer & negara...">
+                                <label class="form-label fw-bold text-slate-600">Buyer & Negara *</label>
+                                <input type="text" id="pBuyerText" class="form-control form-control-sm" placeholder="Ketik nama buyer...">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
-                        <input type="text" id="pSku" class="form-control form-control-sm" required placeholder="Contoh: 313360 - ASTOR VANILLA SHAKE">
+                        <input type="text" id="pSku" class="form-control form-control-sm" required placeholder="Contoh: 313360 - ASTOR">
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
@@ -462,7 +481,6 @@
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
-        // Kapasitas Row Layout Presisi
         function getRowMax(wh, block) {
             if (wh.includes('Induk')) {
                 if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(block)) return 11;
@@ -476,7 +494,7 @@
             } else {
                 if (['B', 'E', 'H', 'K', 'N'].includes(block)) return 32;
                 if (['O'].includes(block)) return 6;
-                return 29; // A, C, D, F, G, I, J, L, M
+                return 29;
             }
         }
 
@@ -583,6 +601,7 @@
             if(target) { target.classList.remove('hidden'); target.classList.add('active'); }
             if(sectionId === 'peta') renderBinMap();
             if(sectionId === 'aging') renderAgingTable();
+            if(sectionId === 'qc') renderActiveHoldTable();
         }
 
         function openPenerimaanModal(category) {
@@ -620,7 +639,6 @@
 
         function saveQcAction(e) {
             e.preventDefault();
-            let action = document.getElementById('qcActionType').value;
             let plant = document.getElementById('qcPlant').value;
             let line = document.getElementById('qcLine').value;
             let prodate = document.getElementById('qcProdate').value;
@@ -632,7 +650,8 @@
             let pallets = (krt / 70).toFixed(2);
 
             let qcItem = { 
-                action: action, 
+                id: 'QC-' + Date.now(),
+                status: 'HOLD', 
                 plant: plant, 
                 line: line, 
                 prodate: prodate, 
@@ -645,9 +664,58 @@
             };
             qcHistoryData.unshift(qcItem);
             localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
-            alert('Status Karantina QC Berhasil Disimpan (' + action + ')!');
+            alert('Barang berhasil dikarantina (HOLD)!');
             e.target.reset();
-            switchSection('home');
+            document.getElementById('qcProdate').value = new Date().toISOString().split('T')[0];
+            renderActiveHoldTable();
+        }
+
+        function updateQcStatus(id, newStatus) {
+            let idx = qcHistoryData.findIndex(item => item.id === id);
+            if(idx !== -1) {
+                if(newStatus === 'SCRAPPED') {
+                    let scrapReason = prompt('Masukkan alasan pemusnahan / scrap (Contoh: Kontaminasi berat):', 'Kontaminasi berat');
+                    if(!scrapReason) return;
+                    qcHistoryData[idx].status = 'SCRAPPED';
+                    qcHistoryData[idx].reason += ` | [DIMUSNAHKAN: ${scrapReason}]`;
+                } else {
+                    qcHistoryData[idx].status = newStatus;
+                }
+                localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
+                renderActiveHoldTable();
+                alert('Status berhasil diubah menjadi: ' + newStatus);
+            }
+        }
+
+        function renderActiveHoldTable() {
+            let tbody = document.getElementById('activeHoldTableBody');
+            tbody.innerHTML = '';
+            
+            // Filter hanya yang statusnya HOLD
+            let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
+
+            if(activeHolds.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Tidak ada barang yang sedang di-hold.</td></tr>';
+                return;
+            }
+
+            activeHolds.forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge bg-slate-100 text-slate-700">Plant ${item.plant} - ${item.line}</span></td>
+                    <td>${item.prodate}</td>
+                    <td>${item.shift}</td>
+                    <td class="text-start fw-semibold">${item.name}</td>
+                    <td class="fw-bold text-rose-600">${item.palletNo} (${item.pallets} Plt)</td>
+                    <td class="text-start">${item.reason}</td>
+                    <td><span class="badge bg-rose-100 text-rose-700 fw-bold px-2 py-1">HOLD</span></td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-1">
+                            <button class="btn btn-sm btn-success py-0 px-2 text-[11px] fw-bold" onclick="updateQcStatus('${item.id}', 'RELEASED')">Release</button>
+                            <button class="btn btn-sm btn-dark py-0 px-2 text-[11px] fw-bold" onclick="updateQcStatus('${item.id}', 'SCRAPPED')">Musnahkan</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
         }
 
         function submitPenerimaan(e) {
@@ -784,7 +852,6 @@
             renderBinMap();
         }
 
-        // Peta Kapasitas Default 0 / Kosong Semua
         function renderBinMap() {
             const container = document.getElementById('binMapContainer');
             container.innerHTML = '';
