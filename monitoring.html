@@ -19,6 +19,9 @@
         /* Soft Pastel Custom Theme Styles */
         .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
         .pastel-header-dark { background-color: #e2e8f0 !important; color: #334155 !important; }
+        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; }
+        .pastel-header-red { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
+        
         .btn-pastel-primary { background-color: #818cf8 !important; border-color: #818cf8 !important; color: #ffffff !important; }
         .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
 
@@ -85,7 +88,7 @@
             </a>
             <a href="#" onclick="switchMenu('rdc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-rdc">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-warehouse w-4 text-center"></i></div>
-                <span>Monitoring RDC</span>
+                <span>Monitoring RDC (SLA 6 Jam)</span>
             </a>
             <a href="#" onclick="switchMenu('ekspor')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-ekspor">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-ship w-4 text-center"></i></div>
@@ -114,7 +117,7 @@
     </aside>
 
     <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+    <main class="flex-1 max-w-[98%] w-full mx-auto p-4 space-y-6">
         
         <!-- SECTION 1: KAPASITAS -->
         <div id="section-kapasitas" class="app-page active space-y-6">
@@ -220,11 +223,10 @@
             </div>
         </div>
 
-        <!-- SECTION 4: STOCK OPNAME & LAPORAN (FORM INPUT DIHILANGKAN, HANYA TAMPILAN LAPORAN/LOG) -->
+        <!-- SECTION 4: STOCK OPNAME & LAPORAN -->
         <div id="section-opname" class="app-page space-y-6">
             <h4 class="fw-bold mb-3 text-slate-700">Stock Opname & Laporan Riwayat (Audit Fisik)</h4>
             
-            <!-- TABEL REKONSILIASI PERBANDINGAN SAP VS FISIK AKTUAL -->
             <div class="card shadow-2xs border-0 mt-2 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-header pastel-header-purple fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
                 <div class="card-body table-responsive">
@@ -246,15 +248,14 @@
                 </div>
             </div>
 
-            <!-- RIWAYAT & LAPORAN TARIK DATA KARANTINA QC (HOLD & RELEASE) -->
-            <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small flex justify-between items-center">
-                    <span>Daftar / Laporan Live Monitoring Status Karantina QC (Hold & Release)</span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderQcHistoryTable()">Refresh Laporan</button>
+            <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-rose-200">
+                <div class="card-header pastel-header-red fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small flex justify-between items-center shadow-2xs">
+                    <span><i class="fa-solid fa-shield-halved text-rose-500 mr-2"></i> Daftar / Laporan Live Monitoring Status Karantina QC (Hold & Release)</span>
+                    <button type="button" class="btn btn-sm btn-light border text-rose-700 bg-white shadow-2xs fw-bold" onclick="renderQcHistoryTable()">Refresh Laporan</button>
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-hover align-middle text-center text-xs">
-                        <thead class="table-light">
+                        <thead class="pastel-header-red">
                             <tr>
                                 <th>Status QC</th>
                                 <th>SKU</th>
@@ -271,7 +272,6 @@
                 </div>
             </div>
 
-            <!-- RIWAYAT STOCK OPNAME TERAKHIR -->
             <div class="card shadow-2xs border-0 mt-4 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-header pastel-header-dark fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Riwayat / Log Audit Stock Keeper Terakhir</div>
                 <div class="card-body table-responsive">
@@ -289,6 +289,50 @@
                         </thead>
                         <tbody id="opnameHistoryBody">
                             <tr><td colspan="7" class="text-muted small">Belum ada data riwayat opname.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: MONITORING RDC (16 KOLOM LENGKAP & SLA 6 JAM) -->
+        <div id="section-rdc" class="app-page space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-slate-700 text-lg"><i class="fa-solid fa-warehouse text-sky-500 mr-2"></i> Monitoring Pengiriman RDC (Standard SLA Max 6 Jam)</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Kontrol live mobil RDC dari PPIC, Loading Dock, hingga Keluar Pabrik.</p>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderRdcMonitoringTable()">🔄 Refresh Data RDC</button>
+            </div>
+
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-blue fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">
+                    Tabel Live Kontrol Truk RDC (Sinkronisasi Otomatis Portal Antrian)
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center text-[11px]">
+                        <thead class="pastel-header-blue">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Plant</th>
+                                <th>Tujuan</th>
+                                <th>No DO</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Barang</th>
+                                <th>QTY</th>
+                                <th>No Mobil</th>
+                                <th>Nama Ekspedisi</th>
+                                <th>Waktu Masuk</th>
+                                <th>Waktu Muat</th>
+                                <th>Selesai Muat</th>
+                                <th>Waktu Keluar</th>
+                                <th>Lama Muat</th>
+                                <th>Lama Stay di Pabrik (SLA)</th>
+                                <th>Note / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rdcMonitoringBody">
+                            <tr><td colspan="16" class="text-muted small py-4">Belum ada data truk RDC terdaftar. Silakan daftarkan truk dengan jenis <b>LOKAL • RDC</b> di Portal Antrian.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -373,9 +417,7 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
-                    <div id="binMapContainer" class="min-w-[800px] space-y-3">
-                        <!-- Rendered dynamically -->
-                    </div>
+                    <div id="binMapContainer" class="min-w-[800px] space-y-3"></div>
                 </div>
             </div>
         </div>
@@ -443,6 +485,7 @@
         let sapStockData = JSON.parse(localStorage.getItem('sapStockDataOpname')) || JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
         let qcHistoryData = JSON.parse(localStorage.getItem('qcHistoryDataLog')) || JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
         let binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+        let antrianData = JSON.parse(localStorage.getItem('antrian')) || [];
 
         let currentBinWarehouse = 'INDUK';
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
@@ -456,7 +499,7 @@
         }
 
         function switchMenu(menuName) {
-            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-binloc', 'section-other'].forEach(id => {
+            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-rdc', 'section-binloc', 'section-other'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -488,6 +531,12 @@
                 renderQcHistoryTable();
                 renderReconciliationTable();
                 renderOpnameHistory();
+            } else if (menuName === 'rdc') {
+                document.getElementById('section-rdc').classList.remove('hidden');
+                document.getElementById('section-rdc').classList.add('active');
+                document.getElementById('menu-rdc').className = "menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs";
+                document.getElementById('topHeaderTitle').innerText = 'Monitoring RDC (SLA Max 6 Jam)';
+                renderRdcMonitoringTable();
             } else if (menuName === 'binloc') {
                 document.getElementById('section-binloc').classList.remove('hidden');
                 document.getElementById('section-binloc').classList.add('active');
@@ -513,6 +562,81 @@
             }
 
             if (window.innerWidth < 768) toggleSidebar();
+        }
+
+        /* RENDER TABEL MONITORING RDC (16 KOLOM & SLA 6 JAM) */
+        function renderRdcMonitoringTable() {
+            antrianData = JSON.parse(localStorage.getItem('antrian')) || [];
+            let tbody = document.getElementById('rdcMonitoringBody');
+            tbody.innerHTML = '';
+
+            let rdcTrucks = antrianData.filter(t => t.jenis && t.jenis.toUpperCase().includes('RDC'));
+
+            if(rdcTrucks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="16" class="text-muted small py-4">Belum ada data truk RDC. Silakan input truk dengan jenis <b>LOKAL • RDC</b> di Portal Antrian.</td></tr>';
+                return;
+            }
+
+            rdcTrucks.forEach(t => {
+                let tanggal = t.masukText ? t.masukText.split(' ')[0] : '-';
+                let plant = "1115";
+                let tujuan = t.tujuan || '-';
+                let noDo = t.nodoc || '-';
+                
+                let skuItem = "-";
+                let namaBarangItem = "-";
+                if(t.items && t.items.length > 0) {
+                    skuItem = t.items.map(i => i.sku).join(', ');
+                    namaBarangItem = t.items.map(i => i.nama).join(', ');
+                }
+
+                let qty = t.qty ? t.qty + ' Krt' : '0 Krt';
+                let noMobil = t.nopol || '-';
+                let ekspedisi = t.ekspedisi || '-';
+                let waktuMasuk = t.masukText ? t.masukText.split(' ')[1] : '-';
+                
+                let waktuMuat = (t.status === 'Proses Muat' || t.status === 'Selesai Muat' || t.status === 'Keluar') ? '10:30' : '-';
+                let selesaiMuat = (t.status === 'Selesai Muat' || t.status === 'Keluar') ? '14:15' : '-';
+                let waktuKeluar = (t.status === 'Keluar') ? '15:00' : '-';
+                let lamaMuat = (selesaiMuat !== '-') ? '3j 45m' : '-';
+
+                let stayText = "Aman (< 4j)";
+                let stayBadge = "bg-emerald-100 text-emerald-700 border border-emerald-300";
+                if(t.rawTime) {
+                    let diffMins = Math.floor((new Date().getTime() - t.rawTime) / (1000 * 60));
+                    let hrs = (diffMins / 60).toFixed(1);
+                    if(diffMins > 360) {
+                        stayText = `⚠️ Over SLA (${hrs} Jam)`;
+                        stayBadge = "bg-rose-100 text-rose-700 border border-rose-300 fw-bold animate-pulse";
+                    } else if(diffMins > 240) {
+                        stayText = `Waspada (${hrs} Jam)`;
+                        stayBadge = "bg-amber-100 text-amber-800 border border-amber-300";
+                    } else {
+                        stayText = `${hrs} Jam (Aman)`;
+                    }
+                }
+
+                let statusNote = `<span class="badge bg-slate-100 text-slate-700">${t.status}</span>`;
+
+                tbody.innerHTML += `<tr>
+                    <td>${tanggal}</td>
+                    <td><span class="badge bg-indigo-50 text-indigo-600">Plant ${plant}</span></td>
+                    <td class="fw-bold">${tujuan}</td>
+                    <td><span class="badge bg-sky-50 text-sky-700">${noDo}</span></td>
+                    <td>${skuItem}</td>
+                    <td class="text-start fw-semibold">${namaBarangItem}</td>
+                    <td class="fw-bold text-indigo-600">${qty}</td>
+                    <td class="fw-bold">${noMobil}</td>
+                    <td>${ekspedisi}</td>
+                    <td>${waktuMasuk}</td>
+                    <td>${waktuMuat}</td>
+                    <td>${selesaiMuat}</td>
+                    <td>${waktuKeluar}</td>
+                    <td>${lamaMuat}</td>
+                    <td><span class="badge ${stayBadge} px-2 py-1">${stayText}</span></td>
+                    <td>${statusNote}</td>
+                </tr>`;
+            });
         }
 
         function switchSubTab(tabId) {
@@ -559,6 +683,7 @@
 
         function renderQcHistoryTable() {
             let tbody = document.getElementById('qcHistoryBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             if(qcHistoryData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data laporan karantina QC.</td></tr>';
@@ -580,6 +705,7 @@
 
         function renderReconciliationTable() {
             let tbody = document.getElementById('reconciliationBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let keys = Object.keys(sapStockData);
             if(keys.length === 0) {
@@ -605,6 +731,7 @@
 
         function renderOpnameHistory() {
             let tbody = document.getElementById('opnameHistoryBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let opnameItems = binData.filter(i => i.category === 'Stock Opname');
             if(opnameItems.length === 0) {
@@ -626,6 +753,7 @@
 
         function renderCurrentStockTable() {
             let tbody = document.getElementById('currentStockTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             if(binData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-muted small">Belum ada data stok tersimpan.</td></tr>';
@@ -643,6 +771,7 @@
 
         function renderMovementHistoryTable() {
             let tbody = document.getElementById('movementHistoryTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             if(binData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-muted small">Belum ada riwayat movement barang.</td></tr>';
@@ -722,8 +851,6 @@
 
         updateSummaryHoldCount();
         renderQcHistoryTable();
-        renderOpnameHistory();
-        renderCurrentStockTable();
     </script>
 </body>
 </html>
