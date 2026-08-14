@@ -109,26 +109,25 @@
     </div>
 </div>
 
-<!-- MODAL DAFTAR MANUAL (Sesuai Alur Gambar Referensi) + INPUT DETAIL BARANG UNTUK PICKING LIST -->
+<!-- MODAL DAFTAR MANUAL + SINKRONISASI MASTER SKU KE PICKING LIST -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <h4 style="margin-top:0; color:#1e293b;">Ambil Nomor Antrian Masuk & Picking List</h4>
         <form onsubmit="submitAntrian(event)">
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
-            <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
+            <div class="form-group"><label>Name Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
             <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
             <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
             
-            <!-- Input Rincian Item Barang untuk Picking List Otomatis -->
+            <!-- Input Rincian Item Barang Picking List Terhubung Master SKU -->
             <div class="form-group" style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
                 <label style="color:#4f46e5; margin-bottom:6px;">📦 Perincian Barang Picking List (FIFO)</label>
                 <div class="row g-2" style="display:flex; gap:6px; margin-bottom:6px;">
-                    <input type="text" id="itemSku" placeholder="SKU (Cth: 410069)" style="flex:1;">
-                    <input type="text" id="itemNama" placeholder="Nama Barang / Jenis" style="flex:2;">
+                    <input type="text" id="itemSku" list="datalistSkus" placeholder="SKU atau Nama Barang (Ketik untuk memilih...)" style="flex:3;" oninput="onSkuInputTyped()">
+                    <input type="date" id="itemProdate" style="flex:1;" title="Tanggal Produksi (FIFO)">
                 </div>
                 <div style="display:flex; gap:6px;">
                     <input type="text" id="itemRak" placeholder="Lokasi Rak (Cth: Blok A | Row 02)" style="flex:2;">
-                    <input type="date" id="itemProdate" style="flex:1;" title="Tanggal Produksi (FIFO)">
                     <input type="number" id="itemReceh" placeholder="Receh" style="width:70px;" title="Jumlah Receh">
                     <input type="number" id="itemJumlah" placeholder="Total Krt" style="width:80px;" title="Jumlah Karton">
                 </div>
@@ -203,7 +202,7 @@
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
             <strong style="color:#e11d48; display:block; margin-bottom:8px;">Verifikasi Barang Keluar (Goods Issue)</strong>
-            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang berdasarkan FIFO.</p>
+            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang berdasarkan FIFO[cite: 8].</p>
             <label>Cari SKU Produk</label>
             <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
             <p id="holdWarning" style="color:#e11d48; display:none; font-weight:bold; margin-top:8px;">⚠️ Peringatan: Barang berstatus HOLD, tidak bisa diproses kirim!</p>
@@ -222,7 +221,7 @@
         <div style="border-bottom: 2px solid #334155; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h3 style="margin:0; color:#1e293b; font-size:14px;">PT. MAYORA INDAH - JAYANTI 3</h3>
-                <span style="font-size:11px; font-weight:bold; color:#64748b;">PICKING LIST LOKAL / EKSPOR (FIFO)</span>
+                <span style="font-size:11px; font-weight:bold; color:#64748b;">PICKING LIST LOKAL / EKSPOR (FIFO)[cite: 8]</span>
             </div>
             <button class="btn" onclick="window.print()" style="font-size:10px;">🖨️ Cetak</button>
         </div>
@@ -233,14 +232,31 @@
     </div>
 </div>
 
+<!-- DATALIST GLOBAL UNTUK AUTO-COMPLETE MASTER SKU -->
+<datalist id="datalistSkus"></datalist>
+
 <script>
     let data = [];
     let draftItems = [];
+    let masterStockData = {};
 
     try {
         data = JSON.parse(localStorage.getItem('antrian')) || [];
         if (!Array.isArray(data)) data = [];
-    } catch(e) { data = []; }
+        masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+    } catch(e) { data = []; masterStockData = {}; }
+
+    // Populate Datalist Master SKU agar terhubung ke form picking list antrian
+    function populateMasterSkuDatalist() {
+        const datalist = document.getElementById('datalistSkus');
+        if(!datalist) return;
+        datalist.innerHTML = '';
+        for (let sku in masterStockData) {
+            let item = masterStockData[sku];
+            datalist.innerHTML += `<option value="${item.sku} | ${item.name}">`;
+        }
+    }
+    populateMasterSkuDatalist();
 
     let currentMainTab = 'AntrianTab';
     let activeIdx = null;
@@ -267,25 +283,30 @@
     function openModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'flex'; }
     function closeModal(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
 
+    function onSkuInputTyped() {
+        // Otomatis membaca jika user memilih dari dropdown master SKU
+    }
+
     function addItemToDraft() {
-        const sku = document.getElementById('itemSku').value;
-        const nama = document.getElementById('itemNama').value;
-        const rak = document.getElementById('itemRak').value;
+        const skuInputVal = document.getElementById('itemSku').value;
         const prodate = document.getElementById('itemProdate').value || '2026-08-01';
+        const rak = document.getElementById('itemRak').value;
         const receh = document.getElementById('itemReceh').value || 0;
         const jumlah = document.getElementById('itemJumlah').value || 0;
 
-        if(!sku || !nama) {
-            alert('SKU dan Nama Barang wajib diisi!');
+        if(!skuInputVal) {
+            alert('SKU atau Nama Barang wajib diisi!');
             return;
         }
 
-        draftItems.push({ sku, nama, rak, prodate, receh: parseInt(receh), jumlah: parseInt(jumlah) });
-        // Urutkan secara FIFO berdasarkan tanggal prodate tertua
+        let skuCode = skuInputVal.split('|')[0].trim();
+        let skuName = skuInputVal.includes('|') ? skuInputVal.split('|')[1].trim() : skuInputVal;
+
+        draftItems.push({ sku: skuCode, nama: skuName, rak, prodate, receh: parseInt(receh), jumlah: parseInt(jumlah) });
+        // Urutkan secara FIFO berdasarkan tanggal prodate tertua[cite: 8]
         draftItems.sort((a, b) => new Date(a.prodate) - new Date(b.prodate));
 
         document.getElementById('itemSku').value = '';
-        document.getElementById('itemNama').value = '';
         document.getElementById('itemRak').value = '';
         document.getElementById('itemProdate').value = '';
         document.getElementById('itemReceh').value = '';
@@ -296,7 +317,7 @@
     function renderDraftList() {
         const list = document.getElementById('draftItemsList');
         list.innerHTML = '';
-        draftItems.forEach((it, idx) => {
+        draftItems.forEach((it) => {
             list.innerHTML += `<li><b>${it.sku}</b> - ${it.nama} (Rak: ${it.rak || '-'}, Tgl: ${it.prodate}) | Krt: ${it.jumlah}, Receh: ${it.receh}</li>`;
         });
     }
@@ -410,7 +431,7 @@
             data[activeIdx].dock = '-';
         }
 
-        // Jika berpindah ke Selesai Muat, lakukan Goods Issue otomatis mengurangi stok binloc
+        // Jika berpindah ke Selesai Muat, lakukan Goods Issue otomatis mengurangi stok binloc[cite: 8]
         if(nextStatus === 'Selesai Muat' && prevStatus !== 'Selesai Muat') {
             try {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -451,14 +472,14 @@
                         <th>Lokasi Rak</th>
                         <th>Jenis Barang</th>
                         <th>SKU</th>
-                        <th>Tgl Prod (FIFO)</th>
+                        <th>Tgl Prod (FIFO)[cite: 8]</th>
                         <th>Karton</th>
                         <th>Receh</th>
                     </tr>
                 </thead>
                 <tbody>`;
             
-            // Urutkan berdasarkan FIFO tanggal produksi
+            // Urutkan berdasarkan FIFO tanggal produksi[cite: 8]
             let sortedItems = [...item.items].sort((a,b) => new Date(a.prodate) - new Date(b.prodate));
             sortedItems.forEach((it, i) => {
                 content += `<tr>
