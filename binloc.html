@@ -28,6 +28,8 @@
         .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .bin-item { cursor: pointer; transition: transform 0.1s; }
         .bin-item:hover { transform: scale(1.02); }
+        .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; }
+        .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -129,16 +131,19 @@
             </div>
         </div>
 
-        <!-- SECTION: REPORT PENERIMAAN BARANG DENGAN FITUR HAPUS -->
+        <!-- SECTION: REPORT PENERIMAAN BARANG DENGAN FITUR TOGGLE BUTTON & HAPUS -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-sky-700 text-base"><i class="fa-solid fa-clipboard-list mr-2"></i> Report / Log Riwayat Penerimaan Barang Masuk</h3>
                     <p class="text-xs text-slate-400">Daftar seluruh barang yang berhasil masuk dan tercatat di sistem Bin-Loc.</p>
                 </div>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                <div class="flex gap-2">
+                    <button onclick="toggleReportTable()" id="btnToggleReport" class="btn btn-sm btn-primary fw-bold"><i class="fa-solid fa-eye me-1"></i> Tampilkan Log</button>
+                    <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+            <div id="reportTableContainer" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4" style="display: none;">
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center text-xs">
                         <thead class="pastel-header-blue">
@@ -228,10 +233,11 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
+                    <div class="row g-2 mb-3 relative">
+                        <div class="col-6 relative">
                             <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
-                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" list="datalistSkus" required placeholder="Ketik atau pilih SKU...">
+                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Ketik atau pilih SKU..." oninput="filterCustomSku('qcSkuInput', 'qcSkuDropdown')" autocomplete="off">
+                            <div id="qcSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik *</label>
@@ -423,15 +429,14 @@
 
     </main>
 
-    <!-- DATALIST GLOBAL UNTUK AUTO-COMPLETE SKU -->
-    <datalist id="datalistSkus"></datalist>
-
+    <!-- MODAL RELOKASI -->
     <div id="modalRelokasi" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-xs">
             <h5 class="fw-bold mb-3 text-indigo-700 text-sm"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Relokasi Barang (Pindah Rak)</h5>
-            <div class="mb-3">
+            <div class="mb-3 relative">
                 <label class="form-label fw-bold text-slate-600">Cari SKU Produk *</label>
-                <input type="text" id="relocSku" class="form-control form-control-sm" list="datalistSkus" placeholder="Ketik SKU...">
+                <input type="text" id="relocSku" class="form-control form-control-sm" placeholder="Ketik SKU..." oninput="filterCustomSku('relocSku', 'relocSkuDropdown')" autocomplete="off">
+                <div id="relocSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label fw-bold text-slate-600">Lokasi Asal / Terpilih</label>
@@ -448,6 +453,7 @@
         </div>
     </div>
 
+    <!-- MODAL PENERIMAAN BARANG DENGAN CUSTOM SKU DROPDOWN & AUTO PALLET RANGE -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -517,14 +523,15 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 relative">
                         <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
-                        <input type="text" id="pSku" class="form-control form-control-sm" list="datalistSkus" required placeholder="Ketik SKU atau nama barang..." oninput="onSkuSelected()">
+                        <input type="text" id="pSku" class="form-control form-control-sm" required placeholder="Ketik SKU atau nama barang..." oninput="filterCustomSku('pSku', 'pSkuDropdown')" autocomplete="off">
+                        <div id="pSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label class="form-label fw-bold text-slate-600">No. Pallet Fisik *</label>
-                            <input type="text" id="pPalletRange" class="form-control form-control-sm" required placeholder="Cth: PLT-01 s/d PLT-10">
+                            <label class="form-label fw-bold text-slate-600">No. Pallet Fisik (Auto-Generate) *</label>
+                            <input type="text" id="pPalletRange" class="form-control form-control-sm bg-slate-50" required readonly placeholder="Auto-generate dari sistem">
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-bold text-slate-600">Jumlah Karton Total *</label>
@@ -589,17 +596,54 @@
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
         } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
 
-        // SINKRONISASI MASTER SKU KE DATALIST GLOBAL UNTUK SEMUA HALAMAN (TERMASUK PORTAL ANTRIAN)
-        function populateMasterSkuDatalist() {
-            const datalist = document.getElementById('datalistSkus');
-            if(!datalist) return;
-            datalist.innerHTML = '';
+        // CUSTOM SKU DROPDOWN AUTOCOMPLETE DI BAWAH KOLOM KETIK
+        function filterCustomSku(inputId, dropdownId) {
+            const inputVal = document.getElementById(inputId).value.toLowerCase().trim();
+            const dropdown = document.getElementById(dropdownId);
+            if(!dropdown) return;
+
+            dropdown.innerHTML = '';
+            if(!inputVal) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            let matches = 0;
             for (let sku in masterStockData) {
                 let item = masterStockData[sku];
-                datalist.innerHTML += `<option value="${item.sku} | ${item.name}">`;
+                let textStr = `${item.sku} | ${item.name}`.toLowerCase();
+                if(textStr.includes(inputVal)) {
+                    matches++;
+                    let div = document.createElement('div');
+                    div.className = 'sku-dropdown-item';
+                    div.innerText = `${item.sku} | ${item.name}`;
+                    div.onclick = function() {
+                        document.getElementById(inputId).value = `${item.sku} | ${item.name}`;
+                        dropdown.classList.add('hidden');
+                        if(inputId === 'pSku') hitungKonversi();
+                        if(inputId === 'qcSkuInput') calcQcPallet();
+                    };
+                    dropdown.appendChild(div);
+                    if(matches >= 15) break; // Batasi max 15 hasil
+                }
+            }
+
+            if(matches > 0) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
             }
         }
-        populateMasterSkuDatalist();
+
+        // TUTUP DROPDOWN KETIKA KLIK DI LUAR
+        document.addEventListener('click', function(e) {
+            ['pSkuDropdown', 'qcSkuDropdown', 'relocSkuDropdown'].forEach(id => {
+                let d = document.getElementById(id);
+                if(d && !d.contains(e.target) && e.target.id !== id.replace('Dropdown', '')) {
+                    d.classList.add('hidden');
+                }
+            });
+        });
 
         const now = new Date();
         const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -731,7 +775,7 @@
 
             tr.innerHTML = `<td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_${opnameRowIdx}" required>${blockOpts}</select></td>
                            <td><input type="text" class="form-control form-control-sm border-slate-200" id="opRow_${opnameRowIdx}" required placeholder="Row 01"></td>
-                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" list="datalistSkus" required placeholder="SKU Produk"></td>
+                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" required placeholder="SKU Produk"></td>
                            <td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_${opnameRowIdx}" required min="0" oninput="calcMultiRow(${opnameRowIdx})" placeholder="Karton"></td>
                            <td class="fw-bold text-indigo-600" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>`;
             tbody.appendChild(tr);
@@ -813,16 +857,23 @@
             return 70;
         }
 
+        // OTOMATISASI JUMLAH PALET & NO. PALLET FISIK RANGE
         function hitungKonversi() {
             let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
             let skuVal = document.getElementById('pSku').value;
             let standardKrt = getCartonPerPallet(skuVal);
-            let plt = (krt / standardKrt).toFixed(2);
-            document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar ${standardKrt} krt/plt)`;
-        }
+            let pltCount = Math.ceil(krt / standardKrt);
+            if(pltCount < 1 && krt > 0) pltCount = 1;
 
-        function onSkuSelected() {
-            hitungKonversi();
+            let pltValDec = (krt / standardKrt).toFixed(2);
+            document.getElementById('konversiPlt').innerText = `Konversi: ${pltValDec} Pallet (Standar ${standardKrt} krt/plt)`;
+
+            if(krt > 0) {
+                let rangeText = pltCount === 1 ? 'PLT-01' : `PLT-01 s/d PLT-${pltCount < 10 ? '0'+pltCount : pltCount}`;
+                document.getElementById('pPalletRange').value = rangeText;
+            } else {
+                document.getElementById('pPalletRange').value = '';
+            }
         }
 
         function calcQcPallet() {
@@ -891,7 +942,7 @@
             let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
 
             if(activeHolds.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Tidak ada barang yang sedang di-hold.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Tidak ada barang dalam status karantina.</td></tr>';
                 return;
             }
 
@@ -968,7 +1019,22 @@
             alert('Penerimaan barang berhasil disimpan ke beberapa rak sekaligus!');
         }
 
-        // FUNGSI MENGHAPUS LOG RIWAYAT PENERIMAAN
+        // FUNGSI TOGGLE TAMPILAN TABEL LOG RIWAYAT
+        function toggleReportTable() {
+            const container = document.getElementById('reportTableContainer');
+            const btn = document.getElementById('btnToggleReport');
+            if(container.style.display === 'none') {
+                container.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash me-1"></i> Sembunyikan Log';
+                btn.className = 'btn btn-sm btn-outline-primary fw-bold';
+                renderReportTable();
+            } else {
+                container.style.display = 'none';
+                btn.innerHTML = '<i class="fa-solid fa-eye me-1"></i> Tampilkan Log';
+                btn.className = 'btn btn-sm btn-primary fw-bold';
+            }
+        }
+
         function deleteReportItem(index) {
             if(confirm('Apakah Anda yakin ingin menghapus log riwayat penerimaan barang ini?')) {
                 binData.splice(index, 1);
