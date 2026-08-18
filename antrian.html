@@ -220,6 +220,16 @@
 </div>
 
 <script>
+    function updateClock() {
+        const now = new Date();
+        const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+        const clockEl = document.getElementById('realTimeClock');
+        if(clockEl) clockEl.innerText = dateStr + ' ' + timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { 
         document.getElementById(id).style.display = 'none';
@@ -476,7 +486,6 @@
         renderPlTable();
     }
 
-    // Fungsi Cetak Format A5 Anti-Blank & Rapi ala PT Mayora
     function printPickingList() {
         if(activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
@@ -582,8 +591,17 @@
         printWindow.document.close();
     }
 
+    let currentMainTab = 'AntrianTab';
+    function switchMainTab(tabName, btn) {
+        currentMainTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        renderAll();
+    }
+
     function renderAll() {
         let container = document.getElementById('antrianCardContainer');
+        let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
         
         let html = '';
@@ -594,6 +612,16 @@
             if(t.status === 'Proses Muat') countProses++;
             if(t.status === 'Treatment') countTreatment++;
             if(t.status === 'Keluar') countKeluar++;
+
+            let matchTab = (currentMainTab === 'AntrianTab' || t.status === currentMainTab.replace('Tab',''));
+            let textMatch = (t.id.toLowerCase().includes(keyword) || 
+                             t.noPol.toLowerCase().includes(keyword) || 
+                             t.sopir.toLowerCase().includes(keyword) || 
+                             t.ekspedisi.toLowerCase().includes(keyword) ||
+                             t.tujuan.toLowerCase().includes(keyword) ||
+                             (t.noDoc && t.noDoc.toLowerCase().includes(keyword)));
+
+            if(currentMainTab !== 'DockTab' && currentMainTab !== 'AnalisisTab' && (!matchTab || !textMatch)) return;
 
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
