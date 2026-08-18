@@ -166,6 +166,7 @@
             </div>
         </div>
 
+        <!-- SECTION: MONITORING AGING -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -196,6 +197,7 @@
             </div>
         </div>
 
+        <!-- SECTION: KARANTINA QC -->
         <div id="section-qc" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Manajemen Karantina QC (Hold, Release & Pemusnahan)</h3>
@@ -293,7 +295,7 @@
                 </div>
             </div>
 
-            <!-- TABEL LOG RIWAYAT STOCK OPNAME (TOGGLE) -->
+            <!-- TABEL LOG RIWAYAT STOCK OPNAME -->
             <div id="opnameReportContainer" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4" style="display: none;">
                 <div class="flex justify-between items-center mb-2">
                     <h5 class="fw-bold text-purple-800 text-xs uppercase mb-0"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Log Riwayat Hasil Stock Opname Tersimpan</h5>
@@ -410,6 +412,7 @@
             </div>
         </div>
 
+        <!-- SECTION: CARI POSISI -->
         <div id="section-cari" class="app-page space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Cari Posisi Barang (Bin Loc)</h3>
@@ -439,17 +442,23 @@
             </div>
         </div>
 
+        <!-- SECTION: PETA KAPASITAS & RELOKASI -->
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-slate-700 text-base">Peta Kapasitas Gudang & Relokasi (Jayanti 3)</h3>
-                    <p class="text-xs text-slate-400">Klik blok rak untuk memindahkan lokasi barang (Relokasi).</p>
+                    <p class="text-xs text-slate-400">Klik blok rak untuk melihat isi barang per lorong & memindahkan lokasi (Relokasi).</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="switchWarehouse('INDUK')" id="btnWhInduk" class="btn btn-sm btn-primary">Gudang Induk (A-X)</button>
                     <button onclick="switchWarehouse('AGING')" id="btnWhAging" class="btn btn-sm btn-outline-secondary">Gudang Aging (A-O)</button>
                     <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary ms-2"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
                 </div>
+            </div>
+
+            <!-- TOMBOL LIHAT LOG RIWAYAT RELOKASI -->
+            <div class="flex justify-end">
+                <button onclick="toggleRelokasiLogModal()" class="btn btn-sm btn-outline-indigo fw-bold bg-white shadow-2xs"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Lihat Log Riwayat Relokasi Barang</button>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
@@ -459,32 +468,131 @@
 
     </main>
 
-    <!-- MODAL RELOKASI -->
-    <div id="modalRelokasi" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-xs">
-            <h5 class="fw-bold mb-3 text-indigo-700 text-sm"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Relokasi Barang (Pindah Rak)</h5>
-            <div class="mb-3 relative">
-                <label class="form-label fw-bold text-slate-600">Cari SKU Produk *</label>
-                <input type="text" id="relocSku" class="form-control form-control-sm" placeholder="Ketik SKU..." oninput="filterCustomSku('relocSku', 'relocSkuDropdown')" autocomplete="off">
-                <div id="relocSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
+    <!-- MODAL DETAIL ISI BLOK & RELOKASI PER LORONG -->
+    <div id="modalDetailBlok" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
+                <h3 id="modalDetailBlokTitle" class="font-bold text-indigo-800 text-sm"><i class="fa-solid fa-boxes-stacked mr-1.5"></i> Rincian Isi Blok Rak Per Lorong</h3>
+                <button onclick="closeModal('modalDetailBlok')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold text-slate-600">Lokasi Asal / Terpilih</label>
-                <input type="text" id="relocAsal" class="form-control form-control-sm bg-slate-50" readonly>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs mb-0">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>Lorong / Row</th>
+                                <th>SKU & Nama Produk</th>
+                                <th>No. Pallet</th>
+                                <th>Jumlah Karton & Konversi</th>
+                                <th>Aksi Pindahkan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailBlokTableBody">
+                            <tr><td colspan="5" class="text-muted">Tidak ada barang di dalam blok ini.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold text-slate-600">Lokasi Tujuan Baru *</label>
-                <input type="text" id="relocTujuan" class="form-control form-control-sm" placeholder="Contoh: Blok T - Row 05">
-            </div>
-            <div class="flex gap-2 pt-2">
-                <button class="btn btn-sm btn-primary w-100 fw-bold" onclick="processRelokasi()">Update Lokasi Rak</button>
-                <button class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalRelokasi')">Batal</button>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary px-4" onclick="closeModal('modalDetailBlok')">Tutup</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PENERIMAAN BARANG DENGAN WARNING KAPASITAS BLOK -->
-    <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <!-- MODAL FORM RELOKASI DENGAN DROPDOWN BERTINGKAT & NAMA PETUGAS -->
+    <div id="modalRelokasiForm" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-center">
+                <h3 class="font-bold text-amber-800 text-sm"><i class="fa-solid fa-arrows-split-up-and-left mr-1.5"></i> Form Relokasi Barang (Pindah Rak)</h3>
+                <button onclick="closeModal('modalRelokasiForm')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 text-xs">
+                <form onsubmit="processRelokasi(event)">
+                    <input type="hidden" id="relocItemIndex">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">SKU & Produk</label>
+                        <input type="text" id="relocSkuDisplay" class="form-control form-control-sm bg-slate-50" readonly>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Lokasi Asal Terpilih</label>
+                            <input type="text" id="relocAsal" class="form-control form-control-sm bg-slate-50" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-rose-600">Nama Petugas Relokasi *</label>
+                            <input type="text" id="relocPetugas" class="form-control form-control-sm border-rose-200" required placeholder="Nama lengkap petugas">
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-xl border border-indigo-100 bg-indigo-50/30 mb-3 space-y-2">
+                        <div class="font-bold text-indigo-700 text-[11px]">PILIH LOKASI TUJUAN BARU (BERTINGKAT)</div>
+                        <div class="mb-2">
+                            <label class="form-label fw-bold text-slate-600">1. Tujuan Gudang *</label>
+                            <select id="relocDestWh" class="form-select form-select-sm" required onchange="updateRelocBlockOptions()">
+                                <option value="Gudang Induk">Gudang Induk (Blok A-X)</option>
+                                <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
+                            </select>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">2. Pilih Blok *</label>
+                                <select id="relocDestBlock" class="form-select form-select-sm" required onchange="updateRelocRowOptions()">
+                                    <option value="">-- Pilih Blok --</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">3. Pilih Lorong / Row *</label>
+                                <select id="relocDestRow" class="form-select form-select-sm" required>
+                                    <option value="">-- Pilih Row --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2">Simpan & Pindahkan Barang</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalRelokasiForm')">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOG RIWAYAT RELOKASI -->
+    <div id="modalRelokasiLog" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-5xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-sky-50 px-6 py-4 border-b border-sky-100 flex justify-between items-center">
+                <h3 class="font-bold text-sky-800 text-sm"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Log Riwayat Relokasi (Perpindahan Rak Barang)</h3>
+                <button onclick="closeModal('modalRelokasiLog')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs mb-0">
+                        <thead class="pastel-header-blue">
+                            <tr>
+                                <th>Waktu Perpindahan</th>
+                                <th>Nama Petugas</th>
+                                <th>SKU & Produk</th>
+                                <th>No. Pallet</th>
+                                <th>Lokasi Asal</th>
+                                <th>Lokasi Tujuan Baru</th>
+                                <th>Aksi Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relokasiLogTableBody">
+                            <tr><td colspan="7" class="text-muted">Belum ada riwayat relokasi barang.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary px-4" onclick="closeModal('modalRelokasiLog')">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PENERIMAAN BARANG -->
+    <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
                 <h3 id="modalPenerimaanTitle" class="font-bold text-emerald-800 text-sm">Form Masuk Barang - Lokal</h3>
@@ -613,20 +721,22 @@
 
         let binData = [];
         let qcHistoryData = [];
+        let relokasiLogData = [];
         let sapStockData = {};
         let masterStockData = {};
 
         try {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
             sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
             masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
 
             if (!Array.isArray(binData)) binData = [];
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
-        } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
+            if (!Array.isArray(relokasiLogData)) relokasiLogData = [];
+        } catch(e) { binData = []; qcHistoryData = []; relokasiLogData = []; sapStockData = {}; masterStockData = {}; }
 
-        // FUNGSI MENGHITUNG KAPASITAS MUATAN PALET DI SUATU BLOK TERTENTU
         function getBlockTotalPallets(gudangName, blockName) {
             let totalPlt = 0;
             binData.forEach(item => {
@@ -640,7 +750,6 @@
             return totalPlt;
         }
 
-        // CUSTOM SKU DROPDOWN AUTOCOMPLETE
         function filterCustomSku(inputId, dropdownId, extraCallback = null) {
             const inputVal = document.getElementById(inputId).value.toLowerCase().trim();
             const dropdown = document.getElementById(dropdownId);
@@ -741,7 +850,6 @@
             tbody.appendChild(tr);
         }
 
-        // FUNGSI CEK KAPASITAS BLOK KETIKA DIPILIH DI FORM PENERIMAAN
         function checkBlockCapacity(idx) {
             let gudang = document.getElementById('pGudang').value;
             let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1336,32 +1444,160 @@
             renderBinMap();
         }
 
-        function openRelokasiModal(blokName) {
-            document.getElementById('relocAsal').value = blokName;
-            document.getElementById('relocSku').value = '';
-            document.getElementById('relocTujuan').value = '';
-            document.getElementById('modalRelokasi').classList.remove('hidden');
+        // KLIK BLOK RAK: MENAMPILKAN RINCIAN ISI PER LORONG
+        let activeSelectedBlock = '';
+        function openBlockDetailModal(blokName) {
+            activeSelectedBlock = blokName;
+            document.getElementById('modalDetailBlokTitle').innerHTML = `<i class="fa-solid fa-boxes-stacked mr-1.5"></i> Rincian Isi ${blokName} Per Lorong`;
+            
+            let tbody = document.getElementById('detailBlokTableBody');
+            tbody.innerHTML = '';
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let targetGudang = currentWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
+
+            let itemsInBlock = binData.filter(item => item.gudang && item.gudang.includes(targetGudang) && item.lokasi && item.lokasi.includes(blokName));
+
+            if(itemsInBlock.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-muted py-4">Tidak ada barang tersimpan di ${blokName}.</td></tr>`;
+            } else {
+                itemsInBlock.forEach((item, idx) => {
+                    let globalIndex = binData.findIndex(i => i === item);
+                    tbody.innerHTML += `<tr>
+                        <td class="fw-bold text-indigo-700">${item.lokasi}</td>
+                        <td class="text-start fw-semibold">${item.sku}</td>
+                        <td class="fw-bold">${item.pallet}</td>
+                        <td class="fw-bold text-emerald-600">${item.konversi}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary py-0 px-2.5 fw-bold text-[11px]" onclick="openRelokasiFormModal(${globalIndex})"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Pindahkan</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('modalDetailBlok').classList.remove('hidden');
         }
 
-        function processRelokasi() {
-            let sku = document.getElementById('relocSku').value.trim();
-            let tujuan = document.getElementById('relocTujuan').value.trim();
-            let asal = document.getElementById('relocAsal').value;
-            if(!sku || !tujuan) { alert('Harap isi SKU dan lokasi tujuan baru!'); return; }
+        function openRelokasiFormModal(index) {
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let item = binData[index];
+            if(!item) return;
+
+            document.getElementById('relocItemIndex').value = index;
+            document.getElementById('relocSkuDisplay').value = item.sku;
+            document.getElementById('relocAsal').value = item.lokasi;
+            document.getElementById('relocPetugas').value = '';
+            
+            // Set default gudang tujuan
+            let destWh = item.gudang || 'Gudang Induk';
+            document.getElementById('relocDestWh').value = destWh;
+            updateRelocBlockOptions();
+
+            closeModal('modalDetailBlok');
+            document.getElementById('modalRelokasiForm').classList.remove('hidden');
+        }
+
+        function updateRelocBlockOptions() {
+            let wh = document.getElementById('relocDestWh').value;
+            let blockSelect = document.getElementById('relocDestBlock');
+            blockSelect.innerHTML = '<option value="">-- Pilih Blok --</option>';
+            let blocks = wh.includes('Induk') ? indukBlocks : agingBlocks;
+            blocks.forEach(b => {
+                blockSelect.innerHTML += `<option value="Blok ${b}">Blok ${b}</option>`;
+            });
+            document.getElementById('relocDestRow').innerHTML = '<option value="">-- Pilih Row --</option>';
+        }
+
+        function updateRelocRowOptions() {
+            let wh = document.getElementById('relocDestWh').value;
+            let blockVal = document.getElementById('relocDestBlock').value;
+            let rowSelect = document.getElementById('relocDestRow');
+            rowSelect.innerHTML = '<option value="">-- Pilih Row --</option>';
+            if(!blockVal) return;
+            let maxRow = getRowMax(wh, blockVal);
+            for(let i = 1; i <= maxRow; i++) {
+                let rNum = i < 10 ? '0' + i : i;
+                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${maxRow})</option>`;
+            }
+        }
+
+        function processRelokasi(e) {
+            e.preventDefault();
+            let index = document.getElementById('relocItemIndex').value;
+            let petugas = document.getElementById('relocPetugas').value.trim();
+            let destWh = document.getElementById('relocDestWh').value;
+            let destBlock = document.getElementById('relocDestBlock').value;
+            let destRow = document.getElementById('relocDestRow').value;
+
+            if(!petugas || !destBlock || !destRow) {
+                alert('Harap isi nama petugas dan pilih lokasi tujuan lengkap!');
+                return;
+            }
 
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            let updatedCount = 0;
-            binData.forEach(item => {
-                if(item.sku.toLowerCase().includes(sku.toLowerCase())) {
-                    item.lokasi = tujuan;
-                    updatedCount++;
-                }
-            });
+            let item = binData[index];
+            if(!item) return;
 
+            let lokasiAsalLama = item.lokasi;
+            let lokasiTujuanBaru = `${destBlock} - ${destRow}`;
+
+            // Update data item
+            item.gudang = destWh;
+            item.lokasi = lokasiTujuanBaru;
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            alert(`Berhasil merelokasi ${updatedCount} data barang dari ${asal} ke ${tujuan}!`);
-            closeModal('modalRelokasi');
+
+            // Simpan ke log riwayat relokasi
+            let logItem = {
+                waktu: new Date().toLocaleString('id-ID'),
+                petugas: petugas,
+                sku: item.sku,
+                pallet: item.pallet,
+                asal: lokasiAsalLama,
+                tujuan: `${destWh} (${lokasiTujuanBaru})`
+            };
+            relokasiLogData.unshift(logItem);
+            localStorage.setItem('binloc_reloc_log_jayanti3', JSON.stringify(relokasiLogData));
+
+            alert(`Berhasil memindahkan barang ke ${lokasiTujuanBaru}!`);
+            closeModal('modalRelokasiForm');
             renderBinMap();
+        }
+
+        function toggleRelokasiLogModal() {
+            renderRelokasiLogTable();
+            document.getElementById('modalRelokasiLog').classList.remove('hidden');
+        }
+
+        function deleteRelokasiLog(index) {
+            if(confirm('Hapus log riwayat relokasi ini?')) {
+                relokasiLogData.splice(index, 1);
+                localStorage.setItem('binloc_reloc_log_jayanti3', JSON.stringify(relokasiLogData));
+                renderRelokasiLogTable();
+            }
+        }
+
+        function renderRelokasiLogTable() {
+            let tbody = document.getElementById('relokasiLogTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
+
+            if(relokasiLogData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted py-4">Belum ada riwayat relokasi barang.</td></tr>';
+                return;
+            }
+
+            relokasiLogData.forEach((log, index) => {
+                tbody.innerHTML += `<tr>
+                    <td>${log.waktu}</td>
+                    <td class="fw-bold text-indigo-700">${log.petugas}</td>
+                    <td class="text-start fw-semibold">${log.sku}</td>
+                    <td class="fw-bold">${log.pallet}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${log.asal}</span></td>
+                    <td><span class="badge bg-emerald-100 text-emerald-700">${log.tujuan}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold text-[11px]" onclick="deleteRelokasiLog(${index})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                    </td>
+                </tr>`;
+            });
         }
 
         function renderBinMap() {
@@ -1400,7 +1636,7 @@
                     statusText = `${totalPltInBlock.toFixed(1)} Plt (Penuh)`;
                 }
 
-                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item ${colorClass}" onclick="openRelokasiModal('Blok ${b}')">
+                container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item ${colorClass}" onclick="openBlockDetailModal('Blok ${b}')">
                     <div class="font-bold text-sm">Blok ${b} FG</div>
                     <div class="text-[10px] mt-1 font-semibold">${statusText}</div>
                 </div>`;
