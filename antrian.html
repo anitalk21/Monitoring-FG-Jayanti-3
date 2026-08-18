@@ -48,10 +48,6 @@
     </div>
 </header>
 
-<div class="marquee">
-    <marquee scrollamount="5">Selamat Datang di Portal Operasional Gudang PT. Mayora Indah Tbk (Jayanti 3) — Pastikan pengisian data antrian, picking list, dan verifikasi barang keluar sesuai SOP Gudang Finish Good (GDFG).</marquee>
-</div>
-
 <div class="container">
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
@@ -59,14 +55,14 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="tAntrian">0</span>)</button>
+        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian</button>
         <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen</button>
-        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="tProses">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat</button>
         <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat</button>
         <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
         <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>
         <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>
-        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="tKeluar">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar</button>
     </div>
 
     <div id="tabContentArea">
@@ -224,16 +220,6 @@
 </div>
 
 <script>
-    function updateClock() {
-        const now = new Date();
-        const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-        const clockEl = document.getElementById('realTimeClock');
-        if(clockEl) clockEl.innerText = dateStr + ' ' + timeStr;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { 
         document.getElementById(id).style.display = 'none';
@@ -490,6 +476,7 @@
         renderPlTable();
     }
 
+    // Fungsi Cetak Format A5 Anti-Blank & Rapi ala PT Mayora
     function printPickingList() {
         if(activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
@@ -595,17 +582,8 @@
         printWindow.document.close();
     }
 
-    let currentMainTab = 'AntrianTab';
-    function switchMainTab(tabName, btn) {
-        currentMainTab = tabName;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        renderAll();
-    }
-
     function renderAll() {
         let container = document.getElementById('antrianCardContainer');
-        let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
         
         let html = '';
@@ -616,16 +594,6 @@
             if(t.status === 'Proses Muat') countProses++;
             if(t.status === 'Treatment') countTreatment++;
             if(t.status === 'Keluar') countKeluar++;
-
-            let matchTab = (currentMainTab === 'AntrianTab' || t.status === currentMainTab.replace('Tab',''));
-            let textMatch = (t.id.toLowerCase().includes(keyword) || 
-                             t.noPol.toLowerCase().includes(keyword) || 
-                             t.sopir.toLowerCase().includes(keyword) || 
-                             t.ekspedisi.toLowerCase().includes(keyword) ||
-                             t.tujuan.toLowerCase().includes(keyword) ||
-                             (t.noDoc && t.noDoc.toLowerCase().includes(keyword)));
-
-            if(currentMainTab !== 'DockTab' && currentMainTab !== 'AnalisisTab' && (!matchTab || !textMatch)) return;
 
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
@@ -741,3 +709,4 @@
 </script>
 </body>
 </html>
+antrian (1).html
