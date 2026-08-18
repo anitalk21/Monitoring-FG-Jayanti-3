@@ -4,232 +4,414 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Bin-Loc & Operasional Gudang - PT. Mayora Indah Tbk</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
+        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .app-page { display: none; }
         .app-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-rose { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; font-size: 12px; font-weight: bold; }
+        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; }
+        .pastel-header-yellow { background-color: #fef3c7 !important; color: #92400e !important; border-color: #fde68a !important; }
+        .pastel-header-rose { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; }
+        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; }
 
+        /* Bin Loc Capacity Colors */
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .bin-med { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
         .bin-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
         .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
-        table th, table td { font-size: 12px !important; }
+        .bin-item { cursor: pointer; transition: transform 0.1s; }
+        .bin-item:hover { transform: scale(1.02); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative z-20">
-        <div>
-            <h1 class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Operasional Gudang</h1>
-            <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
+        <div class="flex items-center space-x-3">
+            <div>
+                <h1 class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Portal Bin-Loc & Operasional Gudang</h1>
+                <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
+            </div>
         </div>
         <div class="flex items-center gap-2">
-            <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">Memuat waktu...</span>
-            <a href="monitoring.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">Monitoring</a>
-            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">Portal</a>
+            <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
+                <i class="fa-regular fa-clock text-teal-500 mr-1"></i> Memuat waktu...
+            </span>
+            <a href="monitoring.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-indigo-400"></i> <span>Monitoring</span>
+            </a>
+            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
+            </a>
         </div>
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- MENU UTAMA / HOME -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
-                <h2 class="text-xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Kelola penempatan rak, mutasi stok, audit fisik, dan karantina QC</p>
+                <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC berkesinambungan, aging 8 hari, opname, report penerimaan, dan peta rak.</p>
             </div>
-            
+
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl"><i class="fa-solid fa-industry text-xl"></i></div>
+                <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl border border-emerald-100 group-hover:scale-105 transition"><i class="fa-solid fa-industry text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-emerald-700 text-sm">Masuk Lokal</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Input produksi pabrik lokal</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Pallet + Prodate</p>
                     </div>
                 </div>
-                <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-violet-50 text-violet-600 p-4 rounded-2xl"><i class="fa-solid fa-ship text-xl"></i></div>
+
+                <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-violet-50 text-violet-600 p-4 rounded-2xl border border-violet-100 group-hover:scale-105 transition"><i class="fa-solid fa-ship text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-violet-700 text-sm">Masuk Ekspor</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Input produk jalur ekspor</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Buyer (Ketik) + QT</p>
                     </div>
                 </div>
-                <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-rose-50 text-rose-600 p-4 rounded-2xl"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+
+                <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-rose-50 text-rose-600 p-4 rounded-2xl border border-rose-100 group-hover:scale-105 transition"><i class="fa-solid fa-shield-halved text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-rose-700 text-sm">Karantina QC</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Hold & Release status mutu</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Hold, Release, Scrap</p>
                     </div>
                 </div>
-                <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
+
+                <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-amber-700 text-sm">Monitoring Aging</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Pengawasan masa simpan</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Masa Aging 8 Hari</p>
                     </div>
                 </div>
             </div>
 
             <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div onclick="switchSection('report')" class="bg-white hover:border-sky-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-sky-50 text-sky-600 p-4 rounded-2xl"><i class="fa-solid fa-clipboard-list text-xl"></i></div>
+                <div onclick="switchSection('report')" class="bg-white hover:border-sky-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-sky-50 text-sky-600 p-4 rounded-2xl border border-sky-100 group-hover:scale-105 transition"><i class="fa-solid fa-clipboard-list text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-sky-700 text-sm">Report Penerimaan</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Log riwayat barang masuk</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Log barang masuk gudang</p>
                     </div>
                 </div>
-                <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
+
+                <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-amber-700 text-sm">Cari Posisi</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Lacak letak SKU di rak</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Cari bin loc / rak</p>
                     </div>
                 </div>
-                <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl"><i class="fa-solid fa-file-invoice text-xl"></i></div>
+
+                <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl border border-indigo-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-invoice text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-indigo-700 text-sm">Stock Opname & SAP</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik & rekonsiliasi</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik & rekon</p>
                     </div>
                 </div>
-                <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
-                    <div class="bg-purple-50 text-purple-600 p-4 rounded-2xl"><i class="fa-solid fa-map text-xl"></i></div>
+
+                <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3 group">
+                    <div class="bg-purple-50 text-purple-600 p-4 rounded-2xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-map text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-purple-700 text-sm">Peta Kapasitas</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Denah blok & blok rak</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Visualisasi Induk & Aging</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION REPORT PENERIMAAN BARANG MASUK -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-sky-700 text-sm"><i class="fa-solid fa-clipboard-list mr-2"></i> Report / Log Riwayat Penerimaan Barang Masuk</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                <div>
+                    <h3 class="font-bold text-sky-700 text-base"><i class="fa-solid fa-clipboard-list mr-2"></i> Report / Log Riwayat Penerimaan Barang Masuk</h3>
+                    <p class="text-xs text-slate-400">Daftar seluruh barang yang berhasil masuk dan tercatat di sistem Bin-Loc.</p>
+                </div>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle text-center">
+                    <table class="table table-bordered align-middle text-center text-xs">
                         <thead class="pastel-header-blue">
-                            <tr><th>Kategori</th><th>Tanggal & Waktu</th><th>Plant / Line</th><th>SKU & Produk</th><th>Lokasi Rak</th><th>No. Pallet</th><th>Jumlah Karton & Konversi</th><th>Aksi</th></tr>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Tanggal & Waktu</th>
+                                <th>Plant / Line</th>
+                                <th>SKU & Produk</th>
+                                <th>Lokasi Rak (Bin Loc)</th>
+                                <th>No. Pallet</th>
+                                <th>Jumlah Karton & Konversi</th>
+                            </tr>
                         </thead>
-                        <tbody id="reportTableBody"><tr><td colspan="8" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr></tbody>
+                        <tbody id="reportTableBody">
+                            <tr><td colspan="7" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION AGING -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-amber-800 text-sm">Monitoring Gudang Aging (8 Hari)</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                <div>
+                    <h3 class="font-bold text-amber-800 text-base"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Monitoring Gudang Aging (Masa Aging 8 Hari)</h3>
+                    <p class="text-xs text-slate-400">Sistem otomatis memantau masa aging produk sejak tanggal masuk (FIFO). Mencapai 8 hari status menjadi Ready.</p>
+                </div>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <table class="table table-bordered align-middle text-center">
-                    <thead class="pastel-header-yellow"><tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Tanggal Masuk</th><th>Lama Aging</th><th>Lokasi Rak</th><th>Jumlah Pallet</th><th>Status</th></tr></thead>
-                    <tbody id="agingTableBody"><tr><td colspan="7" class="text-muted">Belum ada data aging.</td></tr></tbody>
-                </table>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-yellow">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Tanggal Masuk (FIFO)</th>
+                                <th>Lama Aging</th>
+                                <th>Lokasi Gudang Aging</th>
+                                <th>Jumlah Pallet</th>
+                                <th>Status Readiness</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agingTableBody">
+                            <tr><td colspan="7" class="text-muted">Belum ada data produk di Gudang Aging.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- SECTION QC -->
         <div id="section-qc" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-rose-700 text-sm">Manajemen Karantina QC (Hold, Release)</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
-            </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <table class="table table-bordered align-middle text-center">
-                    <thead class="pastel-header-rose"><tr><th>Plant/Line</th><th>Prodate</th><th>SKU & Produk</th><th>Pallet</th><th>Alasan</th><th>Status</th><th>Aksi</th></tr></thead>
-                    <tbody id="activeHoldTableBody"><tr><td colspan="7" class="text-muted">Belum ada barang di-hold.</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- SECTION OPNAME & SAP -->
-        <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
-            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-slate-700 text-sm">Stock Opname Harian & Rekonsiliasi SAP</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Manajemen Karantina QC (Hold, Release & Pemusnahan)</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
 
-            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header pastel-header-purple py-2.5 px-4 rounded-xl mb-3 border-0">Tabel Rekonsiliasi SAP vs Fisik Aktual</div>
-                <table class="table table-bordered align-middle text-center">
-                    <thead class="pastel-header-purple"><tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Stok SAP (Pallet)</th><th>Total Fisik (Pallet)</th><th>Selisih Variance</th><th>Status Balance</th></tr></thead>
-                    <tbody id="reconciliationBody"><tr><td colspan="6" class="text-muted">Belum ada data SAP.</td></tr></tbody>
-                </table>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <form onsubmit="saveBulkOpname(event)">
-                    <div class="row g-3 p-4 rounded-2xl mb-4 bg-slate-50">
-                        <div class="col-md-3"><label class="form-label font-bold text-xs">Area Gudang</label><select class="form-select text-xs" id="opDestWarehouse"><option value="Gudang Induk">Gudang Induk</option><option value="Gudang Aging">Gudang Aging</option></select></div>
-                        <div class="col-md-3"><label class="form-label font-bold text-xs">Tanggal Opname</label><input type="date" class="form-control text-xs" id="opGlobalDate" required></div>
-                        <div class="col-md-3"><label class="form-label font-bold text-xs">Plant</label><select class="form-select text-xs" id="opPlantCode"><option value="1115">Plant 1115</option><option value="1116">Plant 1116</option></select></div>
-                        <div class="col-md-3"><label class="form-label font-bold text-xs">Stock Keeper</label><input type="text" class="form-control text-xs" id="opStockKeeper" required placeholder="Nama petugas"></div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold) Baru</h5>
+                <form onsubmit="saveQcAction(event)">
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Plant *</label>
+                            <select class="form-select form-select-sm" id="qcPlant" required onchange="updateQcLines()">
+                                <option value="">-- Pilih Plant --</option>
+                                <option value="1115">Plant 1115</option>
+                                <option value="1116">Plant 1116</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Line Produksi *</label>
+                            <select class="form-select form-select-sm" id="qcLine" required>
+                                <option value="">-- Pilih Plant Terlebih Dahulu --</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle text-center">
-                            <thead class="pastel-header-purple"><tr><th>Blok Rak</th><th>Lorong</th><th>SKU Produk</th><th>Fisik (Karton)</th><th>Konversi Pallet</th></tr></thead>
-                            <tbody id="multiOpnameBody">
-                                <tr><td><input type="text" class="form-control text-xs" id="opRackBlock_1" placeholder="Blok A"></td><td><input type="text" class="form-control text-xs" id="opRow_1" placeholder="Row 01"></td><td><input type="text" class="form-control text-xs" id="opSku_1" list="datalistSkus" placeholder="SKU"></td><td><input type="number" class="form-control text-xs" id="opCarton_1" placeholder="Karton"></td><td id="opPalletDisplay_1">0 Plt</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Tanggal Produksi (Prodate) *</label>
+                            <input type="date" class="form-control form-control-sm" id="qcProdate" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Shift Kerja *</label>
+                            <select class="form-select form-select-sm" id="qcShift" required>
+                                <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100 font-bold mt-3">Simpan Hasil Opname</button>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
+                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" list="datalistSkus" required placeholder="Ketik atau pilih SKU...">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Cth: PLT-01 s/d PLT-05">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Jumlah Karton *</label>
+                            <input type="number" class="form-control form-control-sm" id="qcCartonInput" required min="1" placeholder="700" oninput="calcQcPallet()">
+                            <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="qcPalletBadge">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
+                            <input type="text" class="form-control form-control-sm" id="qcReason" required placeholder="Misal: Out of spec kemasan...">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm fw-bold w-100 text-white py-2" style="background-color: #f43f5e;">Simpan & Karantina Barang (HOLD)</button>
                 </form>
             </div>
 
-            <!-- TABEL LOG RIWAYAT STOCK OPNAME TERPISAH -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <h5 class="font-bold text-slate-700 text-sm mb-3">Log Riwayat Stock Opname (Audit Fisik Harian)</h5>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle text-center">
-                        <thead class="table-dark"><tr><th>Tanggal Audit</th><th>Plant</th><th>Stock Keeper</th><th>SKU</th><th class="text-start">Nama Produk</th><th>Rak (Bin Loc)</th><th>Hasil Opname (Plt)</th><th>Aksi</th></tr></thead>
-                        <tbody id="opnameReportTableBody"><tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr></tbody>
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-rose">
+                            <tr>
+                                <th>Plant / Line</th>
+                                <th>Prodate</th>
+                                <th>Shift</th>
+                                <th>SKU & Produk</th>
+                                <th>No. Pallet</th>
+                                <th>Alasan Hold</th>
+                                <th>Status Aktif</th>
+                                <th>Tindak Lanjut Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeHoldTableBody">
+                            <tr><td colspan="8" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION CARI -->
-        <div id="section-cari" class="app-page space-y-6 max-w-4xl mx-auto">
+        <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-slate-700 text-sm">Cari Posisi Barang</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <input type="text" id="searchKeyword" class="form-control text-xs mb-3" placeholder="Cari SKU / Nama Produk..." oninput="executeSearch()">
-                <table class="table table-bordered align-middle text-center">
-                    <thead class="table-light"><tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Lokasi Rak</th><th>No. Pallet</th></tr></thead>
-                    <tbody id="searchResultTableBody"><tr><td colspan="4" class="text-muted">Masukkan kata kunci.</td></tr></tbody>
-                </table>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-12">
+                    <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
+                        <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #fef3c7; color: #92400e;">
+                            <span class="small"><i class="fa-solid fa-file-excel text-emerald-600 me-1.5"></i> Rekonsiliasi (SAP vs Fisik)</span>
+                            <button type="button" class="btn btn-sm btn-light border text-slate-600 bg-white shadow-2xs fw-bold" onclick="toggleSapInput()">Input Data SAP</button>
+                        </div>
+                        <div class="card-body p-4" id="sapInputContainer" style="display: none;">
+                            <label class="form-label small fw-bold text-slate-500">Tarik Data Sistem SAP (Paste SKU & Qty Pallet)</label>
+                            <textarea class="form-control font-monospace text-nowrap mb-3 bg-white border-amber-200" id="sapPasteArea" rows="3" placeholder="Contoh: 312743    15.5"></textarea>
+                            <button type="button" class="btn btn-sm fw-bold px-4" style="background-color: #f59e0b; color: white;" onclick="processSapPaste()">Simpan & Bandingkan SAP</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header pastel-header-purple fw-bold py-2.5 px-4 rounded-xl mb-3 border-0 small">Tabel Rekonsiliasi Perbandingan SAP vs Fisik Aktual</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center text-xs">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Stok SAP (Pallet)</th>
+                                <th>Total Fisik (Pallet)</th>
+                                <th>Selisih Variance</th>
+                                <th>Status Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reconciliationBody">
+                            <tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <form onsubmit="saveBulkOpname(event)">
+                    <div class="row g-3 p-4 rounded-2xl mb-4 border border-slate-100" style="background-color: #f8fafc;">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Area Gudang Opname</label>
+                            <select class="form-select bg-white border-slate-200" id="opDestWarehouse" required onchange="clearOpnameRows()">
+                                <option value="Gudang Induk">Gudang Induk</option>
+                                <option value="Gudang Aging">Gudang Aging</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-slate-600">Tanggal Opname</label>
+                            <input type="date" class="form-control bg-white border-slate-200" id="opGlobalDate" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-slate-600">Pilih Kode Plant</label>
+                            <select class="form-select bg-white border-slate-200" id="opPlantCode" required>
+                                <option value="1115">Plant 1115</option>
+                                <option value="1116">Plant 1116</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-slate-600">Nama Stock Keeper</label>
+                            <input type="text" class="form-control bg-white border-slate-200" id="opStockKeeper" required placeholder="Nama lengkap petugas">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0 text-slate-700 text-xs">Daftar Item yang Dihitung Fisik</h6>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOpnameRow()">Tambah Baris</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearOpnameRows()">Reset Ulang</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-xs text-center">
+                            <thead class="pastel-header-purple">
+                                <tr>
+                                    <th>Blok Rak (Bin Loc)</th>
+                                    <th>Lorong / Row</th>
+                                    <th>SKU Produk</th>
+                                    <th>Fisik (Karton)</th>
+                                    <th>Konversi Pallet</th>
+                                </tr>
+                            </thead>
+                            <tbody id="multiOpnameBody"></tbody>
+                        </table>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold mt-3 py-2">Simpan Hasil Opname (Override Stok)</button>
+                </form>
             </div>
         </div>
 
-        <!-- SECTION PETA -->
+        <div id="section-cari" class="app-page space-y-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h3 class="font-bold text-slate-700 text-base">Cari Posisi Barang (Bin Loc)</h3>
+                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div>
+                    <label class="form-label small fw-bold text-slate-600">Kata Kunci (SKU / Nama Produk / No. Pallet)</label>
+                    <input type="text" id="searchKeyword" class="form-control bg-white border-slate-200" placeholder="Ketik kata kunci pencarian..." oninput="executeSearch()">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Lokasi Rak</th>
+                                <th>No. Pallet</th>
+                                <th>Info Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultTableBody">
+                            <tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-slate-700 text-sm">Peta Kapasitas Gudang</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                <div>
+                    <h3 class="font-bold text-slate-700 text-base">Peta Kapasitas Gudang & Relokasi (Jayanti 3)</h3>
+                    <p class="text-xs text-slate-400">Klik blok rak untuk memindahkan lokasi barang (Relokasi).</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchWarehouse('INDUK')" id="btnWhInduk" class="btn btn-sm btn-primary">Gudang Induk (A-X)</button>
+                    <button onclick="switchWarehouse('AGING')" id="btnWhAging" class="btn btn-sm btn-outline-secondary">Gudang Aging (A-O)</button>
+                    <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary ms-2"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                </div>
             </div>
+
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto">
                 <div id="binMapContainer" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 min-w-[700px]"></div>
             </div>
@@ -239,38 +421,167 @@
 
     <datalist id="datalistSkus"></datalist>
 
-    <!-- MODAL PENERIMAAN DENGAN OTOMATISASI NO PALLET -->
-    <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 text-xs">
-            <h3 id="modalPenerimaanTitle" class="font-bold text-emerald-800 text-sm mb-4">Form Masuk Barang</h3>
-            <form onsubmit="submitPenerimaan(event)">
-                <input type="hidden" id="pCategory" value="Lokal">
-                <div class="mb-3"><label class="form-label font-bold">Tujuan Gudang</label><select id="pGudang" class="form-select text-xs"><option value="Gudang Induk">Gudang Induk</option><option value="Gudang Aging">Gudang Aging</option></select></div>
-                <div class="row g-2 mb-3">
-                    <div class="col-6"><label class="form-label font-bold">Plant</label><select id="pPlant" class="form-select text-xs"><option value="1115">Plant 1115</option><option value="1116">Plant 1116</option></select></div>
-                    <div class="col-6"><label class="form-label font-bold">Line</label><select id="pLine" class="form-select text-xs"><option value="GT01">GT01</option></select></div>
-                </div>
-                <div class="mb-3"><label class="form-label font-bold">Cari & Pilih SKU Produk</label><input type="text" id="pSku" class="form-control text-xs" list="datalistSkus" required oninput="hitungKonversi()"></div>
-                <div class="row g-2 mb-3">
-                    <div class="col-6"><label class="form-label font-bold">No. Pallet Fisik (Auto-Generate)</label><input type="text" id="pPalletRange" class="form-control text-xs bg-slate-50" readonly placeholder="Auto-generate dari sistem"></div>
-                    <div class="col-6"><label class="form-label font-bold">Jumlah Karton Total</label><input type="number" id="pQtyKarton" class="form-control text-xs" required min="1" placeholder="700" oninput="hitungKonversi()"><span class="text-[10px] text-indigo-600 font-bold" id="konversiPlt">Konversi: 0 Pallet</span></div>
-                </div>
-                <div class="row g-2 mb-3">
-                    <div class="col-6"><label class="form-label font-bold">Blok Rak</label><input type="text" id="pBlock" class="form-control text-xs" required placeholder="Blok A"></div>
-                    <div class="col-6"><label class="form-label font-bold">Lorong / Row</label><input type="text" id="pRow" class="form-control text-xs" required placeholder="Row 01"></div>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100 font-bold">Proses Barang Masuk</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalPenerimaan')">Batal</button>
-                </div>
-            </form>
+    <div id="modalRelokasi" class="fixed inset-0 bg-slate-900/20 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-xs">
+            <h5 class="fw-bold mb-3 text-indigo-700 text-sm"><i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Relokasi Barang (Pindah Rak)</h5>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Cari SKU Produk *</label>
+                <input type="text" id="relocSku" class="form-control form-control-sm" list="datalistSkus" placeholder="Ketik SKU...">
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Lokasi Asal / Terpilih</label>
+                <input type="text" id="relocAsal" class="form-control form-control-sm bg-slate-50" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-slate-600">Lokasi Tujuan Baru *</label>
+                <input type="text" id="relocTujuan" class="form-control form-control-sm" placeholder="Contoh: Blok T - Row 05">
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button class="btn btn-sm btn-primary w-100 fw-bold" onclick="processRelokasi()">Update Lokasi Rak</button>
+                <button class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalRelokasi')">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
+            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
+                <h3 id="modalPenerimaanTitle" class="font-bold text-emerald-800 text-sm">Form Masuk Barang - Lokal</h3>
+                <button onclick="closeModal('modalPenerimaan')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
+                <form onsubmit="submitPenerimaan(event)">
+                    <input type="hidden" id="pCategory" value="Lokal">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Tujuan Gudang *</label>
+                        <select id="pGudang" class="form-select form-select-sm" required onchange="updateAllBlockRows()">
+                            <option value="Gudang Induk">Gudang Induk (Blok A-X)</option>
+                            <option value="Gudang Aging">Gudang Aging (Blok A-O)</option>
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Pilih Plant *</label>
+                            <select class="form-select form-select-sm" id="pPlant" required onchange="updatePenerimaanLines()">
+                                <option value="">-- Pilih Plant --</option>
+                                <option value="1115">Plant 1115</option>
+                                <option value="1116">Plant 1116</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Pilih Line Produksi *</label>
+                            <select class="form-select form-select-sm" id="pLine" required>
+                                <option value="">-- Pilih Plant Dulu --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Tanggal Masuk</label>
+                            <input type="text" id="pTanggal" class="form-control form-control-sm bg-slate-50" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Shift Kerja *</label>
+                            <select id="pShift" class="form-select form-select-sm">
+                                <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
+                        <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR</div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Nomor QT</label>
+                                <input type="text" id="pQt" class="form-control form-control-sm" placeholder="No QT...">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Prodate</label>
+                                <input type="date" id="pProdate" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Exp Date</label>
+                                <input type="date" id="pExpDate" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-slate-600">Buyer & Negara *</label>
+                                <input type="text" id="pBuyerText" class="form-control form-control-sm" placeholder="Ketik nama buyer...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
+                        <input type="text" id="pSku" class="form-control form-control-sm" list="datalistSkus" required placeholder="Ketik SKU atau nama barang..." oninput="onSkuSelected()">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">No. Pallet Fisik (Auto-Generate) *</label>
+                            <input type="text" id="pPalletRange" class="form-control form-control-sm bg-slate-50" required readonly placeholder="Auto-generate dari sistem">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-slate-600">Jumlah Karton Total *</label>
+                            <input type="number" id="pQtyKarton" class="form-control form-control-sm" required min="1" placeholder="700" oninput="hitungKonversi()">
+                            <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPlt">Konversi: 0 Pallet (Standar master)</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-slate-700 mb-0">Distribusi Rak / Racking (Multi-Row) *</label>
+                            <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 fw-bold" onclick="addPenerimaanRow()">+ Tambah Rak</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle text-center text-xs mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Blok Rak</th>
+                                        <th>Lorong / Row</th>
+                                        <th>Karton di Rak Ini</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="penerimaanRowsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2 border-t border-slate-100">
+                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold py-2">Proses Barang Masuk</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3" onclick="closeModal('modalPenerimaan')">Batal</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        let binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-        let opnameData = JSON.parse(localStorage.getItem('binloc_opname_jayanti3')) || [];
-        let masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+        function updateClock() {
+            const now = new Date();
+            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            const clockEl = document.getElementById('realTimeClock');
+            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-teal-500 mr-1"></i> ${dateStr} ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let binData = [];
+        let qcHistoryData = [];
+        let sapStockData = {};
+        let masterStockData = {};
+
+        try {
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
+            masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+
+            if (!Array.isArray(binData)) binData = [];
+            if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
+        } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
 
         function populateMasterSkuDatalist() {
             const datalist = document.getElementById('datalistSkus');
@@ -283,145 +594,166 @@
         }
         populateMasterSkuDatalist();
 
-        function switchSection(sectionId) {
-            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-cari', 'section-peta', 'section-report'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                document.getElementById(id).classList.remove('active');
-            });
-            document.getElementById('section-' + sectionId).classList.remove('hidden');
-            document.getElementById('section-' + sectionId).classList.add('active');
-            if(sectionId === 'report') renderReportTable();
-            if(sectionId === 'opname') renderOpnameReportTable();
-        }
+        const now = new Date();
+        const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+        document.getElementById('pTanggal').value = currentDateStr;
+        document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('qcProdate').value = new Date().toISOString().split('T')[0];
 
-        function openPenerimaanModal(category) {
-            document.getElementById('pCategory').value = category;
-            document.getElementById('modalPenerimaanTitle').innerText = 'Form Masuk Barang - ' + category;
-            document.getElementById('modalPenerimaan').classList.remove('hidden');
-        }
+        const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+        const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
-        function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
-
-        function getCartonPerPallet(skuString) {
-            if(!skuString) return 70;
-            let skuCode = skuString.split('|')[0].trim();
-            if(masterStockData[skuCode] && masterStockData[skuCode].cartonPerPallet) {
-                return parseFloat(masterStockData[skuCode].cartonPerPallet) || 70;
-            }
-            return 70;
-        }
-
-        // OTOMATISASI NO PALLET BERDASARKAN HASIL KONVERSI PALLET
-        function hitungKonversi() {
-            let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
-            let skuVal = document.getElementById('pSku').value;
-            let standardKrt = getCartonPerPallet(skuVal);
-            let plt = Math.ceil(krt / standardKrt);
-            if(plt < 1 && krt > 0) plt = 1;
-
-            document.getElementById('konversiPlt').innerText = `Konversi: ${plt} Pallet (Standar ${standardKrt} krt/plt)`;
-            
-            if(plt > 0) {
-                let rangeText = plt === 1 ? 'PLT-01' : `PLT-01 s/d PLT-${plt < 10 ? '0'+plt : plt}`;
-                document.getElementById('pPalletRange').value = rangeText;
+        function getRowMax(wh, block) {
+            let cleanBlock = block.replace('Blok ', '');
+            if (wh.includes('Induk')) {
+                if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(cleanBlock)) return 11;
+                if (['F', 'J', 'N', 'R', 'V'].includes(cleanBlock)) return 17;
+                if (['W', 'S'].includes(cleanBlock)) return 22;
+                if (['T', 'X'].includes(cleanBlock)) return 12;
+                if (['D'].includes(cleanBlock)) return 21;
+                if (['H', 'L', 'P'].includes(cleanBlock)) return 28;
+                if (['G', 'K', 'O', 'C'].includes(cleanBlock)) return 29;
+                return 20;
             } else {
-                document.getElementById('pPalletRange').value = '';
+                if (['B', 'E', 'H', 'K', 'N'].includes(cleanBlock)) return 32;
+                if (['O'].includes(cleanBlock)) return 6;
+                return 29;
             }
         }
 
-        function submitPenerimaan(e) {
-            e.preventDefault();
-            let category = document.getElementById('pCategory').value;
-            let sku = document.getElementById('pSku').value;
-            let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
-            let stdKrt = getCartonPerPallet(sku);
-            let pltVal = (krt / stdKrt).toFixed(2);
+        let penerimaanRowIdx = 0;
+        function addPenerimaanRow() {
+            penerimaanRowIdx++;
+            let gudang = document.getElementById('pGudang').value;
+            let tbody = document.getElementById('penerimaanRowsBody');
+            let tr = document.createElement('tr');
+            tr.id = 'pRowTr_' + penerimaanRowIdx;
 
-            let newItem = {
-                category: category,
-                gudang: document.getElementById('pGudang').value,
-                tanggal: new Date().toLocaleDateString(),
-                sku: sku,
-                lokasi: document.getElementById('pBlock').value + ' - ' + document.getElementById('pRow').value,
-                pallet: document.getElementById('pPalletRange').value,
-                karton: krt,
-                konversi: `${pltVal} Pallet (${krt} krt)`
-            };
-            binData.unshift(newItem);
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            closeModal('modalPenerimaan');
-            e.target.reset();
-            alert('Penerimaan barang berhasil disimpan!');
+            let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
+            let blockOpts = '<option value="">-- Pilih Blok --</option>';
+            blocks.forEach(b => { blockOpts += `<option value="Blok ${b}">Blok ${b}</option>`; });
+
+            tr.innerHTML = `
+                <td><select class="form-select form-select-sm" id="pBlock_${penerimaanRowIdx}" required onchange="updateRowDropdown(${penerimaanRowIdx})">${blockOpts}</select></td>
+                <td><select class="form-select form-select-sm" id="pRowSelect_${penerimaanRowIdx}" required><option value="">-- Pilih Row --</option></select></td>
+                <td><input type="number" class="form-control form-control-sm text-center" id="pCarton_${penerimaanRowIdx}" required min="1" placeholder="Jml karton"></td>
+                <td><button type="button" class="btn btn-xs btn-outline-danger py-0 px-2" onclick="removePenerimaanRow(${penerimaanRowIdx})">X</button></td>
+            `;
+            tbody.appendChild(tr);
         }
 
-        // TABEL LOG RIWAYAT PENERIMAAN BARANG MASUK (TERPISAH DARI OPNAME)
-        function renderReportTable() {
-            let tbody = document.getElementById('reportTableBody');
+        function removePenerimaanRow(idx) {
+            let tr = document.getElementById('pRowTr_' + idx);
+            if(tr) tr.remove();
+        }
+
+        function updateRowDropdown(idx) {
+            let gudang = document.getElementById('pGudang').value;
+            let blockVal = document.getElementById('pBlock_' + idx).value;
+            let rowSelect = document.getElementById('pRowSelect_' + idx);
+            rowSelect.innerHTML = '<option value="">-- Pilih Row --</option>';
+            if(!blockVal) return;
+            let maxRow = getRowMax(gudang, blockVal);
+            for(let i = 1; i <= maxRow; i++) {
+                let rNum = i < 10 ? '0' + i : i;
+                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${maxRow})</option>`;
+            }
+        }
+
+        function updateAllBlockRows() {
+            let tbody = document.getElementById('penerimaanRowsBody');
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            let penerimaanList = binData.filter(i => i.category !== 'Stock Opname');
-            if(penerimaanList.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>'; return; }
-            penerimaanList.forEach((item, idx) => {
-                tbody.innerHTML += `<tr><td>${item.category}</td><td>${item.tanggal}</td><td>Plant 1115 - GT01</td><td class="text-start">${item.sku}</td><td>${item.lokasi}</td><td class="fw-bold">${item.pallet}</td><td class="text-emerald-600 font-bold">${item.konversi}</td><td><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteReport(${idx})">Hapus</button></td></tr>`;
+            addPenerimaanRow();
+        }
+
+        function updatePenerimaanLines() {
+            const plant = document.getElementById('pPlant').value;
+            const lineSelect = document.getElementById('pLine');
+            lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
+            if(plant === '1115') {
+                for(let i = 1; i <= 13; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+                for(let i = 1; i <= 6; i++) {
+                    let name = `GA${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            } else if(plant === '1116') {
+                for(let i = 1; i <= 20; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            }
+        }
+
+        function updateQcLines() {
+            const plant = document.getElementById('qcPlant').value;
+            const lineSelect = document.getElementById('qcLine');
+            lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
+            if(plant === '1115') {
+                for(let i = 1; i <= 13; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+                for(let i = 1; i <= 6; i++) {
+                    let name = `GA${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            } else if(plant === '1116') {
+                for(let i = 1; i <= 20; i++) {
+                    let name = `GT${i < 10 ? '0' + i : i}`;
+                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            }
+        }
+
+        let opnameRowIdx = 0;
+        function clearOpnameRows() { document.getElementById('multiOpnameBody').innerHTML = ''; addOpnameRow(); }
+
+        function addOpnameRow() {
+            opnameRowIdx++;
+            let wh = document.getElementById('opDestWarehouse').value;
+            let tbody = document.getElementById('multiOpnameBody');
+            let tr = document.createElement('tr');
+            tr.id = 'opRow_' + opnameRowIdx;
+            
+            let blocks = wh.includes('Induk') ? indukBlocks : agingBlocks;
+            let blockOpts = '<option value="">-- Pilih Blok --</option>';
+            blocks.forEach(b => { blockOpts += `<option value="Blok ${b}">Blok ${b}</option>`; });
+
+            tr.innerHTML = `<td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_${opnameRowIdx}" required>${blockOpts}</select></td>
+                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opRow_${opnameRowIdx}" required placeholder="Row 01"></td>
+                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" list="datalistSkus" required placeholder="SKU Produk"></td>
+                           <td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_${opnameRowIdx}" required min="0" oninput="calcMultiRow(${opnameRowIdx})" placeholder="Karton"></td>
+                           <td class="fw-bold text-indigo-600" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>`;
+            tbody.appendChild(tr);
+        }
+
+        function calcMultiRow(idx) {
+            let cartonVal = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
+            let pallets = cartonVal / 70;
+            document.getElementById('opPalletDisplay_' + idx).innerText = pallets.toFixed(2) + ' Plt';
+        }
+
+        if (document.getElementById('multiOpnameBody').children.length === 0) addOpnameRow();
+
+        function toggleSapInput() {
+            const container = document.getElementById('sapInputContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function processSapPaste() {
+            const text = document.getElementById('sapPasteArea').value.trim();
+            if(!text) { alert('Data SAP masih kosong!'); return; }
+            let count = 0;
+            text.split('\n').forEach(line => {
+                const cols = line.split('\t');
+                if (cols.length >= 2) {
+                    const sku = cols[0].trim();
+                    const qtySap = parseFloat(cols[1].trim()) || 0;
+                    if (sku) { sapStockData[sku] = qtySap; count++; }
+                }
             });
-        }
-
-        function deleteReport(idx) {
-            binData.splice(idx, 1);
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            renderReportTable();
-        }
-
-        function saveBulkOpname(e) {
-            e.preventDefault();
-            let sku = document.getElementById('opSku_1').value;
-            let carton = parseFloat(document.getElementById('opCarton_1').value) || 0;
-            let stdKrt = getCartonPerPallet(sku);
-            let pallets = (carton / stdKrt).toFixed(2);
-
-            let newItem = {
-                category: 'Stock Opname',
-                tanggal: document.getElementById('opGlobalDate').value,
-                shift: document.getElementById('opPlantCode').value,
-                buyer: document.getElementById('opStockKeeper').value,
-                sku: sku,
-                lokasi: document.getElementById('opRackBlock_1').value + ' - ' + document.getElementById('opRow_1').value,
-                konversi: pallets + ' Pallet'
-            };
-            opnameData.unshift(newItem);
-            localStorage.setItem('binloc_opname_jayanti3', JSON.stringify(opnameData));
-            alert('Hasil Stock Opname berhasil disimpan!');
-            renderOpnameReportTable();
-        }
-
-        // TABEL LOG RIWAYAT STOCK OPNAME TERPISAH
-        function renderOpnameReportTable() {
-            let tbody = document.getElementById('opnameReportTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            opnameData = JSON.parse(localStorage.getItem('binloc_opname_jayanti3')) || [];
-            if(opnameData.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr>'; return; }
-            opnameData.forEach((item, idx) => {
-                tbody.innerHTML += `<tr><td>${item.tanggal}</td><td>Plant ${item.shift}</td><td>${item.buyer}</td><td>${item.sku.split(' - ')[0]}</td><td class="text-start">${item.sku}</td><td>${item.lokasi}</td><td class="fw-bold text-indigo-600">${item.konversi}</td><td><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteOpnameLog(${idx})">Hapus</button></td></tr>`;
-            });
-        }
-
-        function deleteOpnameLog(idx) {
-            opnameData.splice(idx, 1);
-            localStorage.setItem('binloc_opname_jayanti3', JSON.stringify(opnameData));
-            renderOpnameReportTable();
-        }
-
-        function executeSearch() {
-            let kw = document.getElementById('searchKeyword').value.toLowerCase();
-            let tbody = document.getElementById('searchResultTableBody');
-            tbody.innerHTML = '';
-            let filtered = binData.filter(i => i.sku.toLowerCase().includes(kw));
-            if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Tidak ditemukan.</td></tr>'; return; }
-            filtered.forEach(i => {
-                tbody.innerHTML += `<tr><td class="text-start">${i.sku}</td><td>${i.lokasi}</td><td class="fw-bold">${i.pallet}</td></tr>`;
-            });
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('sapPasteArea').value = '';
+            localStorage.setItem('binloc_sap_jayanti3', JSON.stringify(sapStockData));
