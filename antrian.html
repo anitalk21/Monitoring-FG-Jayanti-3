@@ -20,10 +20,6 @@
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
         .tab-btn { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
         .tab-btn.active { background: #818cf8; color: white; border-color: #818cf8; }
-        .dock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .dock-card { border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; font-size: 11px; }
-        .dock-busy { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-        .dock-empty { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 16px; width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 12px; }
@@ -123,7 +119,7 @@
     </div>
 </div>
 
-<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - SINKRON BIN-LOC & FIFO) -->
+<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - SMART FIFO & AGING FILTER) -->
 <div id="modalPickingList" class="modal">
     <div class="modal-content" style="width: 650px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">
@@ -134,17 +130,17 @@
         <input type="hidden" id="plTruckIndex">
         
         <div style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
-            <!-- Dropdown SKU Kustom mirip portal Bin-Loc -->
+            <!-- Dropdown Kustom SKU -->
             <div class="form-group relative" style="margin-bottom:6px;">
                 <label>Cari SKU / Nama Produk (Terhubung Master Bin-Loc)</label>
                 <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()">
                 <div id="adminSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
             </div>
 
-            <!-- Pilihan Lokasi Rak & FIFO Berdasarkan Stok Gudang Bin-Loc -->
+            <!-- Pilihan Batch & Validasi Aging Otomatis -->
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <div style="flex:1;">
-                    <label>Pilih Batch / Lokasi Rak Tersedia (FIFO)</label>
+                    <label>Pilih Batch / Lokasi Rak Tersedia (Smart FIFO & Aging Check)</label>
                     <select id="itemBatchSelect" class="form-select form-select-sm" onchange="onBatchSelected()">
                         <option value="">— Pilih SKU Terlebih Dahulu —</option>
                     </select>
@@ -242,7 +238,7 @@
         return 70;
     }
 
-    // Dropdown Kustom SKU mirip portal Bin-Loc
+    // Dropdown Kustom SKU dengan penutupan otomatis setelah diklik
     function filterAdminSku() {
         const inputVal = document.getElementById('itemSku').value.toLowerCase().trim();
         const dropdown = document.getElementById('adminSkuDropdown');
@@ -262,7 +258,7 @@
                 div.innerText = `${item.sku} | ${item.name}`;
                 div.onclick = function() {
                     document.getElementById('itemSku').value = `${item.sku} | ${item.name}`;
-                    dropdown.classList.add('hidden');
+                    dropdown.classList.add('hidden'); // Tutup rapat dropdown setelah diklik
                     loadAvailableBatchesForSku(item.sku);
                 };
                 dropdown.appendChild(div);
@@ -273,27 +269,47 @@
         else dropdown.classList.add('hidden');
     }
 
-    // Sinkronisasi Batch, FIFO, dan Lokasi Rak dari Bin-Loc
+    // Sinkronisasi Batch, FIFO, Lokasi Rak, & Filter Penguncian Aging 8 Hari
     let selectedBatchData = null;
     function loadAvailableBatchesForSku(skuCode) {
         let select = document.getElementById('itemBatchSelect');
         select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
         
-        // Cari data stok dari binloc_stok_jayanti3 yang cocok dengan SKU
         let matches = binStockData.filter(b => b.sku && b.sku.includes(skuCode));
         
         if(matches.length === 0) {
-            select.innerHTML = '<option value="">(Stok kosong di Bin-Loc, gunakan input manual jika perlu)</option>';
-            selectedBatchData = { sku: skuCode, rak: 'General / Direct', prodate: new Date().toISOString().split('T')[0] };
+            select.innerHTML = '<option value="">(Stok kosong di Bin-Loc)</option>';
+            selectedBatchData = null;
             return;
         }
 
-        // Urutkan berdasarkan FIFO (tanggal prodate tertua)
+        const nowTime = new Date().getTime();
         matches.sort((a, b) => new Date(a.prodate || 0) - new Date(b.prodate || 0));
 
         matches.forEach((m, idx) => {
-            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Tersedia: ${m.karton} krt (${m.gudang})`;
-            select.innerHTML += `<option value="${idx}">${optionText}</option>`;
+            let itemTime = m.timestamp || new Date(m.prodate || nowTime).getTime();
+            let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
+            if(diffDays < 0) diffDays = 0;
+
+            let isAgingGudang = m.gudang && m.gudang.includes('Aging');
+            let isNotReady = isAgingGudang && diffDays < 8;
+
+            let statusLabel = isNotReady ? ` ⚠️ [BLOCKED: Kurang ${8 - diffDays} hari aging]` : ' ✓ [READY KIRIM]';
+            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Stok: ${m.karton} krt${statusLabel}`;
+            
+            let opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = optionText;
+            
+            if(isNotReady) {
+                opt.disabled = true; // KUNCI OTOMATIS: Tidak bisa dipilih jika belum 8 hari
+                opt.style.color = '#9f1239';
+                opt.style.backgroundColor = '#ffe4e6';
+            } else {
+                opt.style.color = '#065f46';
+                opt.style.backgroundColor = '#d1fae5';
+            }
+            select.appendChild(opt);
         });
         select.dataset.batches = JSON.stringify(matches);
     }
@@ -301,7 +317,7 @@
     function onBatchSelected() {
         let select = document.getElementById('itemBatchSelect');
         let val = select.value;
-        if(val === "") return;
+        if(val === "") { selectedBatchData = null; return; }
         let batches = JSON.parse(select.dataset.batches || '[]');
         selectedBatchData = batches[parseInt(val)];
     }
@@ -375,7 +391,9 @@
         if (activePlTruckIdx === null) return;
         let skuInputVal = document.getElementById('itemSku').value;
         let totalKrt = parseInt(document.getElementById('itemJumlahKarton').value) || 0;
+        
         if(!skuInputVal || totalKrt <= 0) { alert('Harap pilih SKU dan isi jumlah total karton dengan benar!'); return; }
+        if(!selectedBatchData) { alert('Harap pilih batch / lokasi rak yang berstatus Ready Kirim!'); return; }
 
         let skuCode = skuInputVal.split('|')[0].trim();
         let skuName = skuInputVal.includes('|') ? skuInputVal.split('|')[1].trim() : skuInputVal;
@@ -384,14 +402,11 @@
         let pallet = Math.floor(totalKrt / std);
         let receh = totalKrt % std;
 
-        let rakLoc = selectedBatchData ? selectedBatchData.lokasi : 'General Storage';
-        let prodateVal = selectedBatchData ? selectedBatchData.prodate : new Date().toISOString().split('T')[0];
-
         let item = {
             sku: skuCode,
             nama: skuName,
-            prodate: prodateVal,
-            rak: rakLoc,
+            prodate: selectedBatchData.prodate,
+            rak: selectedBatchData.lokasi,
             pallet: pallet,
             receh: receh,
             jumlah: totalKrt
