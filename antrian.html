@@ -31,15 +31,6 @@
         .sku-dropdown-item { cursor: pointer; padding: 8px 12px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
         .relative { position: relative; }
-
-        /* FORMAT CETAK PDF KHUSUS UKURAN A5 */
-        @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 15px; font-family: 'Segoe UI', sans-serif; font-size: 11px; color: black; }
-            @page { size: A5 portrait; margin: 10mm; }
-        }
-        #printArea { display: none; }
     </style>
 </head>
 <body>
@@ -193,9 +184,6 @@
     </div>
 </div>
 
-<!-- TEMPAT AREA CETAK PDF FORMAT A5 KHUSUS RESMI MAYORA -->
-<div id="printArea"></div>
-
 <!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
@@ -256,7 +244,6 @@
         return 70;
     }
 
-    // Dropdown SKU dengan Navigasi Keyboard & Enter
     function filterAdminSku() {
         const inputVal = document.getElementById('itemSku').value.toLowerCase().trim();
         const dropdown = document.getElementById('adminSkuDropdown');
@@ -489,7 +476,7 @@
         renderPlTable();
     }
 
-    // Fungsi Cetak Format A5 Resmi ala PT Mayora
+    // Fungsi Cetak Format A5 Anti-Blank & Rapi ala PT Mayora
     function printPickingList() {
         if(activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
@@ -520,65 +507,79 @@
             }
         }
 
-        let printBox = document.getElementById('printArea');
-        printBox.innerHTML = `
-            <div style="border: 2px solid #000; padding: 10px;">
-                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
-                    <div>
-                        <strong style="font-size:13px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
-                        <span style="font-size:9px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
+        let printWindow = window.open('', '_blank', 'width=700,height=900');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Cetak Picking List - ${t.noPol}</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11px; color: #000; margin: 10px; }
+                    @page { size: A5 portrait; margin: 5mm; }
+                </style>
+            </head>
+            <body>
+                <div style="border: 2px solid #000; padding: 10px;">
+                    <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
+                        <div>
+                            <strong style="font-size:13px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
+                            <span style="font-size:9px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
+                        </div>
+                        <div style="text-align:right; font-size:11px;">
+                            <strong>Tangg: ${nowStr}</strong>
+                        </div>
                     </div>
-                    <div style="text-align:right; font-size:11px;">
-                        <strong>Tangg: ${nowStr}</strong>
+
+                    <div style="text-align:center; font-weight:bold; font-size:13px; margin-bottom:8px; text-decoration:underline;">
+                        PICKING LIST LOKAL
                     </div>
-                </div>
 
-                <div style="text-align:center; font-weight:bold; font-size:13px; margin-bottom:8px; text-decoration:underline;">
-                    PICKING LIST LOKAL
-                </div>
-
-                <table style="width:100%; font-size:11px; margin-bottom:10px; border-collapse:collapse;">
-                    <tr>
-                        <td style="width:50%;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
-                        <td style="width:50%;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>TUJUAN  :</strong> ${t.tujuan}</td>
-                        <td><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
-                    </tr>
-                </table>
-
-                <table style="width:100%; border-collapse:collapse; font-size:10px;">
-                    <thead>
-                        <tr style="background:#f1f5f9;">
-                            <th style="border:1px solid #000; padding:4px; width:30px;">No.</th>
-                            <th style="border:1px solid #000; padding:4px;">SKU & Nama Produk</th>
-                            <th style="border:1px solid #000; padding:4px; width:65px;">Prodate</th>
-                            <th style="border:1px solid #000; padding:4px; width:75px;">Rak</th>
-                            <th style="border:1px solid #000; padding:4px; width:80px;">Pallet & Receh</th>
-                            <th style="border:1px solid #000; padding:4px; width:50px;">Total</th>
+                    <table style="width:100%; font-size:11px; margin-bottom:10px; border-collapse:collapse;">
+                        <tr>
+                            <td style="width:50%;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
+                            <td style="width:50%;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHtml}
-                    </tbody>
-                </table>
+                        <tr>
+                            <td><strong>TUJUAN  :</strong> ${t.tujuan}</td>
+                            <td><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
+                        </tr>
+                    </table>
 
-                <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:11px; text-align:center;">
-                    <div style="width: 40%;">
-                        <br><br><br>
-                        <span>_________________________</span><br>
-                        <strong>Admin GDFC</strong>
-                    </div>
-                    <div style="width: 40%;">
-                        <br><br><br>
-                        <span>_________________________</span><br>
-                        <strong>Checker</strong>
+                    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th style="border:1px solid #000; padding:4px; width:30px;">No.</th>
+                                <th style="border:1px solid #000; padding:4px;">SKU & Nama Produk</th>
+                                <th style="border:1px solid #000; padding:4px; width:65px;">Prodate</th>
+                                <th style="border:1px solid #000; padding:4px; width:75px;">Rak</th>
+                                <th style="border:1px solid #000; padding:4px; width:80px;">Pallet & Receh</th>
+                                <th style="border:1px solid #000; padding:4px; width:50px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+
+                    <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:11px; text-align:center;">
+                        <div style="width: 40%;">
+                            <br><br><br>
+                            <span>_________________________</span><br>
+                            <strong>Admin GDFC</strong>
+                        </div>
+                        <div style="width: 40%;">
+                            <br><br><br>
+                            <span>_________________________</span><br>
+                            <strong>Checker</strong>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-        window.print();
+                <script>
+                    window.onload = function() { window.print(); window.close(); };
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 
     function renderAll() {
