@@ -21,14 +21,14 @@
         .tab-btn { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
         .tab-btn.active { background: #818cf8; color: white; border-color: #818cf8; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
         .form-group { margin-bottom: 12px; }
         label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 11px; }
         th { background: #f1f5f9; color: #334155; }
-        .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
+        .sku-dropdown-item { cursor: pointer; padding: 8px 12px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
         .relative { position: relative; }
     </style>
@@ -73,6 +73,7 @@
 <!-- MODAL DAFTAR MANUAL (TIME KEEPER) -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
+        <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
         <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>
         <form onsubmit="submitAntrian(event)">
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
@@ -119,10 +120,13 @@
     </div>
 </div>
 
-<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - SMART FIFO & AGING FILTER) -->
+<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - DENGAN TOMBOL CLOSE X) -->
 <div id="modalPickingList" class="modal">
-    <div class="modal-content" style="width: 650px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">
+    <div class="modal-content">
+        <!-- Tombol Close (X) di Pojok Kanan Atas -->
+        <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+
+        <div style="border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px; padding-right:20px;">
             <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)</h4>
             <span id="plTruckInfo" style="font-size:11px; font-weight:bold; color:#64748b;"></span>
         </div>
@@ -186,6 +190,7 @@
 <!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
+        <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
         <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
         
         <div class="form-group">
@@ -219,7 +224,11 @@
 
 <script>
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none';
+        const drop = document.getElementById('adminSkuDropdown');
+        if(drop) drop.classList.add('hidden');
+    }
     
     function handleJenisChange() {
         let jenis = document.getElementById('mJenis').value;
@@ -238,7 +247,7 @@
         return 70;
     }
 
-    // Dropdown Kustom SKU dengan penutupan otomatis setelah diklik
+    // Dropdown Kustom SKU dengan penutupan yang lebih responsif
     function filterAdminSku() {
         const inputVal = document.getElementById('itemSku').value.toLowerCase().trim();
         const dropdown = document.getElementById('adminSkuDropdown');
@@ -256,9 +265,12 @@
                 let div = document.createElement('div');
                 div.className = 'sku-dropdown-item';
                 div.innerText = `${item.sku} | ${item.name}`;
-                div.onclick = function() {
+                
+                // Gunakan mousedown agar tereksekusi sebelum blur event
+                div.onmousedown = function(e) {
+                    e.preventDefault();
                     document.getElementById('itemSku').value = `${item.sku} | ${item.name}`;
-                    dropdown.classList.add('hidden'); // Tutup rapat dropdown setelah diklik
+                    dropdown.classList.add('hidden'); 
                     loadAvailableBatchesForSku(item.sku);
                 };
                 dropdown.appendChild(div);
@@ -269,8 +281,6 @@
         else dropdown.classList.add('hidden');
     }
 
-    // Sinkronisasi Batch, FIFO, Lokasi Rak, & Filter Penguncian Aging 8 Hari
-    let selectedBatchData = null;
     function loadAvailableBatchesForSku(skuCode) {
         let select = document.getElementById('itemBatchSelect');
         select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
@@ -302,7 +312,7 @@
             opt.innerText = optionText;
             
             if(isNotReady) {
-                opt.disabled = true; // KUNCI OTOMATIS: Tidak bisa dipilih jika belum 8 hari
+                opt.disabled = true; 
                 opt.style.color = '#9f1239';
                 opt.style.backgroundColor = '#ffe4e6';
             } else {
@@ -314,6 +324,7 @@
         select.dataset.batches = JSON.stringify(matches);
     }
 
+    let selectedBatchData = null;
     function onBatchSelected() {
         let select = document.getElementById('itemBatchSelect');
         let val = select.value;
@@ -334,6 +345,7 @@
         document.getElementById('konversiAdminInfo').innerText = `Konversi: ${pallet} Pallet + ${receh} Karton Receh (Standar ${std} krt/plt)`;
     }
 
+    // Tutup dropdown jika klik di luar area
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
             const drop = document.getElementById('adminSkuDropdown');
