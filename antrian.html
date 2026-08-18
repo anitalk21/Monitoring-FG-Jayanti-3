@@ -4,61 +4,37 @@
     <meta charset="UTF-8">
     <title>Dashboard Antrian - PT. Mayora Indah Tbk</title>
     <style>
-        /* Desain Pastel Light Mode Profesional */
         body { background-color: #f8fafc; color: #475569; font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 12px; }
-        
-        /* Bar Navigasi Atas */
         .nav-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .nav-actions { display: flex; gap: 6px; align-items: center; }
         .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-nav:hover { background: #f1f5f9; }
-
-        /* Running Text / Ticker */
         .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; overflow: hidden; white-space: nowrap; }
-        
-        /* Container & Cards */
         .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        
-        /* Buttons */
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
         .btn-primary { background: #6366f1; color: white; border: none; }
         .btn-primary:hover { background: #4f46e5; }
-        .btn-success { background: #10b981; color: white; border: none; }
-        .btn-success:hover { background: #059669; }
         .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
         .btn-danger:hover { background: #fecaca; }
-        
-        /* Tabs Status Alur Truk */
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
         .tab-btn { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
         .tab-btn.active { background: #818cf8; color: white; border-color: #818cf8; }
-        
-        /* Indikator Pastel Durasi */
-        .badge-duration { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid transparent; }
-        .dur-green { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } 
-        .dur-yellow { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } 
-        .dur-red { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } 
-
-        /* Grid 32 Loading Dock */
         .dock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .dock-card { border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; font-size: 11px; }
         .dock-busy { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
         .dock-empty { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-
-        /* Area Menunggu Surat Jalan (Parkiran) */
-        .waiting-area { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 15px; margin-top: 20px; }
-
-        /* Modal Pop-up */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 12px; }
         label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 11px; }
         th { background: #f1f5f9; color: #334155; }
+        .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
+        .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
+        .relative { position: relative; }
     </style>
 </head>
 <body>
@@ -75,12 +51,6 @@
         <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
     </div>
 </header>
-
-<div class="marquee">
-    <marquee scrollamount="5">
-        🟢 Keluar: <span id="tKeluar">0</span> Truk | 🔵 Proses Muat: <span id="tProses">0</span> Truk | ⚠️ Treatment: <span id="tTreatment">0</span> Truk | 📦 Antrian: <span id="tAntrian">0</span> Truk
-    </marquee>
-</div>
 
 <div class="container">
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
@@ -104,6 +74,7 @@
     </div>
 </div>
 
+<!-- MODAL DAFTAR MANUAL (TIME KEEPER) -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>
@@ -152,6 +123,7 @@
     </div>
 </div>
 
+<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - SINKRON BIN-LOC & FIFO) -->
 <div id="modalPickingList" class="modal">
     <div class="modal-content" style="width: 650px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">
@@ -162,30 +134,43 @@
         <input type="hidden" id="plTruckIndex">
         
         <div style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
-            <div class="form-group" style="margin-bottom:6px;">
+            <!-- Dropdown SKU Kustom mirip portal Bin-Loc -->
+            <div class="form-group relative" style="margin-bottom:6px;">
                 <label>Cari SKU / Nama Produk (Terhubung Master Bin-Loc)</label>
-                <input type="text" id="itemSku" list="datalistSkus" placeholder="Ketik SKU atau nama barang untuk memilih..." autocomplete="off">
+                <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()">
+                <div id="adminSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
             </div>
+
+            <!-- Pilihan Lokasi Rak & FIFO Berdasarkan Stok Gudang Bin-Loc -->
             <div style="display:flex; gap:6px; margin-bottom:6px;">
-                <div style="flex:1;"><label>Tanggal Produksi (FIFO)</label><input type="date" id="itemProdate"></div>
-                <div style="flex:1;"><label>Lokasi Rak</label><input type="text" id="itemRak" placeholder="Blok A | Row 02"></div>
+                <div style="flex:1;">
+                    <label>Pilih Batch / Lokasi Rak Tersedia (FIFO)</label>
+                    <select id="itemBatchSelect" class="form-select form-select-sm" onchange="onBatchSelected()">
+                        <option value="">— Pilih SKU Terlebih Dahulu —</option>
+                    </select>
+                </div>
             </div>
+
             <div style="display:flex; gap:6px; margin-bottom:8px;">
-                <div style="flex:1;"><label>Receh</label><input type="number" id="itemReceh" placeholder="0" min="0"></div>
-                <div style="flex:1;"><label>Total Karton</label><input type="number" id="itemJumlah" placeholder="0" min="0"></div>
+                <div style="flex:1;">
+                    <label>Total Karton Pengiriman *</label>
+                    <input type="number" id="itemJumlahKarton" placeholder="Cth: 150" min="1" oninput="hitungKonversiAdmin()">
+                    <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiAdminInfo">Konversi: 0 Pallet + 0 Karton Receh</span>
+                </div>
             </div>
+
             <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>
         </div>
 
-        <div style="max-height: 220px; overflow-y: auto; margin-bottom: 12px;">
+        <div style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
             <table style="width:100%;">
                 <thead>
                     <tr>
-                        <th>SKU / Nama Produk</th>
+                        <th>SKU & Nama Produk</th>
                         <th>Prodate (FIFO)</th>
-                        <th>Rak</th>
-                        <th>Receh</th>
-                        <th>Karton</th>
+                        <th>Rak / Bin-Loc</th>
+                        <th>Pallet & Receh</th>
+                        <th>Total Krt</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -202,6 +187,7 @@
     </div>
 </div>
 
+<!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
         <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
@@ -226,9 +212,6 @@
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
             <strong style="color:#e11d48; display:block; margin-bottom:8px;">Verifikasi Barang Keluar (Goods Issue)</strong>
             <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang.</p>
-            <label>Cari SKU Produk</label>
-            <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
-            <p id="holdWarning" style="color:#e11d48; display:none; font-weight:bold; margin-top:8px;">⚠️ Peringatan: Barang berstatus HOLD, tidak bisa diproses kirim!</p>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
@@ -237,8 +220,6 @@
         </div>
     </div>
 </div>
-
-<datalist id="datalistSkus"></datalist>
 
 <script>
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -252,18 +233,97 @@
 
     let truckQueue = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
     let masterStock = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+    let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
 
-    // Populate Datalist Master SKU agar terhubung otomatis ke binloc
-    function populateMasterSkuDatalist() {
-        const datalist = document.getElementById('datalistSkus');
-        if(!datalist) return;
-        datalist.innerHTML = '';
+    function getCartonPerPallet(skuCode) {
+        if(masterStock[skuCode] && masterStock[skuCode].cartonPerPallet) {
+            return parseFloat(masterStock[skuCode].cartonPerPallet) || 70;
+        }
+        return 70;
+    }
+
+    // Dropdown Kustom SKU mirip portal Bin-Loc
+    function filterAdminSku() {
+        const inputVal = document.getElementById('itemSku').value.toLowerCase().trim();
+        const dropdown = document.getElementById('adminSkuDropdown');
+        if(!dropdown) return;
+
+        dropdown.innerHTML = '';
+        if(!inputVal) { dropdown.classList.add('hidden'); return; }
+
+        let matches = 0;
         for (let sku in masterStock) {
             let item = masterStock[sku];
-            datalist.innerHTML += `<option value="${item.sku} | ${item.name}">`;
+            let textStr = `${item.sku} | ${item.name}`.toLowerCase();
+            if(textStr.includes(inputVal)) {
+                matches++;
+                let div = document.createElement('div');
+                div.className = 'sku-dropdown-item';
+                div.innerText = `${item.sku} | ${item.name}`;
+                div.onclick = function() {
+                    document.getElementById('itemSku').value = `${item.sku} | ${item.name}`;
+                    dropdown.classList.add('hidden');
+                    loadAvailableBatchesForSku(item.sku);
+                };
+                dropdown.appendChild(div);
+                if(matches >= 15) break;
+            }
         }
+        if(matches > 0) dropdown.classList.remove('hidden');
+        else dropdown.classList.add('hidden');
     }
-    populateMasterSkuDatalist();
+
+    // Sinkronisasi Batch, FIFO, dan Lokasi Rak dari Bin-Loc
+    let selectedBatchData = null;
+    function loadAvailableBatchesForSku(skuCode) {
+        let select = document.getElementById('itemBatchSelect');
+        select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
+        
+        // Cari data stok dari binloc_stok_jayanti3 yang cocok dengan SKU
+        let matches = binStockData.filter(b => b.sku && b.sku.includes(skuCode));
+        
+        if(matches.length === 0) {
+            select.innerHTML = '<option value="">(Stok kosong di Bin-Loc, gunakan input manual jika perlu)</option>';
+            selectedBatchData = { sku: skuCode, rak: 'General / Direct', prodate: new Date().toISOString().split('T')[0] };
+            return;
+        }
+
+        // Urutkan berdasarkan FIFO (tanggal prodate tertua)
+        matches.sort((a, b) => new Date(a.prodate || 0) - new Date(b.prodate || 0));
+
+        matches.forEach((m, idx) => {
+            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Tersedia: ${m.karton} krt (${m.gudang})`;
+            select.innerHTML += `<option value="${idx}">${optionText}</option>`;
+        });
+        select.dataset.batches = JSON.stringify(matches);
+    }
+
+    function onBatchSelected() {
+        let select = document.getElementById('itemBatchSelect');
+        let val = select.value;
+        if(val === "") return;
+        let batches = JSON.parse(select.dataset.batches || '[]');
+        selectedBatchData = batches[parseInt(val)];
+    }
+
+    function hitungKonversiAdmin() {
+        let krt = parseFloat(document.getElementById('itemJumlahKarton').value) || 0;
+        let skuInput = document.getElementById('itemSku').value;
+        let skuCode = skuInput.split('|')[0].trim();
+        let std = getCartonPerPallet(skuCode);
+
+        let pallet = Math.floor(krt / std);
+        let receh = krt % std;
+
+        document.getElementById('konversiAdminInfo').innerText = `Konversi: ${pallet} Pallet + ${receh} Karton Receh (Standar ${std} krt/plt)`;
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
+            const drop = document.getElementById('adminSkuDropdown');
+            if(drop) drop.classList.add('hidden');
+        }
+    });
 
     function submitAntrian(e) {
         e.preventDefault();
@@ -288,7 +348,7 @@
             dock: '-',
             timeIn: new Date().toLocaleTimeString(),
             rawTime: new Date().getTime(),
-            pickingList: [] // Kosong saat didaftarkan time keeper, diisi admin menyusul
+            pickingList: []
         };
 
         truckQueue.unshift(newTruck);
@@ -306,7 +366,7 @@
         activePlTruckIdx = index;
         let t = truckQueue[index];
         document.getElementById('plTruckInfo').innerText = `${t.noPol} (${t.ekspedisi}) - Doc: ${t.noDoc}`;
-        populateMasterSkuDatalist();
+        binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         renderPlTable();
         openModal('modalPickingList');
     }
@@ -314,34 +374,39 @@
     function addItemToTruckPickingList() {
         if (activePlTruckIdx === null) return;
         let skuInputVal = document.getElementById('itemSku').value;
-        if(!skuInputVal) { alert('Harap pilih atau isi SKU barang!'); return; }
+        let totalKrt = parseInt(document.getElementById('itemJumlahKarton').value) || 0;
+        if(!skuInputVal || totalKrt <= 0) { alert('Harap pilih SKU dan isi jumlah total karton dengan benar!'); return; }
 
         let skuCode = skuInputVal.split('|')[0].trim();
         let skuName = skuInputVal.includes('|') ? skuInputVal.split('|')[1].trim() : skuInputVal;
+        let std = getCartonPerPallet(skuCode);
+
+        let pallet = Math.floor(totalKrt / std);
+        let receh = totalKrt % std;
+
+        let rakLoc = selectedBatchData ? selectedBatchData.lokasi : 'General Storage';
+        let prodateVal = selectedBatchData ? selectedBatchData.prodate : new Date().toISOString().split('T')[0];
 
         let item = {
             sku: skuCode,
             nama: skuName,
-            prodate: document.getElementById('itemProdate').value || new Date().toISOString().split('T')[0],
-            rak: document.getElementById('itemRak').value || '-',
-            receh: parseInt(document.getElementById('itemReceh').value) || 0,
-            jumlah: parseInt(document.getElementById('itemJumlah').value) || 0
+            prodate: prodateVal,
+            rak: rakLoc,
+            pallet: pallet,
+            receh: receh,
+            jumlah: totalKrt
         };
         
         if(!truckQueue[activePlTruckIdx].pickingList) truckQueue[activePlTruckIdx].pickingList = [];
         truckQueue[activePlTruckIdx].pickingList.push(item);
-        
-        // Urutkan item berdasarkan tanggal produksi tertua (FIFO)
-        truckQueue[activePlTruckIdx].pickingList.sort((a, b) => new Date(a.prodate) - new Date(b.prodate));
 
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         
-        // Reset form item kecil saja, modal tetap terbuka agar admin bisa lanjut input item berikutnya
         document.getElementById('itemSku').value = '';
-        document.getElementById('itemProdate').value = '';
-        document.getElementById('itemRak').value = '';
-        document.getElementById('itemReceh').value = '';
-        document.getElementById('itemJumlah').value = '';
+        document.getElementById('itemBatchSelect').innerHTML = '<option value="">— Pilih SKU Terlebih Dahulu —</option>';
+        document.getElementById('itemJumlahKarton').value = '';
+        document.getElementById('konversiAdminInfo').innerText = 'Konversi: 0 Pallet + 0 Karton Receh';
+        selectedBatchData = null;
         renderPlTable();
     }
 
@@ -359,8 +424,8 @@
                 <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
                 <td>${item.prodate}</td>
                 <td>${item.rak}</td>
-                <td>${item.receh}</td>
-                <td><b>${item.jumlah}</b></td>
+                <td><b>${item.pallet} Plt</b> + ${item.receh} krt</td>
+                <td><b>${item.jumlah} krt</b></td>
                 <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
             </tr>`;
         });
@@ -450,7 +515,6 @@
             truckQueue[activeStatusTruckIdx].dock = '-';
         }
 
-        // Jika status berubah ke Selesai Muat, otomatis kurangi stok di Bin-Loc (Goods Issue FIFO)
         if(newSt === 'Selesai Muat' && prevSt !== 'Selesai Muat') {
             try {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -487,7 +551,6 @@
         }
     }
 
-    // Inisialisasi awal pilihan dock 1-32
     window.onload = function() {
         let dockSel = document.getElementById('selectDock');
         if(dockSel) {
