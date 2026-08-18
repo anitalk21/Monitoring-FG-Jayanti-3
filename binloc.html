@@ -28,7 +28,7 @@
         .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .bin-item { cursor: pointer; transition: transform 0.1s; }
         .bin-item:hover { transform: scale(1.02); }
-        .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; }
+        .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
     </style>
 </head>
@@ -131,7 +131,7 @@
             </div>
         </div>
 
-        <!-- SECTION: REPORT PENERIMAAN BARANG DENGAN FITUR TOGGLE BUTTON & HAPUS -->
+        <!-- SECTION: REPORT PENERIMAAN BARANG DENGAN TOGGLE BUTTON -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -283,10 +283,40 @@
             </div>
         </div>
 
+        <!-- SECTION: STOCK OPNAME DENGAN TOGGLE BUTTON LOG OPNAME & CUSTOM SKU DROPDOWN -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
-                <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                <div class="flex gap-2">
+                    <button onclick="toggleOpnameReportTable()" id="btnToggleOpnameReport" class="btn btn-sm btn-primary fw-bold"><i class="fa-solid fa-eye me-1"></i> Tampilkan Log Opname</button>
+                    <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                </div>
+            </div>
+
+            <!-- TABEL LOG RIWAYAT STOCK OPNAME (TOGGLE) -->
+            <div id="opnameReportContainer" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4" style="display: none;">
+                <div class="flex justify-between items-center mb-2">
+                    <h5 class="fw-bold text-purple-800 text-xs uppercase mb-0"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Log Riwayat Hasil Stock Opname Tersimpan</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>Tanggal Opname</th>
+                                <th>Area Gudang</th>
+                                <th>Plant</th>
+                                <th>Stock Keeper</th>
+                                <th>SKU & Produk</th>
+                                <th>Lokasi Rak</th>
+                                <th>Fisik (Karton & Pallet)</th>
+                                <th>Aksi Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="opnameReportTableBody">
+                            <tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="row g-3 mb-3">
@@ -597,7 +627,7 @@
         } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
 
         // CUSTOM SKU DROPDOWN AUTOCOMPLETE DI BAWAH KOLOM KETIK
-        function filterCustomSku(inputId, dropdownId) {
+        function filterCustomSku(inputId, dropdownId, extraCallback = null) {
             const inputVal = document.getElementById(inputId).value.toLowerCase().trim();
             const dropdown = document.getElementById(dropdownId);
             if(!dropdown) return;
@@ -622,9 +652,10 @@
                         dropdown.classList.add('hidden');
                         if(inputId === 'pSku') hitungKonversi();
                         if(inputId === 'qcSkuInput') calcQcPallet();
+                        if(extraCallback) extraCallback();
                     };
                     dropdown.appendChild(div);
-                    if(matches >= 15) break; // Batasi max 15 hasil
+                    if(matches >= 15) break;
                 }
             }
 
@@ -637,12 +668,9 @@
 
         // TUTUP DROPDOWN KETIKA KLIK DI LUAR
         document.addEventListener('click', function(e) {
-            ['pSkuDropdown', 'qcSkuDropdown', 'relocSkuDropdown'].forEach(id => {
-                let d = document.getElementById(id);
-                if(d && !d.contains(e.target) && e.target.id !== id.replace('Dropdown', '')) {
-                    d.classList.add('hidden');
-                }
-            });
+            if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
+                document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
+            }
         });
 
         const now = new Date();
@@ -762,6 +790,7 @@
         let opnameRowIdx = 0;
         function clearOpnameRows() { document.getElementById('multiOpnameBody').innerHTML = ''; addOpnameRow(); }
 
+        // STOCK OPNAME ROW DENGAN CUSTOM SKU DROPDOWN PRESISI
         function addOpnameRow() {
             opnameRowIdx++;
             let wh = document.getElementById('opDestWarehouse').value;
@@ -773,17 +802,24 @@
             let blockOpts = '<option value="">-- Pilih Blok --</option>';
             blocks.forEach(b => { blockOpts += `<option value="Blok ${b}">Blok ${b}</option>`; });
 
-            tr.innerHTML = `<td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_${opnameRowIdx}" required>${blockOpts}</select></td>
-                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opRow_${opnameRowIdx}" required placeholder="Row 01"></td>
-                           <td><input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" required placeholder="SKU Produk"></td>
-                           <td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_${opnameRowIdx}" required min="0" oninput="calcMultiRow(${opnameRowIdx})" placeholder="Karton"></td>
-                           <td class="fw-bold text-indigo-600" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>`;
+            tr.innerHTML = `
+                <td><select class="form-select form-select-sm border-slate-200" id="opRackBlock_${opnameRowIdx}" required>${blockOpts}</select></td>
+                <td><input type="text" class="form-control form-control-sm border-slate-200" id="opRow_${opnameRowIdx}" required placeholder="Row 01"></td>
+                <td class="relative">
+                    <input type="text" class="form-control form-control-sm border-slate-200" id="opSku_${opnameRowIdx}" required placeholder="Ketik SKU..." oninput="filterCustomSku('opSku_${opnameRowIdx}', 'opSkuDropdown_${opnameRowIdx}')" autocomplete="off">
+                    <div id="opSkuDropdown_${opnameRowIdx}" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden text-start"></div>
+                </td>
+                <td><input type="number" class="form-control form-control-sm border-slate-200" id="opCarton_${opnameRowIdx}" required min="0" oninput="calcMultiRow(${opnameRowIdx})" placeholder="Karton"></td>
+                <td class="fw-bold text-indigo-600" id="opPalletDisplay_${opnameRowIdx}">0 Plt</td>
+            `;
             tbody.appendChild(tr);
         }
 
         function calcMultiRow(idx) {
             let cartonVal = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
-            let pallets = cartonVal / 70;
+            let skuVal = document.getElementById('opSku_' + idx).value;
+            let stdKrt = getCartonPerPallet(skuVal);
+            let pallets = cartonVal / stdKrt;
             document.getElementById('opPalletDisplay_' + idx).innerText = pallets.toFixed(2) + ' Plt';
         }
 
@@ -824,7 +860,7 @@
             if(sectionId === 'aging') renderAgingTable();
             if(sectionId === 'qc') renderActiveHoldTable();
             if(sectionId === 'report') renderReportTable();
-            if(sectionId === 'opname') renderReconciliationTable();
+            if(sectionId === 'opname') { renderReconciliationTable(); renderOpnameReportTable(); }
         }
 
         function openPenerimaanModal(category) {
@@ -857,7 +893,6 @@
             return 70;
         }
 
-        // OTOMATISASI JUMLAH PALET & NO. PALLET FISIK RANGE
         function hitungKonversi() {
             let krt = parseFloat(document.getElementById('pQtyKarton').value) || 0;
             let skuVal = document.getElementById('pSku').value;
@@ -1019,7 +1054,7 @@
             alert('Penerimaan barang berhasil disimpan ke beberapa rak sekaligus!');
         }
 
-        // FUNGSI TOGGLE TAMPILAN TABEL LOG RIWAYAT
+        // TOGGLE TABEL REPORT PENERIMAAN
         function toggleReportTable() {
             const container = document.getElementById('reportTableContainer');
             const btn = document.getElementById('btnToggleReport');
@@ -1035,11 +1070,28 @@
             }
         }
 
+        // TOGGLE TABEL LOG STOCK OPNAME
+        function toggleOpnameReportTable() {
+            const container = document.getElementById('opnameReportContainer');
+            const btn = document.getElementById('btnToggleOpnameReport');
+            if(container.style.display === 'none') {
+                container.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash me-1"></i> Sembunyikan Log Opname';
+                btn.className = 'btn btn-sm btn-outline-primary fw-bold';
+                renderOpnameReportTable();
+            } else {
+                container.style.display = 'none';
+                btn.innerHTML = '<i class="fa-solid fa-eye me-1"></i> Tampilkan Log Opname';
+                btn.className = 'btn btn-sm btn-primary fw-bold';
+            }
+        }
+
         function deleteReportItem(index) {
-            if(confirm('Apakah Anda yakin ingin menghapus log riwayat penerimaan barang ini?')) {
+            if(confirm('Apakah Anda yakin ingin menghapus log riwayat ini?')) {
                 binData.splice(index, 1);
                 localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
                 renderReportTable();
+                renderOpnameReportTable();
                 alert('Log riwayat berhasil dihapus.');
             }
         }
@@ -1049,11 +1101,13 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            if(binData.length === 0) {
+            let penerimaanItems = binData.filter(item => item.category !== 'Stock Opname');
+            if(penerimaanItems.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
                 return;
             }
             binData.forEach((item, index) => {
+                if(item.category === 'Stock Opname') return;
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
                 tbody.innerHTML += `<tr>
                     <td><span class="badge ${catBadge} px-2 py-1 fw-bold">${item.category}</span></td>
@@ -1063,6 +1117,35 @@
                     <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
                     <td class="fw-bold">${item.pallet}</td>
                     <td class="fw-bold text-emerald-600">${item.konversi}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold text-[11px]" onclick="deleteReportItem(${index})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function renderOpnameReportTable() {
+            let tbody = document.getElementById('opnameReportTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let opnameItems = binData.filter(item => item.category === 'Stock Opname');
+
+            if(opnameItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr>';
+                return;
+            }
+
+            binData.forEach((item, index) => {
+                if(item.category !== 'Stock Opname') return;
+                tbody.innerHTML += `<tr>
+                    <td>${item.tanggal}</td>
+                    <td><span class="badge bg-purple-100 text-purple-700">${item.gudang}</span></td>
+                    <td>Plant ${item.shift}</td>
+                    <td>${item.buyer}</td>
+                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
+                    <td class="fw-bold text-emerald-600">${item.karton} krt (${item.konversi})</td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold text-[11px]" onclick="deleteReportItem(${index})"><i class="fa-solid fa-trash"></i> Hapus</button>
                     </td>
@@ -1137,7 +1220,8 @@
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             alert('Hasil Stock Opname berhasil disimpan!');
             clearOpnameRows();
-            switchSection('home');
+            renderOpnameReportTable();
+            renderReconciliationTable();
         }
 
         function renderReconciliationTable() {
