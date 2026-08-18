@@ -228,8 +228,8 @@
                             <input type="text" class="form-control form-control-sm bg-slate-50" id="qcShift" required readonly>
                         </div>
                         <div class="col-4">
-                            <label class="form-label small fw-bold text-slate-600">Konversi Pallet / Karton</label>
-                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcPalletBadge" required readonly value="1.00 Pallet (70 krt)">
+                            <label class="form-label small fw-bold text-rose-600">Jumlah Pallet / Karton Di-hold *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletBadge" required placeholder="Cth: 1 Pallet (70 krt)..." value="1 Pallet (70 krt)">
                         </div>
                         <div class="col-4">
                             <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
@@ -755,7 +755,6 @@
             else dropdown.classList.add('hidden');
         }
 
-        // RESET PILIHAN PALET JIKA FILTER TANGGAL DIUBAH
         function resetQcPalletSelection() {
             document.getElementById('qcPalletNumber').value = '';
             document.getElementById('qcSkuInput').value = '';
@@ -763,9 +762,8 @@
             document.getElementById('qcShift').value = '';
         }
 
-        // FILTER PENCARIAN PALET BERDASARKAN TANGGAL PRODUKSI YANG DIPILIH
         function filterPalletByDateDropdown() {
-            const filterDateVal = document.getElementById('qcFilterDate').value; // Format yyyy-mm-dd
+            const filterDateVal = document.getElementById('qcFilterDate').value;
             const dropdown = document.getElementById('qcPalletDropdown');
             if(!dropdown) return;
 
@@ -777,14 +775,12 @@
                 return;
             }
 
-            // Ubah format tanggal yyyy-mm-dd jadi dd/mm/yyyy untuk dicocokkan dengan data simpanan
             let parts = filterDateVal.split('-');
             let formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
 
             let matches = 0;
             binData.forEach(item => {
                 let itemProdate = item.prodate !== '-' ? item.prodate : item.tanggal;
-                // Cocokkan dengan prodate atau tanggal masuk
                 if(itemProdate === formattedDate || item.prodate === filterDateVal) {
                     matches++;
                     let div = document.createElement('div');
@@ -1089,7 +1085,7 @@
             document.getElementById('qcSkuInput').value = '';
             document.getElementById('qcPlantLine').value = '';
             document.getElementById('qcShift').value = '';
-            document.getElementById('qcPalletBadge').value = '1.00 Pallet (70 krt)';
+            document.getElementById('qcPalletBadge').value = '1 Pallet (70 krt)';
             renderActiveHoldTable();
         }
 
