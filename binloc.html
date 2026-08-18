@@ -131,7 +131,7 @@
             </div>
         </div>
 
-        <!-- SECTION: REPORT PENERIMAAN BARANG DENGAN TOGGLE BUTTON -->
+        <!-- SECTION: REPORT PENERIMAAN BARANG -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -283,7 +283,7 @@
             </div>
         </div>
 
-        <!-- SECTION: STOCK OPNAME DENGAN TOGGLE BUTTON LOG OPNAME & CUSTOM SKU DROPDOWN -->
+        <!-- SECTION: STOCK OPNAME -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
@@ -483,7 +483,7 @@
         </div>
     </div>
 
-    <!-- MODAL PENERIMAAN BARANG DENGAN CUSTOM SKU DROPDOWN & AUTO PALLET RANGE -->
+    <!-- MODAL PENERIMAAN BARANG DENGAN WARNING KAPASITAS BLOK -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -626,7 +626,21 @@
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
         } catch(e) { binData = []; qcHistoryData = []; sapStockData = {}; masterStockData = {}; }
 
-        // CUSTOM SKU DROPDOWN AUTOCOMPLETE DI BAWAH KOLOM KETIK
+        // FUNGSI MENGHITUNG KAPASITAS MUATAN PALET DI SUATU BLOK TERTENTU
+        function getBlockTotalPallets(gudangName, blockName) {
+            let totalPlt = 0;
+            binData.forEach(item => {
+                if(item.gudang && item.gudang.includes(gudangName) && item.lokasi && item.lokasi.includes(blockName)) {
+                    if(item.konversi) {
+                        let p = parseFloat(item.konversi.split(' ')[0]) || 0;
+                        totalPlt += p;
+                    }
+                }
+            });
+            return totalPlt;
+        }
+
+        // CUSTOM SKU DROPDOWN AUTOCOMPLETE
         function filterCustomSku(inputId, dropdownId, extraCallback = null) {
             const inputVal = document.getElementById(inputId).value.toLowerCase().trim();
             const dropdown = document.getElementById(dropdownId);
@@ -666,7 +680,6 @@
             }
         }
 
-        // TUTUP DROPDOWN KETIKA KLIK DI LUAR
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
                 document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
@@ -710,15 +723,39 @@
 
             let blocks = gudang.includes('Induk') ? indukBlocks : agingBlocks;
             let blockOpts = '<option value="">-- Pilih Blok --</option>';
-            blocks.forEach(b => { blockOpts += `<option value="Blok ${b}">Blok ${b}</option>`; });
+            blocks.forEach(b => { 
+                let bName = `Blok ${b}`;
+                let totalPlt = getBlockTotalPallets(gudang, bName);
+                let warningTag = totalPlt >= 150 ? ' ⚠️ [PENUH]' : (totalPlt >= 100 ? ' ⚠️ [Hampir Penuh]' : '');
+                blockOpts += `<option value="${bName}">Blok ${b}${warningTag}</option>`; 
+            });
 
             tr.innerHTML = `
-                <td><select class="form-select form-select-sm" id="pBlock_${penerimaanRowIdx}" required onchange="updateRowDropdown(${penerimaanRowIdx})">${blockOpts}</select></td>
+                <td><select class="form-select form-select-sm" id="pBlock_${penerimaanRowIdx}" required onchange="checkBlockCapacity(${penerimaanRowIdx}); updateRowDropdown(${penerimaanRowIdx});">${blockOpts}</select>
+                    <div class="text-[10px] fw-bold mt-1" id="blockWarning_${penerimaanRowIdx}"></div>
+                </td>
                 <td><select class="form-select form-select-sm" id="pRowSelect_${penerimaanRowIdx}" required><option value="">-- Pilih Row --</option></select></td>
                 <td><input type="number" class="form-control form-control-sm text-center" id="pCarton_${penerimaanRowIdx}" required min="1" placeholder="Jml karton"></td>
                 <td><button type="button" class="btn btn-xs btn-outline-danger py-0 px-2" onclick="removePenerimaanRow(${penerimaanRowIdx})">X</button></td>
             `;
             tbody.appendChild(tr);
+        }
+
+        // FUNGSI CEK KAPASITAS BLOK KETIKA DIPILIH DI FORM PENERIMAAN
+        function checkBlockCapacity(idx) {
+            let gudang = document.getElementById('pGudang').value;
+            let blockVal = document.getElementById('pBlock_' + idx).value;
+            let warnEl = document.getElementById('blockWarning_' + idx);
+            if(!blockVal) { warnEl.innerHTML = ''; return; }
+
+            let totalPlt = getBlockTotalPallets(gudang, blockVal);
+            if(totalPlt >= 150) {
+                warnEl.innerHTML = `<span class="text-rose-600">⚠️ Blok Penuh (${totalPlt.toFixed(1)} Plt)! Disarankan pilih blok lain.</span>`;
+            } else if(totalPlt >= 100) {
+                warnEl.innerHTML = `<span class="text-amber-600">⚠️ Hampir Penuh (${totalPlt.toFixed(1)} Plt)</span>`;
+            } else {
+                warnEl.innerHTML = `<span class="text-emerald-600">✓ Kapasitas Aman (${totalPlt.toFixed(1)} Plt)</span>`;
+            }
         }
 
         function removePenerimaanRow(idx) {
@@ -790,7 +827,6 @@
         let opnameRowIdx = 0;
         function clearOpnameRows() { document.getElementById('multiOpnameBody').innerHTML = ''; addOpnameRow(); }
 
-        // STOCK OPNAME ROW DENGAN CUSTOM SKU DROPDOWN PRESISI
         function addOpnameRow() {
             opnameRowIdx++;
             let wh = document.getElementById('opDestWarehouse').value;
@@ -1054,7 +1090,6 @@
             alert('Penerimaan barang berhasil disimpan ke beberapa rak sekaligus!');
         }
 
-        // TOGGLE TABEL REPORT PENERIMAAN
         function toggleReportTable() {
             const container = document.getElementById('reportTableContainer');
             const btn = document.getElementById('btnToggleReport');
@@ -1070,7 +1105,6 @@
             }
         }
 
-        // TOGGLE TABEL LOG STOCK OPNAME
         function toggleOpnameReportTable() {
             const container = document.getElementById('opnameReportContainer');
             const btn = document.getElementById('btnToggleOpnameReport');
