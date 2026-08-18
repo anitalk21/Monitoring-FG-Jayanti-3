@@ -22,6 +22,11 @@
         .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; font-size: 12px; font-weight: bold; }
 
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .bin-low { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .bin-med { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .bin-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .bin-full { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
         table th, table td { font-size: 12px !important; }
     </style>
 </head>
@@ -41,45 +46,72 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-        <!-- HOME MENU BINLOC -->
+        <!-- MENU UTAMA / HOME -->
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
+                <p class="text-xs text-slate-400 mt-1">Kelola penempatan rak, mutasi stok, audit fisik, dan karantina QC</p>
             </div>
+            
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
                 <div onclick="openPenerimaanModal('Lokal')" class="bg-white hover:border-emerald-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl"><i class="fa-solid fa-industry text-xl"></i></div>
-                    <div><h3 class="font-bold text-emerald-700 text-sm">Masuk Lokal</h3></div>
+                    <div>
+                        <h3 class="font-bold text-emerald-700 text-sm">Masuk Lokal</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Input produksi pabrik lokal</p>
+                    </div>
                 </div>
                 <div onclick="openPenerimaanModal('Ekspor')" class="bg-white hover:border-violet-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-violet-50 text-violet-600 p-4 rounded-2xl"><i class="fa-solid fa-ship text-xl"></i></div>
-                    <div><h3 class="font-bold text-violet-700 text-sm">Masuk Ekspor</h3></div>
+                    <div>
+                        <h3 class="font-bold text-violet-700 text-sm">Masuk Ekspor</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Input produk jalur ekspor</p>
+                    </div>
                 </div>
                 <div onclick="switchSection('qc')" class="bg-white hover:border-rose-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-rose-50 text-rose-600 p-4 rounded-2xl"><i class="fa-solid fa-shield-halved text-xl"></i></div>
-                    <div><h3 class="font-bold text-rose-700 text-sm">Karantina QC</h3></div>
+                    <div>
+                        <h3 class="font-bold text-rose-700 text-sm">Karantina QC</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Hold & Release status mutu</p>
+                    </div>
                 </div>
                 <div onclick="switchSection('aging')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
-                    <div><h3 class="font-bold text-amber-700 text-sm">Monitoring Aging</h3></div>
+                    <div>
+                        <h3 class="font-bold text-amber-700 text-sm">Monitoring Aging</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Pengawasan masa simpan</p>
+                    </div>
                 </div>
             </div>
+
             <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div onclick="switchSection('report')" class="bg-white hover:border-sky-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-sky-50 text-sky-600 p-4 rounded-2xl"><i class="fa-solid fa-clipboard-list text-xl"></i></div>
-                    <div><h3 class="font-bold text-sky-700 text-sm">Report Penerimaan</h3></div>
+                    <div>
+                        <h3 class="font-bold text-sky-700 text-sm">Report Penerimaan</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Log riwayat barang masuk</p>
+                    </div>
                 </div>
                 <div onclick="switchSection('cari')" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
-                    <div><h3 class="font-bold text-amber-700 text-sm">Cari Posisi</h3></div>
+                    <div>
+                        <h3 class="font-bold text-amber-700 text-sm">Cari Posisi</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Lacak letak SKU di rak</p>
+                    </div>
                 </div>
                 <div onclick="switchSection('opname')" class="bg-white hover:border-indigo-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-indigo-50 text-indigo-600 p-4 rounded-2xl"><i class="fa-solid fa-file-invoice text-xl"></i></div>
-                    <div><h3 class="font-bold text-indigo-700 text-sm">Stock Opname & SAP</h3></div>
+                    <div>
+                        <h3 class="font-bold text-indigo-700 text-sm">Stock Opname & SAP</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Audit fisik & rekonsiliasi</p>
+                    </div>
                 </div>
                 <div onclick="switchSection('peta')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-5 cursor-pointer transition shadow-2xs flex flex-col items-center text-center space-y-3">
                     <div class="bg-purple-50 text-purple-600 p-4 rounded-2xl"><i class="fa-solid fa-map text-xl"></i></div>
-                    <div><h3 class="font-bold text-purple-700 text-sm">Peta Kapasitas</h3></div>
+                    <div>
+                        <h3 class="font-bold text-purple-700 text-sm">Peta Kapasitas</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Denah blok & blok rak</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -130,7 +162,7 @@
             </div>
         </div>
 
-        <!-- SECTION OPNAME & RIWAYAT OPNAME TERSENDIRI -->
+        <!-- SECTION OPNAME & SAP -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-sm">Stock Opname Harian & Rekonsiliasi SAP</h3>
@@ -145,7 +177,6 @@
                 </table>
             </div>
 
-            <!-- FORM INPUT OPNAME -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
                 <form onsubmit="saveBulkOpname(event)">
                     <div class="row g-3 p-4 rounded-2xl mb-4 bg-slate-50">
