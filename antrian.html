@@ -4,14 +4,23 @@
     <meta charset="UTF-8">
     <title>Dashboard Antrian - PT. Mayora Indah Tbk</title>
     <style>
+        /* Desain Pastel Light Mode Profesional */
         body { background-color: #f8fafc; color: #475569; font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 12px; }
+        
+        /* Bar Navigasi Atas */
         .nav-bar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .nav-actions { display: flex; gap: 6px; align-items: center; }
         .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-nav:hover { background: #f1f5f9; }
+
+        /* Running Text / Ticker */
         .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; overflow: hidden; white-space: nowrap; }
+        
+        /* Container & Cards */
         .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        
+        /* Buttons */
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
         .btn-primary { background: #6366f1; color: white; border: none; }
         .btn-primary:hover { background: #4f46e5; }
@@ -19,23 +28,34 @@
         .btn-success:hover { background: #059669; }
         .btn-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
         .btn-danger:hover { background: #fecaca; }
+        
+        /* Tabs Status Alur Truk */
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
         .tab-btn { padding: 6px 12px; cursor: pointer; border-radius: 6px; border: 1px solid #e2e8f0; background: white; font-weight: 600; color: #64748b; font-size: 11px; white-space: nowrap; }
         .tab-btn.active { background: #818cf8; color: white; border-color: #818cf8; }
+        
+        /* Indikator Pastel Durasi */
         .badge-duration { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid transparent; }
         .dur-green { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; } 
         .dur-yellow { background-color: #fef3c7; color: #92400e; border-color: #fde68a; } 
         .dur-red { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; } 
+
+        /* Grid 32 Loading Dock */
         .dock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .dock-card { border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #e2e8f0; font-size: 11px; }
         .dock-busy { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
         .dock-empty { background-color: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+
+        /* Area Menunggu Surat Jalan (Parkiran) */
         .waiting-area { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 15px; margin-top: 20px; }
+
+        /* Modal Pop-up */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 16px; width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 12px; }
         label { font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 4px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 12px; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 11px; }
         th { background: #f1f5f9; color: #334155; }
@@ -133,7 +153,7 @@
 </div>
 
 <div id="modalPickingList" class="modal">
-    <div class="modal-content" style="width: 600px;">
+    <div class="modal-content" style="width: 650px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px;">
             <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)</h4>
             <span id="plTruckInfo" style="font-size:11px; font-weight:bold; color:#64748b;"></span>
@@ -143,9 +163,8 @@
         
         <div style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
             <div class="form-group" style="margin-bottom:6px;">
-                <label>SKU / Nama Produk (Terhubung Master Stock)</label>
-                <input type="text" id="itemSku" list="datalistSkus" placeholder="Ketik SKU atau nama barang..." oninput="onSkuInputTyped()">
-                <datalist id="datalistSkus"></datalist>
+                <label>Cari SKU / Nama Produk (Terhubung Master Bin-Loc)</label>
+                <input type="text" id="itemSku" list="datalistSkus" placeholder="Ketik SKU atau nama barang untuk memilih..." autocomplete="off">
             </div>
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <div style="flex:1;"><label>Tanggal Produksi (FIFO)</label><input type="date" id="itemProdate"></div>
@@ -155,15 +174,15 @@
                 <div style="flex:1;"><label>Receh</label><input type="number" id="itemReceh" placeholder="0" min="0"></div>
                 <div style="flex:1;"><label>Total Karton</label><input type="number" id="itemJumlah" placeholder="0" min="0"></div>
             </div>
-            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item ke Picking List</button>
+            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>
         </div>
 
-        <div style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
+        <div style="max-height: 220px; overflow-y: auto; margin-bottom: 12px;">
             <table style="width:100%;">
                 <thead>
                     <tr>
                         <th>SKU / Nama Produk</th>
-                        <th>Prodate</th>
+                        <th>Prodate (FIFO)</th>
                         <th>Rak</th>
                         <th>Receh</th>
                         <th>Karton</th>
@@ -176,7 +195,8 @@
             </table>
         </div>
 
-        <div style="display:flex; justify-content:flex-end;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <button class="btn" onclick="window.print()" style="font-size:11px;">🖨️ Cetak Picking List</button>
             <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Selesai & Tutup</button>
         </div>
     </div>
@@ -205,7 +225,7 @@
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
             <strong style="color:#e11d48; display:block; margin-bottom:8px;">Verifikasi Barang Keluar (Goods Issue)</strong>
-            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang berdasarkan FIFO.</p>
+            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang.</p>
             <label>Cari SKU Produk</label>
             <input type="text" id="skuSearch" placeholder="Ketik SKU..." oninput="checkSKUHold()">
             <p id="holdWarning" style="color:#e11d48; display:none; font-weight:bold; margin-top:8px;">⚠️ Peringatan: Barang berstatus HOLD, tidak bisa diproses kirim!</p>
@@ -218,8 +238,9 @@
     </div>
 </div>
 
+<datalist id="datalistSkus"></datalist>
+
 <script>
-    // Logika Javascript Pendukung
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     
@@ -232,22 +253,41 @@
     let truckQueue = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
     let masterStock = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
 
+    // Populate Datalist Master SKU agar terhubung otomatis ke binloc
+    function populateMasterSkuDatalist() {
+        const datalist = document.getElementById('datalistSkus');
+        if(!datalist) return;
+        datalist.innerHTML = '';
+        for (let sku in masterStock) {
+            let item = masterStock[sku];
+            datalist.innerHTML += `<option value="${item.sku} | ${item.name}">`;
+        }
+    }
+    populateMasterSkuDatalist();
+
     function submitAntrian(e) {
         e.preventDefault();
+        let jenisVal = document.getElementById('mJenis').value;
+        let tipeVal = document.getElementById('mTipeLokal').value;
+        let containerVal = document.getElementById('mContainer').value;
+
+        let jenisFull = jenisVal;
+        if(jenisVal === 'LOKAL' && tipeVal) jenisFull = 'LOKAL • ' + tipeVal;
+        else if(jenisVal === 'EKSPOR' && containerVal) jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
+
         let newTruck = {
-            id: 'TRK-' + Date.now(),
+            id: 'TRK-' + Math.floor(Math.random() * 9000 + 1000),
             sopir: document.getElementById('mSopir').value,
             ekspedisi: document.getElementById('mEkspedisi').value,
-            noPol: document.getElementById('mNoPol').value,
+            noPol: document.getElementById('mNoPol').value.toUpperCase(),
             noDoc: document.getElementById('mNoDoc').value,
-            jenis: document.getElementById('mJenis').value,
-            tipeLokal: document.getElementById('mTipeLokal').value || '-',
-            container: document.getElementById('mContainer').value || '-',
-            tujuan: document.getElementById('mTujuan').value,
+            jenis: jenisFull,
+            tujuan: document.getElementById('mTujuan').value.toUpperCase(),
             noHp: document.getElementById('mNoHp').value || '-',
             status: 'Antrian',
             dock: '-',
             timeIn: new Date().toLocaleTimeString(),
+            rawTime: new Date().getTime(),
             pickingList: [] // Kosong saat didaftarkan time keeper, diisi admin menyusul
         };
 
@@ -256,6 +296,8 @@
         alert('Truk berhasil didaftarkan oleh Time Keeper!');
         closeModal('modalManual');
         e.target.reset();
+        document.getElementById('groupTipePengiriman').style.display = 'none';
+        document.getElementById('groupContainer').style.display = 'none';
         renderAll();
     }
 
@@ -264,25 +306,37 @@
         activePlTruckIdx = index;
         let t = truckQueue[index];
         document.getElementById('plTruckInfo').innerText = `${t.noPol} (${t.ekspedisi}) - Doc: ${t.noDoc}`;
+        populateMasterSkuDatalist();
         renderPlTable();
         openModal('modalPickingList');
     }
 
     function addItemToTruckPickingList() {
         if (activePlTruckIdx === null) return;
+        let skuInputVal = document.getElementById('itemSku').value;
+        if(!skuInputVal) { alert('Harap pilih atau isi SKU barang!'); return; }
+
+        let skuCode = skuInputVal.split('|')[0].trim();
+        let skuName = skuInputVal.includes('|') ? skuInputVal.split('|')[1].trim() : skuInputVal;
+
         let item = {
-            sku: document.getElementById('itemSku').value,
-            prodate: document.getElementById('itemProdate').value,
-            rak: document.getElementById('itemRak').value,
-            receh: document.getElementById('itemReceh').value || 0,
-            jumlah: document.getElementById('itemJumlah').value || 0
+            sku: skuCode,
+            nama: skuName,
+            prodate: document.getElementById('itemProdate').value || new Date().toISOString().split('T')[0],
+            rak: document.getElementById('itemRak').value || '-',
+            receh: parseInt(document.getElementById('itemReceh').value) || 0,
+            jumlah: parseInt(document.getElementById('itemJumlah').value) || 0
         };
-        if(!item.sku) { alert('Harap isi SKU barang!'); return; }
         
         if(!truckQueue[activePlTruckIdx].pickingList) truckQueue[activePlTruckIdx].pickingList = [];
         truckQueue[activePlTruckIdx].pickingList.push(item);
+        
+        // Urutkan item berdasarkan tanggal produksi tertua (FIFO)
+        truckQueue[activePlTruckIdx].pickingList.sort((a, b) => new Date(a.prodate) - new Date(b.prodate));
+
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         
+        // Reset form item kecil saja, modal tetap terbuka agar admin bisa lanjut input item berikutnya
         document.getElementById('itemSku').value = '';
         document.getElementById('itemProdate').value = '';
         document.getElementById('itemRak').value = '';
@@ -302,9 +356,9 @@
         }
         list.forEach((item, idx) => {
             tbody.innerHTML += `<tr>
-                <td>${item.sku}</td>
-                <td>${item.prodate || '-'}</td>
-                <td>${item.rak || '-'}</td>
+                <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                <td>${item.prodate}</td>
+                <td>${item.rak}</td>
                 <td>${item.receh}</td>
                 <td><b>${item.jumlah}</b></td>
                 <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
@@ -320,7 +374,6 @@
     }
 
     function renderAll() {
-        // Fungsi rendering utama kartu antrian & ticker
         let container = document.getElementById('antrianCardContainer');
         if(!container) return;
         
@@ -334,24 +387,33 @@
             if(t.status === 'Keluar') countKeluar++;
 
             let plCount = (t.pickingList || []).length;
+            let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
 
             html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <strong>${t.noPol}</strong> (${t.ekspedisi}) - Sopir: ${t.sopir} <br>
-                    <span style="color:#64748b;">Doc: ${t.noDoc} | Tujuan: ${t.tujuan} (${t.jenis})</span><br>
-                    <span style="font-size:10px; background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; display:inline-block; margin-top:4px;">Status: <b>${t.status}</b> | Dock: ${t.dock}</span>
+                    <div style="font-weight:bold; font-size:13px; color:#1e293b;">
+                        <span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; margin-right:5px;">${t.id}</span> 
+                        ${t.noPol} &bull; ${t.ekspedisi} &bull; <span style="color:#0284c7;">Doc: ${t.noDoc}</span>
+                    </div>
+                    <div style="margin-top:4px; color:#64748b;">
+                        Sopir: <strong>${t.sopir}</strong> | Jenis: ${t.jenis} &rarr; <strong>Tujuan: ${t.tujuan}</strong> | Total Qty: <b>${totalQty} krt</b>
+                    </div>
+                    <div style="margin-top:4px; font-size:10px;">
+                        <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
+                    </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
                         📄 Picking List (${plCount})
                     </button>
                     <button class="btn btn-primary" style="font-size:11px;" onclick="openStatusModal(${idx})">Pindah Status</button>
+                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
                 </div>
             </div>`;
         });
 
         if(truckQueue.length === 0) {
-            html = '<div class="card" style="text-align:center; color:#94a3b8;">Belum ada data truk yang terdaftar.</div>';
+            html = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk yang terdaftar.</div>';
         }
 
         container.innerHTML = html;
@@ -379,13 +441,42 @@
     function saveStatus() {
         if(activeStatusTruckIdx === null) return;
         let newSt = document.getElementById('selectStatus').value;
+        let prevSt = truckQueue[activeStatusTruckIdx].status;
+
         truckQueue[activeStatusTruckIdx].status = newSt;
         if(newSt === 'Proses Muat') {
             truckQueue[activeStatusTruckIdx].dock = document.getElementById('selectDock').value || 'Dock 01';
+        } else if(newSt !== 'Proses Muat') {
+            truckQueue[activeStatusTruckIdx].dock = '-';
         }
+
+        // Jika status berubah ke Selesai Muat, otomatis kurangi stok di Bin-Loc (Goods Issue FIFO)
+        if(newSt === 'Selesai Muat' && prevSt !== 'Selesai Muat') {
+            try {
+                let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+                if(truckQueue[activeStatusTruckIdx].pickingList && truckQueue[activeStatusTruckIdx].pickingList.length > 0) {
+                    truckQueue[activeStatusTruckIdx].pickingList.forEach(soldItem => {
+                        let target = binStock.find(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                        if(target) {
+                            target.karton = Math.max(0, parseInt(target.karton || 0) - soldItem.jumlah);
+                        }
+                    });
+                    localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+                }
+            } catch(e) { console.error('Gagal sinkronisasi Goods Issue ke Bin-Loc', e); }
+        }
+
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         closeModal('modalStatus');
         renderAll();
+    }
+
+    function deleteTruck(idx) {
+        if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
+            truckQueue.splice(idx, 1);
+            localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+            renderAll();
+        }
     }
 
     function resetData() {
@@ -396,7 +487,7 @@
         }
     }
 
-    // Inisialisasi awal pengisian pilihan dock 1-32
+    // Inisialisasi awal pilihan dock 1-32
     window.onload = function() {
         let dockSel = document.getElementById('selectDock');
         if(dockSel) {
