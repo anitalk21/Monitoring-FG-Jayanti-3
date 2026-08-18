@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Bin-Loc & Operasional Gudang - PT. Mayora Indah Tbk</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -59,7 +56,7 @@
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC berkesinambungan, aging 8 hari, opname, report penerimaan, dan peta rak.</p>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC terintegrasi, aging 8 hari, opname, report penerimaan, dan peta rak.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -131,7 +128,6 @@
             </div>
         </div>
 
-        <!-- SECTION: REPORT PENERIMAAN BARANG -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -166,7 +162,6 @@
             </div>
         </div>
 
-        <!-- SECTION: MONITORING AGING -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -197,7 +192,6 @@
             </div>
         </div>
 
-        <!-- SECTION: KARANTINA QC -->
         <div id="section-qc" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-rose-700 text-base"><i class="fa-solid fa-shield-halved mr-2"></i> Manajemen Karantina QC (Hold, Release & Pemusnahan)</h3>
@@ -205,52 +199,37 @@
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-                <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold) Baru</h5>
+                <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold) - Terintegrasi Palet Masuk</h5>
                 <form onsubmit="saveQcAction(event)">
                     <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-slate-600">Pilih Plant *</label>
-                            <select class="form-select form-select-sm" id="qcPlant" required onchange="updateQcLines()">
-                                <option value="">-- Pilih Plant --</option>
-                                <option value="1115">Plant 1115</option>
-                                <option value="1116">Plant 1116</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-slate-600">Pilih Line Produksi *</label>
-                            <select class="form-select form-select-sm" id="qcLine" required>
-                                <option value="">-- Pilih Plant Terlebih Dahulu --</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-slate-600">Tanggal Produksi (Prodate) *</label>
-                            <input type="date" class="form-control form-control-sm" id="qcProdate" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold text-slate-600">Shift Kerja *</label>
-                            <select class="form-select form-select-sm" id="qcShift" required>
-                                <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3 relative">
                         <div class="col-6 relative">
-                            <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk *</label>
-                            <input type="text" class="form-control form-control-sm" id="qcSkuInput" required placeholder="Ketik atau pilih SKU..." oninput="filterCustomSku('qcSkuInput', 'qcSkuDropdown')" autocomplete="off">
-                            <div id="qcSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
+                            <label class="form-label small fw-bold text-rose-600">Pilih / Ketik No. Pallet Terdaftar *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Ketik No. Pallet (Cth: PLT-01)..." oninput="filterPalletDropdown()" autocomplete="off">
+                            <div id="qcPalletDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
                         </div>
                         <div class="col-6">
-                            <label class="form-label small fw-bold text-rose-600">Nomor Pallet Fisik *</label>
-                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Cth: PLT-01 s/d PLT-05">
+                            <label class="form-label small fw-bold text-slate-600">SKU & Nama Produk (Otomatis)</label>
+                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcSkuInput" required readonly placeholder="Otomatis terisi dari palet...">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-slate-600">Plant / Line (Otomatis)</label>
+                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcPlantLine" required readonly placeholder="Otomatis...">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-slate-600">Tanggal Produksi (Prodate)</label>
+                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcProdate" required readonly>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small fw-bold text-slate-600">Shift Kerja</label>
+                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcShift" required readonly>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-6">
-                            <label class="form-label small fw-bold text-slate-600">Jumlah Karton *</label>
-                            <input type="number" class="form-control form-control-sm" id="qcCartonInput" required min="1" placeholder="700" oninput="calcQcPallet()">
-                            <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="qcPalletBadge">Konversi: 0 Pallet (Standar 70 krt/plt)</span>
+                            <label class="form-label small fw-bold text-slate-600">Konversi Pallet / Karton</label>
+                            <input type="text" class="form-control form-control-sm bg-slate-50" id="qcPalletBadge" required readonly value="0 Pallet">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
@@ -285,7 +264,6 @@
             </div>
         </div>
 
-        <!-- SECTION: STOCK OPNAME -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
@@ -295,7 +273,6 @@
                 </div>
             </div>
 
-            <!-- TABEL LOG RIWAYAT STOCK OPNAME -->
             <div id="opnameReportContainer" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4" style="display: none;">
                 <div class="flex justify-between items-center mb-2">
                     <h5 class="fw-bold text-purple-800 text-xs uppercase mb-0"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Log Riwayat Hasil Stock Opname Tersimpan</h5>
@@ -412,7 +389,6 @@
             </div>
         </div>
 
-        <!-- SECTION: CARI POSISI -->
         <div id="section-cari" class="app-page space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Cari Posisi Barang (Bin Loc)</h3>
@@ -442,7 +418,6 @@
             </div>
         </div>
 
-        <!-- SECTION: PETA KAPASITAS & RELOKASI -->
         <div id="section-peta" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -456,7 +431,6 @@
                 </div>
             </div>
 
-            <!-- TOMBOL LIHAT LOG RIWAYAT RELOKASI -->
             <div class="flex justify-end">
                 <button onclick="toggleRelokasiLogModal()" class="btn btn-sm btn-outline-indigo fw-bold bg-white shadow-2xs"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Lihat Log Riwayat Relokasi Barang</button>
             </div>
@@ -468,7 +442,6 @@
 
     </main>
 
-    <!-- MODAL DETAIL ISI BLOK & RELOKASI PER LORONG -->
     <div id="modalDetailBlok" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex justify-between items-center">
@@ -499,7 +472,6 @@
         </div>
     </div>
 
-    <!-- MODAL FORM RELOKASI DENGAN DROPDOWN BERTINGKAT & NAMA PETUGAS -->
     <div id="modalRelokasiForm" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-center">
@@ -558,7 +530,6 @@
         </div>
     </div>
 
-    <!-- MODAL LOG RIWAYAT RELOKASI -->
     <div id="modalRelokasiLog" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-5xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-sky-50 px-6 py-4 border-b border-sky-100 flex justify-between items-center">
@@ -591,7 +562,6 @@
         </div>
     </div>
 
-    <!-- MODAL PENERIMAAN BARANG -->
     <div id="modalPenerimaan" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
             <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
@@ -774,7 +744,6 @@
                         document.getElementById(inputId).value = `${item.sku} | ${item.name}`;
                         dropdown.classList.add('hidden');
                         if(inputId === 'pSku') hitungKonversi();
-                        if(inputId === 'qcSkuInput') calcQcPallet();
                         if(extraCallback) extraCallback();
                     };
                     dropdown.appendChild(div);
@@ -789,6 +758,45 @@
             }
         }
 
+        // AUTOCOMPLETE / DROPDOWN TERINTEGRASI UNTUK QC BERDASARKAN PALET MASUK
+        function filterPalletDropdown() {
+            const inputVal = document.getElementById('qcPalletNumber').value.toLowerCase().trim();
+            const dropdown = document.getElementById('qcPalletDropdown');
+            if(!dropdown) return;
+
+            dropdown.innerHTML = '';
+            if(!inputVal) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            let matches = 0;
+            binData.forEach(item => {
+                // Cari berdasarkan nomor palet atau SKU
+                let searchStr = `${item.pallet} | ${item.sku}`.toLowerCase();
+                if(searchStr.includes(inputVal)) {
+                    matches++;
+                    let div = document.createElement('div');
+                    div.className = 'sku-dropdown-item';
+                    div.innerHTML = `<strong>${item.pallet}</strong> - ${item.sku} <span class="text-slate-400">(${item.lokasi})</span>`;
+                    div.onclick = function() {
+                        document.getElementById('qcPalletNumber').value = item.pallet;
+                        document.getElementById('qcSkuInput').value = item.sku;
+                        document.getElementById('qcPlantLine').value = `Plant ${item.plant || '-'} (${item.line || '-'})`;
+                        document.getElementById('qcProdate').value = item.prodate !== '-' ? item.prodate : item.tanggal;
+                        document.getElementById('qcShift').value = item.shift;
+                        document.getElementById('qcPalletBadge').value = item.konversi;
+                        dropdown.classList.add('hidden');
+                    };
+                    dropdown.appendChild(div);
+                    if(matches >= 15) return;
+                }
+            });
+
+            if(matches > 0) dropdown.classList.remove('hidden');
+            else dropdown.classList.add('hidden');
+        }
+
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
                 document.querySelectorAll('[id$="Dropdown"]').forEach(d => d.classList.add('hidden'));
@@ -799,7 +807,7 @@
         const currentDateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
         document.getElementById('pTanggal').value = currentDateStr;
         document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('qcProdate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('qcProdate').value = currentDateStr;
 
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
@@ -893,27 +901,6 @@
         function updatePenerimaanLines() {
             const plant = document.getElementById('pPlant').value;
             const lineSelect = document.getElementById('pLine');
-            lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
-            if(plant === '1115') {
-                for(let i = 1; i <= 13; i++) {
-                    let name = `GT${i < 10 ? '0' + i : i}`;
-                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
-                }
-                for(let i = 1; i <= 6; i++) {
-                    let name = `GA${i < 10 ? '0' + i : i}`;
-                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
-                }
-            } else if(plant === '1116') {
-                for(let i = 1; i <= 20; i++) {
-                    let name = `GT${i < 10 ? '0' + i : i}`;
-                    lineSelect.innerHTML += `<option value="${name}">${name}</option>`;
-                }
-            }
-        }
-
-        function updateQcLines() {
-            const plant = document.getElementById('qcPlant').value;
-            const lineSelect = document.getElementById('qcLine');
             lineSelect.innerHTML = '<option value="">-- Pilih Line --</option>';
             if(plant === '1115') {
                 for(let i = 1; i <= 13; i++) {
@@ -1055,45 +1042,36 @@
             }
         }
 
-        function calcQcPallet() {
-            let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
-            let skuVal = document.getElementById('qcSkuInput').value;
-            let standardKrt = getCartonPerPallet(skuVal);
-            let plt = (krt / standardKrt).toFixed(2);
-            document.getElementById('qcPalletBadge').innerText = `Konversi: ${plt} Pallet (Standar ${standardKrt} krt/plt)`;
-        }
-
         function saveQcAction(e) {
             e.preventDefault();
-            let plant = document.getElementById('qcPlant').value;
-            let line = document.getElementById('qcLine').value;
+            let palletNo = document.getElementById('qcPalletNumber').value;
+            let skuName = document.getElementById('qcSkuInput').value;
+            let plantLine = document.getElementById('qcPlantLine').value;
             let prodate = document.getElementById('qcProdate').value;
             let shift = document.getElementById('qcShift').value;
-            let skuVal = document.getElementById('qcSkuInput').value;
-            let palletNo = document.getElementById('qcPalletNumber').value;
-            let krt = parseFloat(document.getElementById('qcCartonInput').value) || 0;
+            let pallets = document.getElementById('qcPalletBadge').value;
             let reason = document.getElementById('qcReason').value || '-';
-            let stdKrt = getCartonPerPallet(skuVal);
-            let pallets = (krt / stdKrt).toFixed(2);
 
             let qcItem = { 
                 id: 'QC-' + Date.now(),
                 status: 'HOLD', 
-                plant: plant, 
-                line: line, 
+                plantLine: plantLine, 
                 prodate: prodate, 
                 shift: shift, 
-                sku: skuVal.split(' - ')[0], 
-                name: skuVal, 
+                sku: skuName, 
                 palletNo: palletNo, 
                 pallets: pallets, 
                 reason: reason 
             };
             qcHistoryData.unshift(qcItem);
             localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
-            alert('Barang berhasil dikarantina (HOLD)!');
+            alert('Barang berhasil dikarantina (HOLD) secara terintegrasi!');
             e.target.reset();
-            document.getElementById('qcProdate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('qcProdate').value = currentDateStr;
+            document.getElementById('qcSkuInput').value = '';
+            document.getElementById('qcPlantLine').value = '';
+            document.getElementById('qcShift').value = '';
+            document.getElementById('qcPalletBadge').value = '0 Pallet';
             renderActiveHoldTable();
         }
 
@@ -1127,11 +1105,11 @@
 
             activeHolds.forEach(item => {
                 tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-slate-100 text-slate-700">Plant ${item.plant} - ${item.line}</span></td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${item.plantLine || '-'}</span></td>
                     <td>${item.prodate}</td>
                     <td>${item.shift}</td>
-                    <td class="text-start fw-semibold">${item.name}</td>
-                    <td class="fw-bold text-rose-600">${item.palletNo} (${item.pallets} Plt)</td>
+                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td class="fw-bold text-rose-600">${item.palletNo} (${item.pallets})</td>
                     <td class="text-start">${item.reason}</td>
                     <td><span class="badge bg-rose-100 text-rose-700 fw-bold px-2 py-1">HOLD</span></td>
                     <td>
@@ -1444,7 +1422,6 @@
             renderBinMap();
         }
 
-        // KLIK BLOK RAK: MENAMPILKAN RINCIAN ISI PER LORONG
         let activeSelectedBlock = '';
         function openBlockDetailModal(blokName) {
             activeSelectedBlock = blokName;
@@ -1486,7 +1463,6 @@
             document.getElementById('relocAsal').value = item.lokasi;
             document.getElementById('relocPetugas').value = '';
             
-            // Set default gudang tujuan
             let destWh = item.gudang || 'Gudang Induk';
             document.getElementById('relocDestWh').value = destWh;
             updateRelocBlockOptions();
@@ -1539,12 +1515,10 @@
             let lokasiAsalLama = item.lokasi;
             let lokasiTujuanBaru = `${destBlock} - ${destRow}`;
 
-            // Update data item
             item.gudang = destWh;
             item.lokasi = lokasiTujuanBaru;
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
 
-            // Simpan ke log riwayat relokasi
             let logItem = {
                 waktu: new Date().toLocaleString('id-ID'),
                 petugas: petugas,
