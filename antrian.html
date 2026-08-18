@@ -31,6 +31,15 @@
         .sku-dropdown-item { cursor: pointer; padding: 8px 12px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
         .relative { position: relative; }
+
+        /* FORMAT CETAK PDF KHUSUS UKURAN A5 */
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 15px; font-family: 'Segoe UI', sans-serif; font-size: 11px; color: black; }
+            @page { size: A5 portrait; margin: 10mm; }
+        }
+        #printArea { display: none; }
     </style>
 </head>
 <body>
@@ -120,10 +129,9 @@
     </div>
 </div>
 
-<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN - DENGAN TOMBOL CLOSE X) -->
+<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN) -->
 <div id="modalPickingList" class="modal">
     <div class="modal-content">
-        <!-- Tombol Close (X) di Pojok Kanan Atas -->
         <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
 
         <div style="border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px; padding-right:20px;">
@@ -134,14 +142,12 @@
         <input type="hidden" id="plTruckIndex">
         
         <div style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
-            <!-- Dropdown Kustom SKU -->
             <div class="form-group relative" style="margin-bottom:6px;">
-                <label>Cari SKU / Nama Produk (Terhubung Master Bin-Loc)</label>
-                <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()">
+                <label>Cari SKU / Nama Produk (Tekan Enter untuk memilih)</label>
+                <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()" onkeydown="handleSkuKeydown(event)">
                 <div id="adminSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
             </div>
 
-            <!-- Pilihan Batch & Validasi Aging Otomatis -->
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <div style="flex:1;">
                     <label>Pilih Batch / Lokasi Rak Tersedia (Smart FIFO & Aging Check)</label>
@@ -181,11 +187,14 @@
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn" onclick="window.print()" style="font-size:11px;">🖨️ Cetak Picking List</button>
+            <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5</button>
             <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Selesai & Tutup</button>
         </div>
     </div>
 </div>
+
+<!-- TEMPAT AREA CETAK PDF FORMAT A5 KHUSUS RESMI MAYORA -->
+<div id="printArea"></div>
 
 <!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
 <div id="modalStatus" class="modal">
@@ -247,7 +256,7 @@
         return 70;
     }
 
-    // Dropdown Kustom SKU dengan penutupan yang lebih responsif
+    // Dropdown SKU dengan Navigasi Keyboard & Enter
     function filterAdminSku() {
         const inputVal = document.getElementById('itemSku').value.toLowerCase().trim();
         const dropdown = document.getElementById('adminSkuDropdown');
@@ -265,13 +274,12 @@
                 let div = document.createElement('div');
                 div.className = 'sku-dropdown-item';
                 div.innerText = `${item.sku} | ${item.name}`;
+                div.dataset.skuval = `${item.sku} | ${item.name}`;
+                div.dataset.skucode = item.sku;
                 
-                // Gunakan mousedown agar tereksekusi sebelum blur event
                 div.onmousedown = function(e) {
                     e.preventDefault();
-                    document.getElementById('itemSku').value = `${item.sku} | ${item.name}`;
-                    dropdown.classList.add('hidden'); 
-                    loadAvailableBatchesForSku(item.sku);
+                    selectSkuItem(div.dataset.skuval, div.dataset.skucode);
                 };
                 dropdown.appendChild(div);
                 if(matches >= 15) break;
@@ -279,6 +287,23 @@
         }
         if(matches > 0) dropdown.classList.remove('hidden');
         else dropdown.classList.add('hidden');
+    }
+
+    function selectSkuItem(fullText, skuCode) {
+        document.getElementById('itemSku').value = fullText;
+        document.getElementById('adminSkuDropdown').classList.add('hidden');
+        loadAvailableBatchesForSku(skuCode);
+    }
+
+    function handleSkuKeydown(e) {
+        const dropdown = document.getElementById('adminSkuDropdown');
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (dropdown && !dropdown.classList.contains('hidden') && dropdown.children.length > 0) {
+                let firstItem = dropdown.children[0];
+                selectSkuItem(firstItem.dataset.skuval, firstItem.dataset.skucode);
+            }
+        }
     }
 
     function loadAvailableBatchesForSku(skuCode) {
@@ -345,7 +370,6 @@
         document.getElementById('konversiAdminInfo').innerText = `Konversi: ${pallet} Pallet + ${receh} Karton Receh (Standar ${std} krt/plt)`;
     }
 
-    // Tutup dropdown jika klik di luar area
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.relative') && !e.target.classList.contains('sku-dropdown-item')) {
             const drop = document.getElementById('adminSkuDropdown');
@@ -463,6 +487,98 @@
         truckQueue[activePlTruckIdx].pickingList.splice(idx, 1);
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         renderPlTable();
+    }
+
+    // Fungsi Cetak Format A5 Resmi ala PT Mayora
+    function printPickingList() {
+        if(activePlTruckIdx === null) return;
+        let t = truckQueue[activePlTruckIdx];
+        let list = t.pickingList || [];
+        const nowStr = new Date().toLocaleDateString('id-ID');
+
+        let rowsHtml = '';
+        for(let i=0; i<10; i++) {
+            let item = list[i];
+            if(item) {
+                rowsHtml += `<tr>
+                    <td style="border:1px solid #000; padding:4px; text-align:center;">${i+1}</td>
+                    <td style="border:1px solid #000; padding:4px; text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                    <td style="border:1px solid #000; padding:4px; text-align:center;">${item.prodate || '-'}</td>
+                    <td style="border:1px solid #000; padding:4px; text-align:center;">${item.rak || '-'}</td>
+                    <td style="border:1px solid #000; padding:4px; text-align:center;">${item.pallet} Plt + ${item.receh} krt</td>
+                    <td style="border:1px solid #000; padding:4px; text-align:center;"><b>${item.jumlah} krt</b></td>
+                </tr>`;
+            } else {
+                rowsHtml += `<tr>
+                    <td style="border:1px solid #000; padding:6px; text-align:center;">${i+1}</td>
+                    <td style="border:1px solid #000; padding:4px;"></td>
+                    <td style="border:1px solid #000; padding:4px;"></td>
+                    <td style="border:1px solid #000; padding:4px;"></td>
+                    <td style="border:1px solid #000; padding:4px;"></td>
+                    <td style="border:1px solid #000; padding:4px;"></td>
+                </tr>`;
+            }
+        }
+
+        let printBox = document.getElementById('printArea');
+        printBox.innerHTML = `
+            <div style="border: 2px solid #000; padding: 10px;">
+                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
+                    <div>
+                        <strong style="font-size:13px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
+                        <span style="font-size:9px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
+                    </div>
+                    <div style="text-align:right; font-size:11px;">
+                        <strong>Tangg: ${nowStr}</strong>
+                    </div>
+                </div>
+
+                <div style="text-align:center; font-weight:bold; font-size:13px; margin-bottom:8px; text-decoration:underline;">
+                    PICKING LIST LOKAL
+                </div>
+
+                <table style="width:100%; font-size:11px; margin-bottom:10px; border-collapse:collapse;">
+                    <tr>
+                        <td style="width:50%;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
+                        <td style="width:50%;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TUJUAN  :</strong> ${t.tujuan}</td>
+                        <td><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
+                    </tr>
+                </table>
+
+                <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th style="border:1px solid #000; padding:4px; width:30px;">No.</th>
+                            <th style="border:1px solid #000; padding:4px;">SKU & Nama Produk</th>
+                            <th style="border:1px solid #000; padding:4px; width:65px;">Prodate</th>
+                            <th style="border:1px solid #000; padding:4px; width:75px;">Rak</th>
+                            <th style="border:1px solid #000; padding:4px; width:80px;">Pallet & Receh</th>
+                            <th style="border:1px solid #000; padding:4px; width:50px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+
+                <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:11px; text-align:center;">
+                    <div style="width: 40%;">
+                        <br><br><br>
+                        <span>_________________________</span><br>
+                        <strong>Admin GDFC</strong>
+                    </div>
+                    <div style="width: 40%;">
+                        <br><br><br>
+                        <span>_________________________</span><br>
+                        <strong>Checker</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+        window.print();
     }
 
     function renderAll() {
