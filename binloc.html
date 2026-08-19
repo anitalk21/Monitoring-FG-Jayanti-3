@@ -201,14 +201,13 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h5 class="fw-bold text-rose-700 text-xs uppercase mb-3">Input Data Karantina (Hold Fleksibel Berdasarkan Filter Tanggal)</h5>
                 <form onsubmit="saveQcAction(event)">
-                    <!-- Bagian Atas: Otomatis berdasarkan Filter Tanggal & Range Pallet -->
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-rose-600">1. Filter Tanggal Produksi (Prodate) *</label>
                             <input type="date" class="form-control form-control-sm border-rose-300 bg-white" id="qcFilterDate" required onchange="autoFillQcByDate()">
                         </div>
                         <div class="col-6">
-                            <label class="form-label small fw-bold text-rose-600">2. Pilih / Ketik No. Pallet Spesifik (Otomatis) *</label>
+                            <label class="form-label small fw-bold text-rose-600">2. Range No. Pallet (Otomatis dari Produksi) *</label>
                             <input type="text" class="form-control form-control-sm border-rose-300 bg-slate-50" id="qcPalletNumber" required readonly placeholder="Otomatis dari tanggal...">
                         </div>
                     </div>
@@ -232,10 +231,10 @@
                         </div>
                         <div class="col-4">
                             <label class="form-label small fw-bold text-rose-600">Jumlah Karton Di-hold *</label>
-                            <input type="number" class="form-control form-control-sm border-rose-300" id="qcQtyKarton" required min="1" placeholder="80" oninput="hitungKonversiQc()">
+                            <input type="number" class="form-control form-control-sm border-rose-300" id="qcQtyKarton" required min="1" placeholder="70" oninput="hitungKonversiQc()">
                             <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPltQc">Konversi: 0 Pallet (Standar master)</span>
                         </div>
-                        <!-- TAMBAHAN SESUAI OPSI 2: No. Pallet Manual/Random di antara Jumlah Karton & Alasan Hold -->
+                        <!-- TAMBAHAN SARAN 2: Kolom No. Pallet Manual/Random di antara Jumlah Karton & Alasan Hold -->
                         <div class="col-4">
                             <label class="form-label small fw-bold text-rose-600">No. Pallet (Hold Random) *</label>
                             <input type="text" class="form-control form-control-sm border-rose-300 bg-white" id="qcHoldPalletManual" required placeholder="Cth: PLT-05, Pallet A...">
@@ -250,10 +249,7 @@
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-                <div class="flex justify-between items-center mb-2">
-                    <h5 class="fw-bold text-slate-700 text-xs uppercase mb-0">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
-                    <button onclick="exportQcToExcel()" class="btn btn-sm btn-outline-success fw-bold text-xs"><i class="fa-solid fa-file-excel mr-1"></i> Tarik Data Excel (CSV)</button>
-                </div>
+                <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center text-xs">
                         <thead class="pastel-header-rose">
@@ -775,18 +771,17 @@
             let parts = selectedDateVal.split('-');
             let formattedSearchDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
 
-            // Cari data penerimaan yang cocok dengan tanggal prodate tersebut
             let matchedItem = binData.find(item => item.prodate === formattedSearchDate || item.tanggal === formattedSearchDate);
             if(matchedItem) {
                 document.getElementById('qcPalletNumber').value = matchedItem.pallet || 'PLT-01 s/d PLT-10';
                 document.getElementById('qcSkuInput').value = matchedItem.sku || '';
                 document.getElementById('qcPlantLine').value = `Plant ${matchedItem.plant || '1115'} (${matchedItem.line || 'GT01'})`;
                 document.getElementById('qcShift').value = matchedItem.shift || 'Shift 1';
-                document.getElementById('qcQtyKarton').value = matchedItem.karton || 80;
+                document.getElementById('qcQtyKarton').value = matchedItem.karton || 70;
                 hitungKonversiQc();
             } else {
                 document.getElementById('qcPalletNumber').value = 'PLT-01 s/d PLT-10 (Default)';
-                document.getElementById('qcQtyKarton').value = 80;
+                document.getElementById('qcQtyKarton').value = 70;
                 hitungKonversiQc();
             }
         }
@@ -810,7 +805,6 @@
         document.getElementById('pTanggal').value = currentDateStr;
         document.getElementById('opGlobalDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('qcFilterDate').value = new Date().toISOString().split('T')[0];
-        // Panggil otomatis saat pertama buka form QC
         setTimeout(autoFillQcByDate, 200);
 
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
@@ -1053,11 +1047,11 @@
             let formattedProdate = `${parts[2]}/${parts[1]}/${parts[0]}`;
 
             let palletRange = document.getElementById('qcPalletNumber').value;
+            let holdManual = document.getElementById('qcHoldPalletManual').value;
             let skuName = document.getElementById('qcSkuInput').value;
             let plantLine = document.getElementById('qcPlantLine').value;
             let shift = document.getElementById('qcShift').value;
             let krt = parseFloat(document.getElementById('qcQtyKarton').value) || 0;
-            let holdManual = document.getElementById('qcHoldPalletManual').value;
             let stdKrt = getCartonPerPallet(skuName);
             let pltValDec = (krt / stdKrt).toFixed(2);
             let palletsStr = `${pltValDec} Pallet (${krt} krt)`;
@@ -1140,38 +1134,6 @@
                     </td>
                 </tr>`;
             });
-        }
-
-        function exportQcToExcel() {
-            let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
-            if(activeHolds.length === 0) {
-                alert('Tidak ada data aktif karantina untuk diexport!');
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,Plant/Line,Prodate,Shift,SKU & Produk,No. Pallet (Range),No. Pallet (Hold Random),Jumlah Karton/Pallet,Alasan Hold,Status\r\n";
-            activeHolds.forEach(item => {
-                let row = [
-                    `"${item.plantLine || '-'}"`,
-                    `"${item.prodate}"`,
-                    `"${item.shift}"`,
-                    `"${item.sku.replace(/"/g, '""')}"`,
-                    `"${item.palletRange || '-'}"`,
-                    `"${item.holdManual || '-'}"`,
-                    `"${item.pallets}"`,
-                    `"${item.reason.replace(/"/g, '""')}"`,
-                    `"${item.status}"`
-                ];
-                csvContent += row.join(",") + "\r\n";
-            });
-
-            let encodedUri = encodeURI(csvContent);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Karantina_QC_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         function submitPenerimaan(e) {
