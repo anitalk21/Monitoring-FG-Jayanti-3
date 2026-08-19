@@ -147,7 +147,8 @@
                                 <th>Kategori</th>
                                 <th>Tanggal & Waktu</th>
                                 <th>Plant / Line</th>
-                                <th>SKU & Produk</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
                                 <th>Lokasi Rak (Bin Loc)</th>
                                 <th>No. Pallet</th>
                                 <th>Jumlah Karton & Konversi</th>
@@ -155,7 +156,7 @@
                             </tr>
                         </thead>
                         <tbody id="reportTableBody">
-                            <tr><td colspan="8" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>
+                            <tr><td colspan="9" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -258,7 +259,8 @@
                                 <th>Plant / Line</th>
                                 <th>Prodate</th>
                                 <th>Shift</th>
-                                <th>SKU & Produk</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
                                 <th>No. Pallet (Range)</th>
                                 <th>No. Pallet (Hold Random)</th>
                                 <th>Alasan Hold</th>
@@ -267,7 +269,7 @@
                             </tr>
                         </thead>
                         <tbody id="activeHoldTableBody">
-                            <tr><td colspan="9" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
+                            <tr><td colspan="10" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -295,14 +297,15 @@
                                 <th>Area Gudang</th>
                                 <th>Plant</th>
                                 <th>Stock Keeper</th>
-                                <th>SKU & Produk</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
                                 <th>Lokasi Rak</th>
                                 <th>Fisik (Karton & Pallet)</th>
                                 <th>Aksi Hapus</th>
                             </tr>
                         </thead>
                         <tbody id="opnameReportTableBody">
-                            <tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr>
+                            <tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -464,14 +467,15 @@
                         <thead class="pastel-header-purple">
                             <tr>
                                 <th>Lorong / Row</th>
-                                <th>SKU & Nama Produk</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
                                 <th>No. Pallet</th>
                                 <th>Jumlah Karton & Konversi</th>
                                 <th>Aksi Pindahkan</th>
                             </tr>
                         </thead>
                         <tbody id="detailBlokTableBody">
-                            <tr><td colspan="5" class="text-muted">Tidak ada barang di dalam blok ini.</td></tr>
+                            <tr><td colspan="6" class="text-muted">Tidak ada barang di dalam blok ini.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -553,7 +557,8 @@
                             <tr>
                                 <th>Waktu Perpindahan</th>
                                 <th>Nama Petugas</th>
-                                <th>SKU & Produk</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
                                 <th>No. Pallet</th>
                                 <th>Lokasi Asal</th>
                                 <th>Lokasi Tujuan Baru</th>
@@ -561,7 +566,7 @@
                             </tr>
                         </thead>
                         <tbody id="relokasiLogTableBody">
-                            <tr><td colspan="7" class="text-muted">Belum ada riwayat relokasi barang.</td></tr>
+                            <tr><td colspan="8" class="text-muted">Belum ada riwayat relokasi barang.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -781,7 +786,8 @@
             if(matchedItems.length > 0) {
                 palletSelect.innerHTML = '<option value="">-- Pilih No. Pallet --</option>';
                 matchedItems.forEach((item, index) => {
-                    palletSelect.innerHTML += `<option value="${index}">Pallet: ${item.pallet} | SKU: ${item.sku.split('|')[0]} (${item.konversi})</option>`;
+                    let dispSku = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+                    palletSelect.innerHTML += `<option value="${index}">Pallet: ${item.pallet} | SKU: ${dispSku} (${item.konversi})</option>`;
                 });
                 palletSelect.value = "0";
                 onSelectPalletDropdown();
@@ -801,7 +807,8 @@
             
             let item = window.currentMatchedQcItems[selectedIdx];
             if(item) {
-                document.getElementById('qcSkuInput').value = item.sku || '';
+                let fullSkuText = item.skuCode && item.namaProduk ? `${item.skuCode} | ${item.namaProduk}` : item.sku;
+                document.getElementById('qcSkuInput').value = fullSkuText || '';
                 document.getElementById('qcPlantLine').value = `Plant ${item.plant || '1115'} (${item.line || 'GT01'})`;
                 document.getElementById('qcShift').value = item.shift || 'Shift 1';
                 document.getElementById('qcQtyKarton').value = item.karton || 70;
@@ -1071,11 +1078,14 @@
 
             let palletRange = document.getElementById('qcPalletNumber').options[document.getElementById('qcPalletNumber').selectedIndex].text;
             let holdManual = document.getElementById('qcHoldPalletManual').value;
-            let skuName = document.getElementById('qcSkuInput').value;
+            let skuInputFull = document.getElementById('qcSkuInput').value;
+            let skuCode = skuInputFull.split('|')[0].trim();
+            let namaProduk = skuInputFull.includes('|') ? skuInputFull.split('|')[1].trim() : skuInputFull;
+
             let plantLine = document.getElementById('qcPlantLine').value;
             let shift = document.getElementById('qcShift').value;
             let krt = parseFloat(document.getElementById('qcQtyKarton').value) || 0;
-            let stdKrt = getCartonPerPallet(skuName);
+            let stdKrt = getCartonPerPallet(skuInputFull);
             let pltValDec = (krt / stdKrt).toFixed(2);
             let palletsStr = `${pltValDec} Pallet (${krt} krt)`;
             let reason = document.getElementById('qcReason').value || '-';
@@ -1086,7 +1096,9 @@
                 plantLine: plantLine, 
                 prodate: formattedProdate, 
                 shift: shift, 
-                sku: skuName, 
+                skuCode: skuCode,
+                namaProduk: namaProduk,
+                sku: skuInputFull, 
                 palletRange: palletRange, 
                 holdManual: holdManual,
                 pallets: palletsStr, 
@@ -1134,16 +1146,20 @@
             let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
 
             if(activeHolds.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Tidak ada barang dalam status karantina.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-muted">Tidak ada barang dalam status karantina.</td></tr>';
                 return;
             }
 
             activeHolds.forEach(item => {
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-slate-100 text-slate-700">${item.plantLine || '-'}</span></td>
                     <td>${item.prodate}</td>
                     <td>${item.shift}</td>
-                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start fw-semibold">${name}</td>
                     <td class="text-slate-500 text-[11px]">${item.palletRange || '-'}</td>
                     <td class="fw-bold text-rose-600">${item.holdManual || '-'}</td>
                     <td class="text-start">${item.reason}</td>
@@ -1167,13 +1183,16 @@
             let line = document.getElementById('pLine').value;
             let tanggal = document.getElementById('pTanggal').value;
             let shift = document.getElementById('pShift').value;
-            let sku = document.getElementById('pSku').value;
+            let skuInputFull = document.getElementById('pSku').value;
+            let skuCode = skuInputFull.split('|')[0].trim();
+            let namaProduk = skuInputFull.includes('|') ? skuInputFull.split('|')[1].trim() : skuInputFull;
+
             let qt = document.getElementById('pQt').value || '-';
             let prodate = document.getElementById('pProdate').value || '-';
             let expDate = document.getElementById('pExpDate').value || '-';
             let buyer = category === 'Ekspor' ? document.getElementById('pBuyerText').value : 'Lokal / Domestik';
             let palletRange = document.getElementById('pPalletRange').value;
-            let stdKrt = getCartonPerPallet(sku);
+            let stdKrt = getCartonPerPallet(skuInputFull);
 
             let rowTrs = document.getElementById('penerimaanRowsBody').children;
             if(rowTrs.length === 0) { alert('Harap tambahkan minimal 1 baris lokasi rak!'); return; }
@@ -1193,7 +1212,9 @@
                     tanggal: tanggal,
                     timestamp: new Date().getTime(),
                     shift: shift,
-                    sku: sku,
+                    skuCode: skuCode,
+                    namaProduk: namaProduk,
+                    sku: skuInputFull,
                     qt: qt,
                     prodate: prodate !== '-' ? prodate : tanggal,
                     expDate: expDate,
@@ -1260,17 +1281,21 @@
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let penerimaanItems = binData.filter(item => item.category !== 'Stock Opname');
             if(penerimaanItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
                 return;
             }
             binData.forEach((item, index) => {
                 if(item.category === 'Stock Opname') return;
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                 tbody.innerHTML += `<tr>
                     <td><span class="badge ${catBadge} px-2 py-1 fw-bold">${item.category}</span></td>
                     <td>${item.tanggal}</td>
                     <td>Plant ${item.plant || '-'} - ${item.line || '-'}</td>
-                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start fw-semibold">${name}</td>
                     <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
                     <td class="fw-bold">${item.pallet}</td>
                     <td class="fw-bold text-emerald-600">${item.konversi}</td>
@@ -1289,18 +1314,22 @@
             let opnameItems = binData.filter(item => item.category === 'Stock Opname');
 
             if(opnameItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada riwayat stock opname.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>';
                 return;
             }
 
             binData.forEach((item, index) => {
                 if(item.category !== 'Stock Opname') return;
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                 tbody.innerHTML += `<tr>
                     <td>${item.tanggal}</td>
                     <td><span class="badge bg-purple-100 text-purple-700">${item.gudang}</span></td>
                     <td>Plant ${item.shift}</td>
                     <td>${item.buyer}</td>
-                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start fw-semibold">${name}</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
                     <td class="fw-bold text-emerald-600">${item.karton} krt (${item.konversi})</td>
                     <td>
@@ -1333,9 +1362,12 @@
                     '<span class="badge bg-success px-2 py-1">Ready</span>' : 
                     `<span class="badge bg-warning text-dark px-2 py-1">Aging (${8 - diffDays} hari lagi)</span>`;
 
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                 tbody.innerHTML += `<tr>
-                    <td class="fw-bold">${item.sku.split(' - ')[0]}</td>
-                    <td class="text-start">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start">${name}</td>
                     <td>${item.tanggal}</td>
                     <td class="fw-semibold text-indigo-600">${diffDays} Hari</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
@@ -1354,9 +1386,12 @@
                 let idx = rows[i].id.split('_')[1];
                 let block = document.getElementById('opRackBlock_' + idx).value;
                 let row = document.getElementById('opRow_' + idx).value;
-                let sku = document.getElementById('opSku_' + idx).value;
+                let skuInputFull = document.getElementById('opSku_' + idx).value;
+                let skuCode = skuInputFull.split('|')[0].trim();
+                let namaProduk = skuInputFull.includes('|') ? skuInputFull.split('|')[1].trim() : skuInputFull;
+
                 let carton = parseFloat(document.getElementById('opCarton_' + idx).value) || 0;
-                let stdKrt = getCartonPerPallet(sku);
+                let stdKrt = getCartonPerPallet(skuInputFull);
                 let pallets = (carton / stdKrt).toFixed(2);
 
                 let newItem = {
@@ -1365,7 +1400,9 @@
                     tanggal: document.getElementById('opGlobalDate').value,
                     timestamp: new Date().getTime(),
                     shift: document.getElementById('opPlantCode').value,
-                    sku: sku, qt: '-', prodate: '-', expDate: '-', buyer: document.getElementById('opStockKeeper').value,
+                    skuCode: skuCode,
+                    namaProduk: namaProduk,
+                    sku: skuInputFull, qt: '-', prodate: '-', expDate: '-', buyer: document.getElementById('opStockKeeper').value,
                     lokasi: block + ' - ' + row,
                     pallet: 'OPNAME-AUDIT',
                     karton: carton,
@@ -1393,7 +1430,7 @@
             }
             keys.forEach(skuCode => {
                 let sapQty = parseFloat(sapStockData[skuCode]) || 0;
-                let foundItems = binData.filter(i => i.sku && i.sku.includes(skuCode));
+                let foundItems = binData.filter(i => (i.skuCode === skuCode) || (i.sku && i.sku.includes(skuCode)));
                 let totalFisikPlt = 0;
                 let sampleName = 'SKU ' + skuCode;
 
@@ -1402,7 +1439,8 @@
                         let num = parseFloat(item.konversi.split(' ')[0]) || 0;
                         totalFisikPlt += num;
                     }
-                    if(item.sku) sampleName = item.sku;
+                    if(item.namaProduk) sampleName = item.namaProduk;
+                    else if(item.sku && item.sku.includes('|')) sampleName = item.sku.split('|')[1].trim();
                 });
 
                 let variance = totalFisikPlt - sapQty;
@@ -1430,15 +1468,18 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>';
                 return;
             }
-            let filtered = binData.filter(i => i.sku.toLowerCase().includes(keyword) || i.lokasi.toLowerCase().includes(keyword) || i.pallet.toLowerCase().includes(keyword));
+            let filtered = binData.filter(i => (i.skuCode && i.skuCode.toLowerCase().includes(keyword)) || (i.namaProduk && i.namaProduk.toLowerCase().includes(keyword)) || i.sku.toLowerCase().includes(keyword) || i.lokasi.toLowerCase().includes(keyword) || i.pallet.toLowerCase().includes(keyword));
             if(filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai.</td></tr>';
                 return;
             }
             filtered.forEach(item => {
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                 tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-slate-100 text-slate-700">${item.sku}</span></td>
-                    <td class="text-start fw-semibold">${item.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start fw-semibold">${name}</td>
                     <td><span class="badge bg-indigo-50 text-indigo-600">${item.lokasi}</span></td>
                     <td class="fw-bold">${item.pallet}</td>
                     <td class="text-slate-600 text-[11px]">${item.category}</td>
@@ -1472,13 +1513,17 @@
             let itemsInBlock = binData.filter(item => item.gudang && item.gudang.includes(targetGudang) && item.lokasi && item.lokasi.includes(blokName));
 
             if(itemsInBlock.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-muted py-4">Tidak ada barang tersimpan di ${blokName}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-muted py-4">Tidak ada barang tersimpan di ${blokName}.</td></tr>`;
             } else {
                 itemsInBlock.forEach((item, idx) => {
                     let globalIndex = binData.findIndex(i => i === item);
+                    let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                    let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
                     tbody.innerHTML += `<tr>
                         <td class="fw-bold text-indigo-700">${item.lokasi}</td>
-                        <td class="text-start fw-semibold">${item.sku}</td>
+                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                        <td class="text-start fw-semibold">${name}</td>
                         <td class="fw-bold">${item.pallet}</td>
                         <td class="fw-bold text-emerald-600">${item.konversi}</td>
                         <td>
@@ -1496,7 +1541,9 @@
             if(!item) return;
 
             document.getElementById('relocItemIndex').value = index;
-            document.getElementById('relocSkuDisplay').value = item.sku;
+            let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+            let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+            document.getElementById('relocSkuDisplay').value = `${code} | ${name}`;
             document.getElementById('relocAsal').value = item.lokasi;
             document.getElementById('relocPetugas').value = '';
             
@@ -1556,10 +1603,15 @@
             item.lokasi = lokasiTujuanBaru;
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
 
+            let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+            let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+
             let logItem = {
                 waktu: new Date().toLocaleString('id-ID'),
                 petugas: petugas,
-                sku: item.sku,
+                skuCode: code,
+                namaProduk: name,
+                sku: `${code} | ${name}`,
                 pallet: item.pallet,
                 asal: lokasiAsalLama,
                 tujuan: `${destWh} (${lokasiTujuanBaru})`
@@ -1592,15 +1644,19 @@
             relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
 
             if(relokasiLogData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-muted py-4">Belum ada riwayat relokasi barang.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted py-4">Belum ada riwayat relokasi barang.</td></tr>';
                 return;
             }
 
             relokasiLogData.forEach((log, index) => {
+                let code = log.skuCode || (log.sku ? log.sku.split('|')[0].trim() : '-');
+                let name = log.namaProduk || (log.sku && log.sku.includes('|') ? log.sku.split('|')[1].trim() : log.sku);
+
                 tbody.innerHTML += `<tr>
                     <td>${log.waktu}</td>
                     <td class="fw-bold text-indigo-700">${log.petugas}</td>
-                    <td class="text-start fw-semibold">${log.sku}</td>
+                    <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
+                    <td class="text-start fw-semibold">${name}</td>
                     <td class="fw-bold">${log.pallet}</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${log.asal}</span></td>
                     <td><span class="badge bg-emerald-100 text-emerald-700">${log.tujuan}</span></td>
