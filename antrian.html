@@ -209,7 +209,7 @@
 <!-- TEMPAT AREA CETAK PDF FORMAT A5 KHUSUS RESMI MAYORA -->
 <div id="printArea"></div>
 
-<!-- MODAL PINDAH STATUS & VERIFIKASI GOODS ISSUE -->
+<!-- MODAL PINDAH STATUS & DOUBLE CHECK GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
         <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
@@ -232,13 +232,28 @@
             <select id="selectDock"></select>
         </div>
 
+        <!-- BAGIAN DOUBLE-CHECK PICKING LIST SEBELUM GOODS ISSUE -->
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
-            <strong style="color:#e11d48; display:block; margin-bottom:8px;">Verifikasi Barang Keluar (Goods Issue)</strong>
-            <p style="font-size:11px; color:#64748b; margin-top:0;">Saat status diubah ke <strong>Selesai Muat</strong>, sistem otomatis melakukan verifikasi Goods Issue dan mengurangi stok gudang.</p>
+            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pemotongan Stok)</strong>
+            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut sebelum sistem memotong stok gudang secara otomatis:</p>
+            <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:8px; max-height:150px; overflow-y:auto;">
+                <table style="width:100%; margin:0; background:white;">
+                    <thead>
+                        <tr style="background:#ffe4e6; color:#9f1239;">
+                            <th>SKU & Nama Produk</th>
+                            <th>Rak Asal</th>
+                            <th>Qty (Karton)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doubleCheckTableBody">
+                        <tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan</button>
+            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan & Potong Stok</button>
             <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
@@ -333,6 +348,7 @@
         let select = document.getElementById('itemBatchSelect');
         select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
         
+        binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         let matches = binStockData.filter(b => b.sku && b.sku.includes(skuCode));
         
         if(matches.length === 0) {
@@ -552,7 +568,7 @@
                         <span style="font-size:9px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
                     </div>
                     <div style="text-align:right; font-size:11px;">
-                        <strong>Tangg: ${nowStr}</strong>
+                        <strong>Tgl: ${nowStr}</strong>
                     </div>
                 </div>
 
@@ -640,7 +656,6 @@
         let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
 
-        // Hitung total untuk badge di setiap Tab secara real-time
         let countAntrian = truckQueue.filter(t => t.status === 'Antrian').length;
         let countMenunggu = truckQueue.filter(t => t.status === 'Menunggu Dokumen').length;
         let countProses = truckQueue.filter(t => t.status === 'Proses Muat').length;
@@ -655,7 +670,6 @@
         document.getElementById('countTreatmentTab').innerText = countTreatment;
         document.getElementById('countKeluarTab').innerText = countKeluar;
 
-        // TAMPILAN KHUSUS TAB LOADING DOCK (32 DOCK DENGAN FITUR KLIK POP-UP)
         if(currentMainTab === 'DockTab') {
             let dockHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">';
             for(let i=1; i<=32; i++) {
@@ -679,7 +693,6 @@
             return;
         }
 
-        // TAMPILAN KHUSUS TAB ANALISIS
         if(currentMainTab === 'AnalisisTab') {
             let totalTruk = truckQueue.length;
             container.innerHTML = `
@@ -709,7 +722,6 @@
             return;
         }
 
-        // TAMPILAN DAFTAR KARTU TRUK BERDASARKAN TAB & PENCARIAN
         let html = '';
         truckQueue.forEach((t, idx) => {
             let matchTab = false;
@@ -739,7 +751,6 @@
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
 
-            // Logika Timer & SLA Khusus RDC (0-2 Jam Hijau, 2-4 Jam Kuning, >4 Jam Merah)
             let rdcSlaHtml = '';
             if(t.jenis && t.jenis.includes('RDC')) {
                 let startRaw = t.rawTime || new Date().getTime();
@@ -749,16 +760,16 @@
                 let h = Math.floor(totalMins / 60);
                 let m = totalMins % 60;
 
-                let bgCol = '#d1fae5'; // Hijau (0-2 Jam)
+                let bgCol = '#d1fae5';
                 let textCol = '#065f46';
                 let labelSla = 'Aman (< 2 Jam)';
 
                 if(diffHrs > 4) {
-                    bgCol = '#ffe4e6'; // Merah (> 4 Jam)
+                    bgCol = '#ffe4e6';
                     textCol = '#9f1239';
                     labelSla = '⚠️ SLA MELEWATI BATAS!';
                 } else if(diffHrs > 2) {
-                    bgCol = '#fef3c7'; // Kuning (2-4 Jam)
+                    bgCol = '#fef3c7';
                     textCol = '#b45309';
                     labelSla = '⚠️ Perhatian (2-4 Jam)';
                 }
@@ -810,7 +821,27 @@
     function checkStatusChange() {
         let st = document.getElementById('selectStatus').value;
         document.getElementById('dockDiv').style.display = st === 'Proses Muat' ? 'block' : 'none';
-        document.getElementById('outboundSection').style.display = st === 'Selesai Muat' ? 'block' : 'none';
+        let outboundDiv = document.getElementById('outboundSection');
+        outboundDiv.style.display = st === 'Selesai Muat' ? 'block' : 'none';
+
+        // Render tabel double-check isi picking list pada pop-up jika memilih Selesai Muat
+        if(st === 'Selesai Muat' && activeStatusTruckIdx !== null) {
+            let t = truckQueue[activeStatusTruckIdx];
+            let tbody = document.getElementById('doubleCheckTableBody');
+            tbody.innerHTML = '';
+            let list = t.pickingList || [];
+            if(list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.</td></tr>';
+            } else {
+                list.forEach(item => {
+                    tbody.innerHTML += `<tr>
+                        <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                        <td>${item.rak || '-'}</td>
+                        <td><b>${item.jumlah} krt</b></td>
+                    </tr>`;
+                });
+            }
+        }
     }
 
     function saveStatus() {
@@ -825,19 +856,44 @@
             truckQueue[activeStatusTruckIdx].dock = '-';
         }
 
+        // LOGIKA UTAMA: POTONG STOK DI BIN-LOC SECARA OTOMATIS SAAT GOODS ISSUE (SELESAI MUAT)
         if(newSt === 'Selesai Muat' && prevSt !== 'Selesai Muat') {
             try {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-                if(truckQueue[activeStatusTruckIdx].pickingList && truckQueue[activeStatusTruckIdx].pickingList.length > 0) {
-                    truckQueue[activeStatusTruckIdx].pickingList.forEach(soldItem => {
-                        let target = binStock.find(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                let truckPl = truckQueue[activeStatusTruckIdx].pickingList || [];
+                
+                if(truckPl.length > 0) {
+                    truckPl.forEach(soldItem => {
+                        // Cari stok di bin-loc berdasarkan kesesuaian SKU atau Rak
+                        let target = binStock.find(b => 
+                            (b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase())) &&
+                            (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase()))
+                        );
+                        // Jika pencarian spesifik rak tidak ketemu, cari berdasarkan SKU saja
+                        if(!target) {
+                            target = binStock.find(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                        }
+
                         if(target) {
-                            target.karton = Math.max(0, parseInt(target.karton || 0) - soldItem.jumlah);
+                            let currentKarton = parseInt(target.karton || 0);
+                            let deduction = parseInt(soldItem.jumlah || 0);
+                            target.karton = Math.max(0, currentKarton - deduction);
+
+                            // Perbarui teks konversi pallet-nya secara otomatis
+                            let stdKrt = 70;
+                            if(masterStock[soldItem.sku] && masterStock[soldItem.sku].cartonPerPallet) {
+                                stdKrt = parseFloat(masterStock[soldItem.sku].cartonPerPallet) || 70;
+                            }
+                            let sisaPlt = (target.karton / stdKrt).toFixed(2);
+                            target.konversi = `${sisaPlt} Pallet (${target.karton} krt)`;
                         }
                     });
                     localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+                    alert('Verifikasi Goods Issue Berhasil! Stok barang di Peta Bin-Loc & Gudang telah otomatis terpotong.');
                 }
-            } catch(e) { console.error('Gagal sinkronisasi Goods Issue ke Bin-Loc', e); }
+            } catch(e) { 
+                console.error('Gagal sinkronisasi Goods Issue ke Bin-Loc', e); 
+            }
         }
 
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
