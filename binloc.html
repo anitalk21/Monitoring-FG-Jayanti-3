@@ -204,12 +204,11 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-rose-600">1. Filter Tanggal Produksi (Prodate) *</label>
-                            <input type="date" class="form-control form-control-sm border-rose-300 bg-white" id="qcFilterDate" required onchange="onQcDateChange()">
+                            <input type="date" class="form-control form-control-sm border-rose-300 bg-white" id="qcFilterDate" required>
                         </div>
                         <div class="col-6 relative">
-                            <label class="form-label small fw-bold text-rose-600">2. Pilih / Ketik No. Pallet Spesifik *</label>
-                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Pilih dari list atau ketik bebas..." autocomplete="off" oninput="filterPalletSuggestions()" onfocus="showPalletSuggestions()">
-                            <div id="qcPalletDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
+                            <label class="form-label small fw-bold text-rose-600">2. No. Pallet / Keterangan Pallet (Bebas / Random) *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Cth: PLT-01, Pallet A, dll..." autocomplete="off">
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
@@ -236,16 +235,23 @@
                             <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiPltQc">Konversi: 0 Pallet (Standar master)</span>
                         </div>
                         <div class="col-4">
-                            <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
-                            <input type="text" class="form-control form-control-sm" id="qcReason" required placeholder="Misal: Kontaminasi / kemasan rusak...">
+                            <label class="form-label small fw-bold text-rose-600">No. Pallet Spesifik / Keterangan Pallet di Hold *</label>
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcSpecificPallet" required placeholder="Cth: PLT-02, Rak B5, dll...">
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-slate-600">Alasan Hold / Karantina *</label>
+                        <input type="text" class="form-control form-control-sm" id="qcReason" required placeholder="Misal: Kontaminasi / kemasan rusak...">
                     </div>
                     <button type="submit" class="btn btn-sm fw-bold w-100 text-white py-2" style="background-color: #f43f5e;">Simpan & Karantina Palet Terpilih (HOLD)</button>
                 </form>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-                <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
+                <div class="flex justify-between items-center mb-2">
+                    <h5 class="fw-bold text-slate-700 text-xs uppercase mb-0">Daftar Aktif Barang Terkarantina (Hold) & Tindak Lanjut</h5>
+                    <button onclick="exportQcToExcel()" class="btn btn-sm btn-outline-success fw-bold text-xs"><i class="fa-solid fa-file-excel mr-1"></i> Tarik Data Excel (CSV)</button>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center text-xs">
                         <thead class="pastel-header-rose">
@@ -255,13 +261,14 @@
                                 <th>Shift</th>
                                 <th>SKU & Produk</th>
                                 <th>No. Pallet</th>
+                                <th>No. Pallet (Hold)</th>
                                 <th>Alasan Hold</th>
                                 <th>Status Aktif</th>
                                 <th>Tindak Lanjut & Aksi Hapus</th>
                             </tr>
                         </thead>
                         <tbody id="activeHoldTableBody">
-                            <tr><td colspan="8" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
+                            <tr><td colspan="9" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -760,75 +767,13 @@
             else dropdown.classList.add('hidden');
         }
 
-        // Fungsi baru untuk menghubungkan pilihan Pallet dengan data penerimaan berdasarkan tanggal prodate
-        function onQcDateChange() {
-            document.getElementById('qcPalletNumber').value = '';
-            filterPalletSuggestions();
-        }
-
-        function showPalletSuggestions() {
-            filterPalletSuggestions();
-        }
-
-        function filterPalletSuggestions() {
-            let filterDateVal = document.getElementById('qcFilterDate').value;
-            let dropdown = document.getElementById('qcPalletDropdown');
-            if(!dropdown) return;
-            dropdown.innerHTML = '';
-
-            if(!filterDateVal) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            let parts = filterDateVal.split('-');
-            let formattedProdate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-
-            // Cari data penerimaan yang cocok dengan tanggal prodate / tanggal masuk
-            let matchedItems = binData.filter(item => item.prodate === formattedProdate || item.tanggal === formattedProdate);
-            
-            if(matchedItems.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            let uniquePallets = [];
-            matchedItems.forEach(item => {
-                if(item.pallet && !uniquePallets.includes(item.pallet)) {
-                    uniquePallets.push({ pallet: item.pallet, sku: item.sku, plant: item.plant, line: item.line });
-                }
-            });
-
-            if(uniquePallets.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            uniquePallets.forEach(pObj => {
-                let div = document.createElement('div');
-                div.className = 'sku-dropdown-item';
-                div.innerHTML = `<b>${pObj.pallet}</b> — <span class="text-slate-500">${pObj.sku}</span>`;
-                div.onclick = function() {
-                    document.getElementById('qcPalletNumber').value = pObj.pallet;
-                    document.getElementById('qcSkuInput').value = pObj.sku;
-                    if(pObj.plant) {
-                        document.getElementById('qcPlantLine').value = `Plant ${pObj.plant} (${pObj.line || 'GT'})`;
-                    }
-                    dropdown.classList.add('hidden');
-                    hitungKonversiQc();
-                };
-                dropdown.appendChild(div);
-            });
-
-            dropdown.classList.remove('hidden');
-        }
-
         function resetQcPalletSelection() {
             document.getElementById('qcPalletNumber').value = '';
             document.getElementById('qcSkuInput').value = '';
             document.getElementById('qcPlantLine').value = '';
             document.getElementById('qcShift').value = 'Shift 1';
             document.getElementById('qcQtyKarton').value = '';
+            document.getElementById('qcSpecificPallet').value = '';
             document.getElementById('konversiPltQc').innerText = 'Konversi: 0 Pallet (Standar master)';
         }
 
@@ -1096,6 +1041,7 @@
             let plantLine = document.getElementById('qcPlantLine').value;
             let shift = document.getElementById('qcShift').value;
             let krt = parseFloat(document.getElementById('qcQtyKarton').value) || 0;
+            let specificPallet = document.getElementById('qcSpecificPallet').value;
             let stdKrt = getCartonPerPallet(skuName);
             let pltValDec = (krt / stdKrt).toFixed(2);
             let palletsStr = `${pltValDec} Pallet (${krt} krt)`;
@@ -1109,6 +1055,7 @@
                 shift: shift, 
                 sku: skuName, 
                 palletNo: palletNo, 
+                specificPallet: specificPallet,
                 pallets: palletsStr, 
                 reason: reason 
             };
@@ -1157,7 +1104,7 @@
             let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
 
             if(activeHolds.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Tidak ada barang dalam status karantina.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Tidak ada barang dalam status karantina.</td></tr>';
                 return;
             }
 
@@ -1167,7 +1114,8 @@
                     <td>${item.prodate}</td>
                     <td>${item.shift}</td>
                     <td class="text-start fw-semibold">${item.sku}</td>
-                    <td class="fw-bold text-rose-600">${item.palletNo}</td>
+                    <td class="fw-bold">${item.palletNo}</td>
+                    <td class="fw-bold text-rose-600">${item.specificPallet || '-'}</td>
                     <td class="text-start">${item.reason}</td>
                     <td><span class="badge bg-rose-100 text-rose-700 fw-bold px-2 py-1">HOLD</span><br><small class="text-indigo-600 fw-bold">${item.pallets}</small></td>
                     <td>
@@ -1179,6 +1127,38 @@
                     </td>
                 </tr>`;
             });
+        }
+
+        function exportQcToExcel() {
+            let activeHolds = qcHistoryData.filter(item => item.status === 'HOLD');
+            if(activeHolds.length === 0) {
+                alert('Tidak ada data aktif karantina untuk diexport!');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Plant/Line,Prodate,Shift,SKU & Produk,No. Pallet,No. Pallet (Hold),Jumlah Karton/Pallet,Alasan Hold,Status\r\n";
+            activeHolds.forEach(item => {
+                let row = [
+                    `"${item.plantLine || '-'}"`,
+                    `"${item.prodate}"`,
+                    `"${item.shift}"`,
+                    `"${item.sku.replace(/"/g, '""')}"`,
+                    `"${item.palletNo}"`,
+                    `"${item.specificPallet || '-'}"`,
+                    `"${item.pallets}"`,
+                    `"${item.reason.replace(/"/g, '""')}"`,
+                    `"${item.status}"`
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Laporan_Karantina_QC_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function submitPenerimaan(e) {
