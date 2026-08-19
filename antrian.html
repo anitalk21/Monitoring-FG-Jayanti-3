@@ -63,14 +63,14 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian</button>
-        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen</button>
-        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat</button>
-        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat</button>
+        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="countAntrianTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen (<span id="countMenungguTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="countProsesTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat (<span id="countSelesaiTab">0</span>)</button>
         <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
         <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>
         <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>
-        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar</button>
+        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="countKeluarTab">0</span>)</button>
     </div>
 
     <div id="tabContentArea">
@@ -125,6 +125,20 @@
                 <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- MODAL POPUP DETAIL LOADING DOCK -->
+<div id="modalDockDetail" class="modal">
+    <div class="modal-content" style="width: 450px;">
+        <button type="button" onclick="closeModal('modalDockDetail')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+        <h4 id="modalDockTitle" style="margin-top:0; color:#4f46e5;">Informasi Loading Dock</h4>
+        <div id="modalDockBody" style="font-size: 12px; color: #334155; line-height: 1.6;">
+            <!-- Konten Detail Truk akan dimuat secara dinamis -->
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button type="button" class="btn btn-primary" onclick="closeModal('modalDockDetail')">Tutup</button>
+        </div>
     </div>
 </div>
 
@@ -598,31 +612,63 @@
         renderAll();
     }
 
+    function showDockDetail(dockName) {
+        let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dockName);
+        document.getElementById('modalDockTitle').innerText = `Informasi — ${dockName}`;
+        let bodyEl = document.getElementById('modalDockBody');
+
+        if(assignedTruck) {
+            let totalQty = (assignedTruck.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+            bodyEl.innerHTML = `
+                <p><strong>ID Antrian:</strong> ${assignedTruck.id}</p>
+                <p><strong>No. Polisi:</strong> ${assignedTruck.noPol}</p>
+                <p><strong>Ekspedisi:</strong> ${assignedTruck.ekspedisi}</p>
+                <p><strong>Sopir:</strong> ${assignedTruck.sopir}</p>
+                <p><strong>No. Doc (SPE/SPM):</strong> ${assignedTruck.noDoc}</p>
+                <p><strong>Jenis / Tujuan:</strong> ${assignedTruck.jenis} &rarr; ${assignedTruck.tujuan}</p>
+                <p><strong>Total Muatan:</strong> ${totalQty} karton</p>
+                <p><strong>Waktu Masuk:</strong> ${assignedTruck.timeIn}</p>
+            `;
+        } else {
+            bodyEl.innerHTML = `<p style="color:#64748b; font-style:italic; text-align:center; padding:15px;">${dockName} saat ini sedang kosong / tidak ada truk yang sedang melakukan proses muat.</p>`;
+        }
+        openModal('modalDockDetail');
+    }
+
     function renderAll() {
         let container = document.getElementById('antrianCardContainer');
         let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
 
-        let countTreatment = 0;
-        truckQueue.forEach(t => {
-            if(t.status === 'Treatment') countTreatment++;
-        });
-        document.getElementById('countTreatmentTab').innerText = countTreatment;
+        // Hitung total untuk badge di setiap Tab secara real-time
+        let countAntrian = truckQueue.filter(t => t.status === 'Antrian').length;
+        let countMenunggu = truckQueue.filter(t => t.status === 'Menunggu Dokumen').length;
+        let countProses = truckQueue.filter(t => t.status === 'Proses Muat').length;
+        let countSelesai = truckQueue.filter(t => t.status === 'Selesai Muat').length;
+        let countTreatment = truckQueue.filter(t => t.status === 'Treatment').length;
+        let countKeluar = truckQueue.filter(t => t.status === 'Keluar').length;
 
-        // TAMPILAN KHUSUS TAB LOADING DOCK (32 DOCK)
+        document.getElementById('countAntrianTab').innerText = countAntrian;
+        document.getElementById('countMenungguTab').innerText = countMenunggu;
+        document.getElementById('countProsesTab').innerText = countProses;
+        document.getElementById('countSelesaiTab').innerText = countSelesai;
+        document.getElementById('countTreatmentTab').innerText = countTreatment;
+        document.getElementById('countKeluarTab').innerText = countKeluar;
+
+        // TAMPILAN KHUSUS TAB LOADING DOCK (32 DOCK DENGAN FITUR KLIK POP-UP)
         if(currentMainTab === 'DockTab') {
             let dockHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">';
             for(let i=1; i<=32; i++) {
                 let dName = `Dock ${i < 10 ? '0'+i : i}`;
                 let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
                 if(assignedTruck) {
-                    dockHtml += `<div class="card" style="border-left: 4px solid #6366f1; margin-bottom:0; padding:10px;">
+                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #6366f1; margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
                         <strong style="color:#4338ca;">${dName}</strong><br>
                         <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
                         <span style="font-size:10px; color:#64748b;">Sopir: ${assignedTruck.sopir}<br>Doc: ${assignedTruck.noDoc}</span>
                     </div>`;
                 } else {
-                    dockHtml += `<div class="card" style="border-left: 4px solid #cbd5e1; margin-bottom:0; padding:10px; background:#f8fafc;">
+                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #cbd5e1; margin-bottom:0; padding:10px; background:#f8fafc; cursor:pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                         <strong style="color:#64748b;">${dName}</strong><br>
                         <span style="color:#94a3b8; font-style:italic;">Kosong / Tersedia</span>
                     </div>`;
@@ -636,11 +682,6 @@
         // TAMPILAN KHUSUS TAB ANALISIS
         if(currentMainTab === 'AnalisisTab') {
             let totalTruk = truckQueue.length;
-            let totalAntri = truckQueue.filter(t => t.status === 'Antrian').length;
-            let totalProses = truckQueue.filter(t => t.status === 'Proses Muat').length;
-            let totalSelesai = truckQueue.filter(t => t.status === 'Selesai Muat').length;
-            let totalKeluar = truckQueue.filter(t => t.status === 'Keluar').length;
-            
             container.innerHTML = `
                 <div class="card">
                     <h4 style="margin-top:0; color:#4f46e5;">📊 Analisis Ringkas Operasional Gudang</h4>
@@ -652,15 +693,15 @@
                         </div>
                         <div style="background:#eff6ff; padding:12px; border-radius:8px; border:1px solid #bfdbfe; text-align:center;">
                             <span style="font-size:11px; color:#1d4ed8; font-weight:bold;">Dalam Antrian</span>
-                            <h2 style="margin:5px 0 0 0; color:#1e40af;">${totalAntri}</h2>
+                            <h2 style="margin:5px 0 0 0; color:#1e40af;">${countAntrian}</h2>
                         </div>
                         <div style="background:#fef3c7; padding:12px; border-radius:8px; border:1px solid #fde68a; text-align:center;">
                             <span style="font-size:11px; color:#b45309; font-weight:bold;">Proses Muat</span>
-                            <h2 style="margin:5px 0 0 0; color:#92400e;">${totalProses}</h2>
+                            <h2 style="margin:5px 0 0 0; color:#92400e;">${countProses}</h2>
                         </div>
                         <div style="background:#f0fdf4; padding:12px; border-radius:8px; border:1px solid #bbf7d0; text-align:center;">
                             <span style="font-size:11px; color:#15803d; font-weight:bold;">Selesai Muat / Keluar</span>
-                            <h2 style="margin:5px 0 0 0; color:#166534;">${totalSelesai + totalKeluar}</h2>
+                            <h2 style="margin:5px 0 0 0; color:#166534;">${countSelesai + countKeluar}</h2>
                         </div>
                     </div>
                 </div>
