@@ -602,17 +602,90 @@
         let container = document.getElementById('antrianCardContainer');
         let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
-        
-        let html = '';
-        let countAntrian = 0, countProses = 0, countTreatment = 0, countKeluar = 0;
 
-        truckQueue.forEach((t, idx) => {
-            if(t.status === 'Antrian') countAntrian++;
-            if(t.status === 'Proses Muat') countProses++;
+        let countTreatment = 0;
+        truckQueue.forEach(t => {
             if(t.status === 'Treatment') countTreatment++;
-            if(t.status === 'Keluar') countKeluar++;
+        });
+        document.getElementById('countTreatmentTab').innerText = countTreatment;
 
-            let matchTab = (currentMainTab === 'AntrianTab' || t.status === currentMainTab.replace('Tab',''));
+        // TAMPILAN KHUSUS TAB LOADING DOCK (32 DOCK)
+        if(currentMainTab === 'DockTab') {
+            let dockHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">';
+            for(let i=1; i<=32; i++) {
+                let dName = `Dock ${i < 10 ? '0'+i : i}`;
+                let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
+                if(assignedTruck) {
+                    dockHtml += `<div class="card" style="border-left: 4px solid #6366f1; margin-bottom:0; padding:10px;">
+                        <strong style="color:#4338ca;">${dName}</strong><br>
+                        <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
+                        <span style="font-size:10px; color:#64748b;">Sopir: ${assignedTruck.sopir}<br>Doc: ${assignedTruck.noDoc}</span>
+                    </div>`;
+                } else {
+                    dockHtml += `<div class="card" style="border-left: 4px solid #cbd5e1; margin-bottom:0; padding:10px; background:#f8fafc;">
+                        <strong style="color:#64748b;">${dName}</strong><br>
+                        <span style="color:#94a3b8; font-style:italic;">Kosong / Tersedia</span>
+                    </div>`;
+                }
+            }
+            dockHtml += '</div>';
+            container.innerHTML = dockHtml;
+            return;
+        }
+
+        // TAMPILAN KHUSUS TAB ANALISIS
+        if(currentMainTab === 'AnalisisTab') {
+            let totalTruk = truckQueue.length;
+            let totalAntri = truckQueue.filter(t => t.status === 'Antrian').length;
+            let totalProses = truckQueue.filter(t => t.status === 'Proses Muat').length;
+            let totalSelesai = truckQueue.filter(t => t.status === 'Selesai Muat').length;
+            let totalKeluar = truckQueue.filter(t => t.status === 'Keluar').length;
+            
+            container.innerHTML = `
+                <div class="card">
+                    <h4 style="margin-top:0; color:#4f46e5;">📊 Analisis Ringkas Operasional Gudang</h4>
+                    <p style="font-size:11px; color:#64748b;">Berikut adalah rekapitulasi data status truk yang tercatat dalam sistem:</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+                        <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; text-align:center;">
+                            <span style="font-size:11px; color:#64748b; font-weight:bold;">Total Terdaftar</span>
+                            <h2 style="margin:5px 0 0 0; color:#1e293b;">${totalTruk}</h2>
+                        </div>
+                        <div style="background:#eff6ff; padding:12px; border-radius:8px; border:1px solid #bfdbfe; text-align:center;">
+                            <span style="font-size:11px; color:#1d4ed8; font-weight:bold;">Dalam Antrian</span>
+                            <h2 style="margin:5px 0 0 0; color:#1e40af;">${totalAntri}</h2>
+                        </div>
+                        <div style="background:#fef3c7; padding:12px; border-radius:8px; border:1px solid #fde68a; text-align:center;">
+                            <span style="font-size:11px; color:#b45309; font-weight:bold;">Proses Muat</span>
+                            <h2 style="margin:5px 0 0 0; color:#92400e;">${totalProses}</h2>
+                        </div>
+                        <div style="background:#f0fdf4; padding:12px; border-radius:8px; border:1px solid #bbf7d0; text-align:center;">
+                            <span style="font-size:11px; color:#15803d; font-weight:bold;">Selesai Muat / Keluar</span>
+                            <h2 style="margin:5px 0 0 0; color:#166534;">${totalSelesai + totalKeluar}</h2>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // TAMPILAN DAFTAR KARTU TRUK BERDASARKAN TAB & PENCARIAN
+        let html = '';
+        truckQueue.forEach((t, idx) => {
+            let matchTab = false;
+            if(currentMainTab === 'AntrianTab') {
+                matchTab = (t.status === 'Antrian');
+            } else if(currentMainTab === 'MenungguDokumenTab') {
+                matchTab = (t.status === 'Menunggu Dokumen');
+            } else if(currentMainTab === 'ProsesMuatTab') {
+                matchTab = (t.status === 'Proses Muat');
+            } else if(currentMainTab === 'SelesaiMuatTab') {
+                matchTab = (t.status === 'Selesai Muat');
+            } else if(currentMainTab === 'TreatmentTab') {
+                matchTab = (t.status === 'Treatment');
+            } else if(currentMainTab === 'KeluarTab') {
+                matchTab = (t.status === 'Keluar');
+            }
+
             let textMatch = (t.id.toLowerCase().includes(keyword) || 
                              t.noPol.toLowerCase().includes(keyword) || 
                              t.sopir.toLowerCase().includes(keyword) || 
@@ -620,7 +693,7 @@
                              t.tujuan.toLowerCase().includes(keyword) ||
                              (t.noDoc && t.noDoc.toLowerCase().includes(keyword)));
 
-            if(currentMainTab !== 'DockTab' && currentMainTab !== 'AnalisisTab' && (!matchTab || !textMatch)) return;
+            if(!matchTab || !textMatch) return;
 
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
@@ -640,7 +713,7 @@
                 let labelSla = 'Aman (< 2 Jam)';
 
                 if(diffHrs > 4) {
-                    bgCol = '#ffe4e6'; // Merah (> 4 Jam / Mendekati & Melewati batas)
+                    bgCol = '#ffe4e6'; // Merah (> 4 Jam)
                     textCol = '#9f1239';
                     labelSla = '⚠️ SLA MELEWATI BATAS!';
                 } else if(diffHrs > 2) {
@@ -678,12 +751,11 @@
             </div>`;
         });
 
-        if(truckQueue.length === 0) {
-            html = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Belum ada data truk yang terdaftar.</div>';
+        if(html === '') {
+            html = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Tidak ada data truk untuk kategori atau pencarian ini.</div>';
         }
 
         container.innerHTML = html;
-        document.getElementById('countTreatmentTab').innerText = countTreatment;
     }
 
     let activeStatusTruckIdx = null;
