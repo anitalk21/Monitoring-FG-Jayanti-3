@@ -204,11 +204,12 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-rose-600">1. Filter Tanggal Produksi (Prodate) *</label>
-                            <input type="date" class="form-control form-control-sm border-rose-300 bg-white" id="qcFilterDate" required onchange="resetQcPalletSelection()">
+                            <input type="date" class="form-control form-control-sm border-rose-300 bg-white" id="qcFilterDate" required onchange="onQcDateChange()">
                         </div>
                         <div class="col-6 relative">
                             <label class="form-label small fw-bold text-rose-600">2. Pilih / Ketik No. Pallet Spesifik *</label>
-                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Cth: PLT-02 atau ketik bebas..." autocomplete="off">
+                            <input type="text" class="form-control form-control-sm border-rose-300" id="qcPalletNumber" required placeholder="Pilih dari list atau ketik bebas..." autocomplete="off" oninput="filterPalletSuggestions()" onfocus="showPalletSuggestions()">
+                            <div id="qcPalletDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
@@ -757,6 +758,69 @@
 
             if(matches > 0) dropdown.classList.remove('hidden');
             else dropdown.classList.add('hidden');
+        }
+
+        // Fungsi baru untuk menghubungkan pilihan Pallet dengan data penerimaan berdasarkan tanggal prodate
+        function onQcDateChange() {
+            document.getElementById('qcPalletNumber').value = '';
+            filterPalletSuggestions();
+        }
+
+        function showPalletSuggestions() {
+            filterPalletSuggestions();
+        }
+
+        function filterPalletSuggestions() {
+            let filterDateVal = document.getElementById('qcFilterDate').value;
+            let dropdown = document.getElementById('qcPalletDropdown');
+            if(!dropdown) return;
+            dropdown.innerHTML = '';
+
+            if(!filterDateVal) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            let parts = filterDateVal.split('-');
+            let formattedProdate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+            // Cari data penerimaan yang cocok dengan tanggal prodate / tanggal masuk
+            let matchedItems = binData.filter(item => item.prodate === formattedProdate || item.tanggal === formattedProdate);
+            
+            if(matchedItems.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            let uniquePallets = [];
+            matchedItems.forEach(item => {
+                if(item.pallet && !uniquePallets.includes(item.pallet)) {
+                    uniquePallets.push({ pallet: item.pallet, sku: item.sku, plant: item.plant, line: item.line });
+                }
+            });
+
+            if(uniquePallets.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            uniquePallets.forEach(pObj => {
+                let div = document.createElement('div');
+                div.className = 'sku-dropdown-item';
+                div.innerHTML = `<b>${pObj.pallet}</b> — <span class="text-slate-500">${pObj.sku}</span>`;
+                div.onclick = function() {
+                    document.getElementById('qcPalletNumber').value = pObj.pallet;
+                    document.getElementById('qcSkuInput').value = pObj.sku;
+                    if(pObj.plant) {
+                        document.getElementById('qcPlantLine').value = `Plant ${pObj.plant} (${pObj.line || 'GT'})`;
+                    }
+                    dropdown.classList.add('hidden');
+                    hitungKonversiQc();
+                };
+                dropdown.appendChild(div);
+            });
+
+            dropdown.classList.remove('hidden');
         }
 
         function resetQcPalletSelection() {
