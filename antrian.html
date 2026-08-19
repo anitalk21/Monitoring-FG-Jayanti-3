@@ -9,7 +9,6 @@
         .nav-actions { display: flex; gap: 6px; align-items: center; }
         .btn-nav { padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-nav:hover { background: #f1f5f9; }
-        .marquee { background: white; border-bottom: 1px solid #e2e8f0; padding: 8px 20px; font-weight: 600; color: #64748b; overflow: hidden; white-space: nowrap; }
         .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .btn { padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; border: 1px solid #cbd5e1; background: white; transition: 0.2s; }
@@ -232,6 +231,16 @@
 </div>
 
 <script>
+    function updateClock() {
+        const now = new Date();
+        const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+        const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+        const clockEl = document.getElementById('realTimeClock');
+        if(clockEl) clockEl.innerText = dateStr + ' ' + timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { 
         document.getElementById(id).style.display = 'none';
@@ -597,6 +606,35 @@
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
 
+            // Logika Timer & SLA Khusus RDC (0-2 Jam Hijau, 2-4 Jam Kuning, >4 Jam Merah)
+            let rdcSlaHtml = '';
+            if(t.jenis && t.jenis.includes('RDC')) {
+                let startRaw = t.rawTime || new Date().getTime();
+                let diffMs = new Date().getTime() - startRaw;
+                let diffHrs = diffMs / (1000 * 60 * 60);
+                let totalMins = Math.floor(diffMs / (1000 * 60));
+                let h = Math.floor(totalMins / 60);
+                let m = totalMins % 60;
+
+                let bgCol = '#d1fae5'; // Hijau (0-2 Jam)
+                let textCol = '#065f46';
+                let labelSla = 'Aman (< 2 Jam)';
+
+                if(diffHrs > 4) {
+                    bgCol = '#ffe4e6'; // Merah (> 4 Jam)
+                    textCol = '#9f1239';
+                    labelSla = '⚠️ SLA LEWAT 4 JAM!';
+                } else if(diffHrs > 2) {
+                    bgCol = '#fef3c7'; // Kuning (2-4 Jam)
+                    textCol = '#b45309';
+                    labelSla = '⚠️ Perhatian (> 2 Jam)';
+                }
+
+                rdcSlaHtml = `<span style="background:${bgCol}; color:${textCol}; padding:2px 8px; border-radius:4px; font-weight:bold; margin-left:6px; font-size:10px;">
+                    ⏱️ RDC Timer: ${h}j ${m}m (${labelSla})
+                </span>`;
+            }
+
             html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <div style="font-weight:bold; font-size:13px; color:#1e293b;">
@@ -606,8 +644,9 @@
                     <div style="margin-top:4px; color:#64748b;">
                         Sopir: <strong>${t.sopir}</strong> | Jenis: ${t.jenis} &rarr; <strong>Tujuan: ${t.tujuan}</strong> | Total Qty: <b>${totalQty} krt</b>
                     </div>
-                    <div style="margin-top:4px; font-size:10px;">
+                    <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
+                        ${rdcSlaHtml}
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
@@ -625,10 +664,6 @@
         }
 
         container.innerHTML = html;
-        document.getElementById('tAntrian').innerText = countAntrian;
-        document.getElementById('tProses').innerText = countProses;
-        document.getElementById('tTreatment').innerText = countTreatment;
-        document.getElementById('tKeluar').innerText = countKeluar;
         document.getElementById('countTreatmentTab').innerText = countTreatment;
     }
 
