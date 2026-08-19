@@ -590,8 +590,17 @@
         window.print();
     }
 
+    let currentMainTab = 'AntrianTab';
+    function switchMainTab(tabName, btn) {
+        currentMainTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        renderAll();
+    }
+
     function renderAll() {
         let container = document.getElementById('antrianCardContainer');
+        let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
         if(!container) return;
         
         let html = '';
@@ -602,6 +611,16 @@
             if(t.status === 'Proses Muat') countProses++;
             if(t.status === 'Treatment') countTreatment++;
             if(t.status === 'Keluar') countKeluar++;
+
+            let matchTab = (currentMainTab === 'AntrianTab' || t.status === currentMainTab.replace('Tab',''));
+            let textMatch = (t.id.toLowerCase().includes(keyword) || 
+                             t.noPol.toLowerCase().includes(keyword) || 
+                             t.sopir.toLowerCase().includes(keyword) || 
+                             t.ekspedisi.toLowerCase().includes(keyword) ||
+                             t.tujuan.toLowerCase().includes(keyword) ||
+                             (t.noDoc && t.noDoc.toLowerCase().includes(keyword)));
+
+            if(currentMainTab !== 'DockTab' && currentMainTab !== 'AnalisisTab' && (!matchTab || !textMatch)) return;
 
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
@@ -621,13 +640,13 @@
                 let labelSla = 'Aman (< 2 Jam)';
 
                 if(diffHrs > 4) {
-                    bgCol = '#ffe4e6'; // Merah (> 4 Jam)
+                    bgCol = '#ffe4e6'; // Merah (> 4 Jam / Mendekati & Melewati batas)
                     textCol = '#9f1239';
-                    labelSla = '⚠️ SLA LEWAT 4 JAM!';
+                    labelSla = '⚠️ SLA MELEWATI BATAS!';
                 } else if(diffHrs > 2) {
                     bgCol = '#fef3c7'; // Kuning (2-4 Jam)
                     textCol = '#b45309';
-                    labelSla = '⚠️ Perhatian (> 2 Jam)';
+                    labelSla = '⚠️ Perhatian (2-4 Jam)';
                 }
 
                 rdcSlaHtml = `<span style="background:${bgCol}; color:${textCol}; padding:2px 8px; border-radius:4px; font-weight:bold; margin-left:6px; font-size:10px;">
