@@ -234,8 +234,8 @@
 
         <!-- BAGIAN DOUBLE-CHECK PICKING LIST SEBELUM GOODS ISSUE -->
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
-            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pemotongan Stok)</strong>
-            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut sebelum sistem memotong stok gudang secara otomatis:</p>
+            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)</strong>
+            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:</p>
             <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:8px; max-height:150px; overflow-y:auto;">
                 <table style="width:100%; margin:0; background:white;">
                     <thead>
@@ -369,7 +369,7 @@
             let isNotReady = isAgingGudang && diffDays < 8;
 
             let statusLabel = isNotReady ? ` ⚠️ [BLOCKED: Kurang ${8 - diffDays} hari aging]` : ' ✓ [READY KIRIM]';
-            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Stok: ${m.karton} krt${statusLabel}`;
+            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
             
             let opt = document.createElement('option');
             opt.value = idx;
@@ -482,6 +482,7 @@
             nama: skuName,
             prodate: selectedBatchData.prodate,
             rak: selectedBatchData.lokasi,
+            palletSource: selectedBatchData.pallet, // Menyimpan nomor pallet spesifik asal untuk proses pecah pallet
             pallet: pallet,
             receh: receh,
             jumlah: totalKrt
@@ -513,7 +514,7 @@
             tbody.innerHTML += `<tr>
                 <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
                 <td>${item.prodate}</td>
-                <td>${item.rak}</td>
+                <td>${item.rak} <br><small style="color:#6366f1;">(${item.palletSource})</small></td>
                 <td><b>${item.pallet} Plt</b> + ${item.receh} krt</td>
                 <td><b>${item.jumlah} krt</b></td>
                 <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
@@ -836,7 +837,7 @@
                 list.forEach(item => {
                     tbody.innerHTML += `<tr>
                         <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
-                        <td>${item.rak || '-'}</td>
+                        <td>${item.rak || '-'} <br><small style="color:#6366f1;">(${item.palletSource || '-'})</small></td>
                         <td><b>${item.jumlah} krt</b></td>
                     </tr>`;
                 });
@@ -856,7 +857,7 @@
             truckQueue[activeStatusTruckIdx].dock = '-';
         }
 
-        // LOGIKA UTAMA: POTONG STOK DI BIN-LOC SECARA OTOMATIS SAAT GOODS ISSUE (SELESAI MUAT)
+        // LOGIKA UTAMA: POTONG STOK & PECAH PALLET (-R1, -R2) OTOMATIS SAAT GOODS ISSUE
         if(newSt === 'Selesai Muat' && prevSt !== 'Selesai Muat') {
             try {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -864,35 +865,70 @@
                 
                 if(truckPl.length > 0) {
                     truckPl.forEach(soldItem => {
-                        // Cari stok di bin-loc berdasarkan kesesuaian SKU atau Rak
-                        let target = binStock.find(b => 
+                        // Cari stok di bin-loc berdasarkan kesesuaian SKU, Rak, dan Nomor Pallet Asal (palletSource)
+                        let targetIdx = binStock.findIndex(b => 
                             (b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase())) &&
-                            (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase()))
+                            (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase())) &&
+                            (soldItem.palletSource && b.pallet && b.pallet.toLowerCase().includes(soldItem.palletSource.toLowerCase()))
                         );
-                        // Jika pencarian spesifik rak tidak ketemu, cari berdasarkan SKU saja
-                        if(!target) {
-                            target = binStock.find(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                        
+                        // Jika pencarian spesifik palletSource tidak ketemu, fallback cari berdasarkan SKU & Rak
+                        if(targetIdx === -1) {
+                            targetIdx = binStock.findIndex(b => 
+                                (b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase())) &&
+                                (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase()))
+                            );
                         }
 
-                        if(target) {
+                        // Jika tetap tidak ketemu, cari berdasarkan SKU saja
+                        if(targetIdx === -1) {
+                            targetIdx = binStock.findIndex(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
+                        }
+
+                        if(targetIdx !== -1) {
+                            let target = binStock[targetIdx];
                             let currentKarton = parseInt(target.karton || 0);
                             let deduction = parseInt(soldItem.jumlah || 0);
-                            target.karton = Math.max(0, currentKarton - deduction);
 
-                            // Perbarui teks konversi pallet-nya secara otomatis
+                            // Tentukan standar karton per pallet
                             let stdKrt = 70;
                             if(masterStock[soldItem.sku] && masterStock[soldItem.sku].cartonPerPallet) {
                                 stdKrt = parseFloat(masterStock[soldItem.sku].cartonPerPallet) || 70;
                             }
-                            let sisaPlt = (target.karton / stdKrt).toFixed(2);
-                            target.konversi = `${sisaPlt} Pallet (${target.karton} krt)`;
+
+                            if(deduction >= currentKarton) {
+                                // SKENARIO 1: Pallet HABIS (Ambil semua / lebih dari sisa di rak)
+                                binStock.splice(targetIdx, 1);
+                            } else {
+                                // SKENARIO 2: Terjadi Pecah Pallet (Sisa Receh -> Format -R1, -R2, dst)
+                                let sisaKarton = currentKarton - deduction;
+                                let sisaPltDec = (sisaKarton / stdKrt).toFixed(2);
+                                
+                                // Update jumlah karton dan konversi pallet-nya
+                                target.karton = sisaKarton;
+                                target.konversi = `${sisaPltDec} Pallet (${sisaKarton} krt)`;
+
+                                // Ekstrak base pallet asli (membuang label -R sebelumnya jika ada)
+                                let basePallet = target.pallet.split('-R')[0]; 
+                                
+                                // Hitung tingkat turunan receh berikutnya (-R1 jadi -R2, dst)
+                                let currentSuffixNum = 0;
+                                if(target.pallet.includes('-R')) {
+                                    let parts = target.pallet.split('-R');
+                                    currentSuffixNum = parseInt(parts[1]) || 0;
+                                }
+                                let nextSuffixNum = currentSuffixNum + 1;
+                                
+                                target.pallet = `${basePallet}-R${nextSuffixNum}`;
+                            }
                         }
                     });
+                    
                     localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
-                    alert('Verifikasi Goods Issue Berhasil! Stok barang di Peta Bin-Loc & Gudang telah otomatis terpotong.');
+                    alert('Goods Issue Berhasil! Stok di Bin-Loc terpotong dan sisa palet receh otomatis terupdate dengan format -R.');
                 }
             } catch(e) { 
-                console.error('Gagal sinkronisasi Goods Issue ke Bin-Loc', e); 
+                console.error('Gagal sinkronisasi Goods Issue & Pecah Pallet ke Bin-Loc', e); 
             }
         }
 
