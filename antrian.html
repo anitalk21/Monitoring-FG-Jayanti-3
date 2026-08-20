@@ -350,7 +350,7 @@
         select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
         
         binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-        let matches = binStockData.filter(b => b.sku && b.sku.includes(skuCode));
+        let matches = binStockData.filter(b => b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()));
         
         if(matches.length === 0) {
             select.innerHTML = '<option value="">(Stok kosong di Bin-Loc)</option>';
@@ -359,10 +359,11 @@
         }
 
         const nowTime = new Date().getTime();
-        matches.sort((a, b) => new Date(a.prodate || 0) - new Date(b.prodate || 0));
+        matches.sort((a, b) => new Date(a.prodate || a.tanggal || a.tanggalProduksi || 0) - new Date(b.prodate || b.tanggal || b.tanggalProduksi || 0));
 
         matches.forEach((m, idx) => {
-            let itemTime = m.timestamp || new Date(m.prodate || nowTime).getTime();
+            let pDate = m.prodate || m.tanggal || m.tanggalProduksi || m.tgl || '-';
+            let itemTime = m.timestamp || new Date(pDate).getTime() || nowTime;
             let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
             if(diffDays < 0) diffDays = 0;
 
@@ -370,7 +371,7 @@
             let isNotReady = isAgingGudang && diffDays < 8;
 
             let statusLabel = isNotReady ? ` ⚠️ [BLOCKED: Kurang ${8 - diffDays} hari aging]` : ' ✓ [READY KIRIM]';
-            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate || m.tanggal || '-'} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
+            let optionText = `Rak: ${m.lokasi} | Prodate: ${pDate} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
             
             let opt = document.createElement('option');
             opt.value = idx;
@@ -416,12 +417,11 @@
 
         document.getElementById('konversiAdminInfo').innerText = `Konversi: ${pallet} Pallet + ${receh} Karton Receh (Standar ${std} krt/plt)`;
 
-        // Validasi sign warning jika melebihi stok rak terpilih
         if (selectedBatchData) {
             let maxKarton = parseInt(selectedBatchData.karton) || 0;
             let warnEl = document.getElementById('stokWarningInfo');
             if (krt > maxKarton) {
-                warnEl.innerHTML = `<span style="color:#dc2626; font-weight:bold;">⚠️ PERINGATAN: Qty (${krt} krt) melebihi stok rak (${maxKarton} krt)! Silakan gunakan sistem Multi-Pick (tambah rak lain).</span>`;
+                warnEl.innerHTML = `<span style="color:#dc2626; font-weight:bold;">⚠️ PERINGATAN: Qty (${krt} krt) melebihi stok rak (${maxKarton} krt)! Silakan gunakan Multi-Pick.</span>`;
             } else {
                 warnEl.innerHTML = `<span style="color:#059669; font-weight:bold;">✓ Stok tersedia di rak ini: ${maxKarton} karton</span>`;
             }
@@ -491,7 +491,7 @@
 
         let maxKarton = parseInt(selectedBatchData.karton) || 0;
         if(totalKrt > maxKarton) {
-            alert(`Gagal! Jumlah pengiriman (${totalKrt} krt) melebihi stok yang tersedia di rak ${selectedBatchData.lokasi} (${maxKarton} krt). Silakan ambil sisanya dengan menambah baris rak (Multi-Pick).`);
+            alert(`Gagal! Jumlah pengiriman (${totalKrt} krt) melebihi stok yang tersedia di rak ${selectedBatchData.lokasi} (${maxKarton} krt).`);
             return;
         }
 
@@ -502,8 +502,7 @@
         let pallet = Math.floor(totalKrt / std);
         let receh = totalKrt % std;
 
-        // Mengambil tanggal prodate dari batch yang dipilih agar tidak strip (-)
-        let exactProdate = selectedBatchData.prodate || selectedBatchData.tanggal || '-';
+        let exactProdate = selectedBatchData.prodate || selectedBatchData.tanggal || selectedBatchData.tanggalProduksi || selectedBatchData.tgl || '-';
 
         let item = {
             sku: skuCode,
@@ -519,6 +518,23 @@
         if(!truckQueue[activePlTruckIdx].pickingList) truckQueue[activePlTruckIdx].pickingList = [];
         truckQueue[activePlTruckIdx].pickingList.push(item);
 
+        // LOGIKA BARU: Jika total karton yang diambil PAS dengan sisa di rak, hapus/kosongkan dari bin-loc secara live!
+        let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+        let bIndex = binStock.findIndex(b => 
+            b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()) &&
+            b.lokasi && b.lokasi.toLowerCase().includes(selectedBatchData.lokasi.toLowerCase()) &&
+            b.pallet && b.pallet.toLowerCase().includes(selectedBatchData.pallet.toLowerCase())
+        );
+
+        if(bIndex !== -1) {
+            if(totalKrt >= parseInt(binStock[bIndex].karton)) {
+                binStock.splice(bIndex, 1); // Habis bersih terambil
+            } else {
+                binStock[bIndex].karton = parseInt(binStock[bIndex].karton) - totalKrt; // Berkurang sisa recehnya di live view
+            }
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+        }
+
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         
         document.getElementById('itemSku').value = '';
@@ -530,29 +546,34 @@
         renderPlTable();
     }
 
-    function renderPlTable() {
-        let tbody = document.getElementById('plTableBody');
-        tbody.innerHTML = '';
-        if(activePlTruckIdx === null) return;
-        let list = truckQueue[activePlTruckIdx].pickingList || [];
-        if(list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>';
-            return;
-        }
-        list.forEach((item, idx) => {
-            tbody.innerHTML += `<tr>
-                <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
-                <td>${item.prodate}</td>
-                <td>${item.rak} <br><small style="color:#6366f1;">(${item.palletSource})</small></td>
-                <td><b>${item.pallet} Plt</b> + ${item.receh} krt</td>
-                <td><b>${item.jumlah} krt</b></td>
-                <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
-            </tr>`;
-        });
-    }
-
     function removePlItem(idx) {
         if(activePlTruckIdx === null) return;
+        let removedItem = truckQueue[activePlTruckIdx].pickingList[idx];
+        
+        // Kembalikan stok ke Bin-Loc jika item dibatalkan/dihapus dari picking list
+        if(removedItem) {
+            let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let target = binStock.find(b => 
+                b.sku && b.sku.toLowerCase().includes(removedItem.sku.toLowerCase()) &&
+                b.lokasi && b.lokasi.toLowerCase().includes(removedItem.rak.toLowerCase()) &&
+                b.pallet && b.pallet.toLowerCase().includes(removedItem.palletSource.toLowerCase())
+            );
+            if(target) {
+                target.karton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+            } else {
+                // Jika sudah terhapus bersih sebelumnya, kembalikan baris datanya
+                binStock.push({
+                    sku: removedItem.sku,
+                    lokasi: removedItem.rak,
+                    pallet: removedItem.palletSource,
+                    prodate: removedItem.prodate,
+                    karton: removedItem.jumlah,
+                    konversi: `${removedItem.pallet} Pallet (${removedItem.jumlah} krt)`
+                });
+            }
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+        }
+
         truckQueue[activePlTruckIdx].pickingList.splice(idx, 1);
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         renderPlTable();
@@ -854,7 +875,6 @@
         let outboundDiv = document.getElementById('outboundSection');
         outboundDiv.style.display = st === 'Selesai Muat' ? 'block' : 'none';
 
-        // Render tabel double-check isi picking list pada pop-up jika memilih Selesai Muat
         if(st === 'Selesai Muat' && activeStatusTruckIdx !== null) {
             let t = truckQueue[activeStatusTruckIdx];
             let tbody = document.getElementById('doubleCheckTableBody');
@@ -886,81 +906,6 @@
             truckQueue[activeStatusTruckIdx].dock = '-';
         }
 
-        // LOGIKA UTAMA: POTONG STOK & PECAH PALLET (-R1, -R2) OTOMATIS SAAT GOODS ISSUE
-        if(newSt === 'Selesai Muat' && prevSt !== 'Selesai Muat') {
-            try {
-                let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-                let truckPl = truckQueue[activeStatusTruckIdx].pickingList || [];
-                
-                if(truckPl.length > 0) {
-                    truckPl.forEach(soldItem => {
-                        // Cari stok di bin-loc berdasarkan kesesuaian SKU, Rak, dan Nomor Pallet Asal (palletSource)
-                        let targetIdx = binStock.findIndex(b => 
-                            (b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase())) &&
-                            (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase())) &&
-                            (soldItem.palletSource && b.pallet && b.pallet.toLowerCase().includes(soldItem.palletSource.toLowerCase()))
-                        );
-                        
-                        // Jika pencarian spesifik palletSource tidak ketemu, fallback cari berdasarkan SKU & Rak
-                        if(targetIdx === -1) {
-                            targetIdx = binStock.findIndex(b => 
-                                (b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase())) &&
-                                (b.lokasi && soldItem.rak && b.lokasi.toLowerCase().includes(soldItem.rak.toLowerCase()))
-                            );
-                        }
-
-                        // Jika tetap tidak ketemu, cari berdasarkan SKU saja
-                        if(targetIdx === -1) {
-                            targetIdx = binStock.findIndex(b => b.sku && b.sku.toLowerCase().includes(soldItem.sku.toLowerCase()));
-                        }
-
-                        if(targetIdx !== -1) {
-                            let target = binStock[targetIdx];
-                            let currentKarton = parseInt(target.karton || 0);
-                            let deduction = parseInt(soldItem.jumlah || 0);
-
-                            // Tentukan standar karton per pallet
-                            let stdKrt = 70;
-                            if(masterStock[soldItem.sku] && masterStock[soldItem.sku].cartonPerPallet) {
-                                stdKrt = parseFloat(masterStock[soldItem.sku].cartonPerPallet) || 70;
-                            }
-
-                            if(deduction >= currentKarton) {
-                                // SKENARIO 1: Pallet HABIS (Ambil semua / lebih dari sisa di rak)
-                                binStock.splice(targetIdx, 1);
-                            } else {
-                                // SKENARIO 2: Terjadi Pecah Pallet (Sisa Receh -> Format -R1, -R2, dst)
-                                let sisaKarton = currentKarton - deduction;
-                                let sisaPltDec = (sisaKarton / stdKrt).toFixed(2);
-                                
-                                // Update jumlah karton dan konversi pallet-nya
-                                target.karton = sisaKarton;
-                                target.konversi = `${sisaPltDec} Pallet (${sisaKarton} krt)`;
-
-                                // Ekstrak base pallet asli (membuang label -R sebelumnya jika ada)
-                                let basePallet = target.pallet.split('-R')[0]; 
-                                
-                                // Hitung tingkat turunan receh berikutnya (-R1 jadi -R2, dst)
-                                let currentSuffixNum = 0;
-                                if(target.pallet.includes('-R')) {
-                                    let parts = target.pallet.split('-R');
-                                    currentSuffixNum = parseInt(parts[1]) || 0;
-                                }
-                                let nextSuffixNum = currentSuffixNum + 1;
-                                
-                                target.pallet = `${basePallet}-R${nextSuffixNum}`;
-                            }
-                        }
-                    });
-                    
-                    localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
-                    alert('Goods Issue Berhasil! Stok di Bin-Loc terpotong dan sisa palet receh otomatis terupdate dengan format -R.');
-                }
-            } catch(e) { 
-                console.error('Gagal sinkronisasi Goods Issue & Pecah Pallet ke Bin-Loc', e); 
-            }
-        }
-
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         closeModal('modalStatus');
         renderAll();
@@ -968,6 +913,32 @@
 
     function deleteTruck(idx) {
         if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
+            // Kembalikan stok ke Bin-Loc jika truk yang memiliki picking list dihapus
+            let t = truckQueue[idx];
+            if(t && t.pickingList && t.pickingList.length > 0) {
+                let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+                t.pickingList.forEach(removedItem => {
+                    let target = binStock.find(b => 
+                        b.sku && b.sku.toLowerCase().includes(removedItem.sku.toLowerCase()) &&
+                        b.lokasi && b.lokasi.toLowerCase().includes(removedItem.rak.toLowerCase()) &&
+                        b.pallet && b.pallet.toLowerCase().includes(removedItem.palletSource.toLowerCase())
+                    );
+                    if(target) {
+                        target.karton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+                    } else {
+                        binStock.push({
+                            sku: removedItem.sku,
+                            lokasi: removedItem.rak,
+                            pallet: removedItem.palletSource,
+                            prodate: removedItem.prodate,
+                            karton: removedItem.jumlah,
+                            konversi: `${removedItem.pallet} Pallet (${removedItem.jumlah} krt)`
+                        });
+                    }
+                });
+                localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+            }
+
             truckQueue.splice(idx, 1);
             localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
             renderAll();
