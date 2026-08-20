@@ -445,6 +445,8 @@
         if(jenisVal === 'LOKAL' && tipeVal) jenisFull = 'LOKAL • ' + tipeVal;
         else if(jenisVal === 'EKSPOR' && containerVal) jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
 
+        let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
         let newTruck = {
             id: 'TRK-' + Math.floor(Math.random() * 9000 + 1000),
             sopir: document.getElementById('mSopir').value,
@@ -456,7 +458,7 @@
             noHp: document.getElementById('mNoHp').value || '-',
             status: 'Antrian',
             dock: '-',
-            timeIn: new Date().toLocaleTimeString(),
+            timeIn: currentTimeStr, // Menyimpan jam masuk otomatis
             rawTime: new Date().getTime(),
             pickingList: []
         };
@@ -518,7 +520,6 @@
         if(!truckQueue[activePlTruckIdx].pickingList) truckQueue[activePlTruckIdx].pickingList = [];
         truckQueue[activePlTruckIdx].pickingList.push(item);
 
-        // LOGIKA BARU: Jika total karton yang diambil PAS dengan sisa di rak, hapus/kosongkan dari bin-loc secara live!
         let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         let bIndex = binStock.findIndex(b => 
             b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()) &&
@@ -528,9 +529,9 @@
 
         if(bIndex !== -1) {
             if(totalKrt >= parseInt(binStock[bIndex].karton)) {
-                binStock.splice(bIndex, 1); // Habis bersih terambil
+                binStock.splice(bIndex, 1);
             } else {
-                binStock[bIndex].karton = parseInt(binStock[bIndex].karton) - totalKrt; // Berkurang sisa recehnya di live view
+                binStock[bIndex].karton = parseInt(binStock[bIndex].karton) - totalKrt;
             }
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
         }
@@ -550,7 +551,6 @@
         if(activePlTruckIdx === null) return;
         let removedItem = truckQueue[activePlTruckIdx].pickingList[idx];
         
-        // Kembalikan stok ke Bin-Loc jika item dibatalkan/dihapus dari picking list
         if(removedItem) {
             let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let target = binStock.find(b => 
@@ -561,7 +561,6 @@
             if(target) {
                 target.karton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
             } else {
-                // Jika sudah terhapus bersih sebelumnya, kembalikan baris datanya
                 binStock.push({
                     sku: removedItem.sku,
                     lokasi: removedItem.rak,
@@ -801,6 +800,7 @@
 
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+            let displayTimeIn = t.timeIn || '-';
 
             let rdcSlaHtml = '';
             if(t.jenis && t.jenis.includes('RDC')) {
@@ -841,6 +841,7 @@
                     </div>
                     <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
+                        <span style="background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:bold;">🕒 Masuk: ${displayTimeIn}</span>
                         ${rdcSlaHtml}
                     </div>
                 </div>
@@ -913,7 +914,6 @@
 
     function deleteTruck(idx) {
         if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
-            // Kembalikan stok ke Bin-Loc jika truk yang memiliki picking list dihapus
             let t = truckQueue[idx];
             if(t && t.pickingList && t.pickingList.length > 0) {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
