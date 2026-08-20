@@ -370,7 +370,7 @@
             let isNotReady = isAgingGudang && diffDays < 8;
 
             let statusLabel = isNotReady ? ` ⚠️ [BLOCKED: Kurang ${8 - diffDays} hari aging]` : ' ✓ [READY KIRIM]';
-            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
+            let optionText = `Rak: ${m.lokasi} | Prodate: ${m.prodate || m.tanggal || '-'} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
             
             let opt = document.createElement('option');
             opt.value = idx;
@@ -502,12 +502,15 @@
         let pallet = Math.floor(totalKrt / std);
         let receh = totalKrt % std;
 
+        // Mengambil tanggal prodate dari batch yang dipilih agar tidak strip (-)
+        let exactProdate = selectedBatchData.prodate || selectedBatchData.tanggal || '-';
+
         let item = {
             sku: skuCode,
             nama: skuName,
-            prodate: selectedBatchData.prodate,
+            prodate: exactProdate,
             rak: selectedBatchData.lokasi,
-            palletSource: selectedBatchData.pallet, // Menyimpan nomor pallet spesifik asal untuk proses pecah pallet
+            palletSource: selectedBatchData.pallet,
             pallet: pallet,
             receh: receh,
             jumlah: totalKrt
