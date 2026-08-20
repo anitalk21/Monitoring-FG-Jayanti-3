@@ -26,6 +26,14 @@
 
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         table th, table td { font-size: 12px !important; }
+
+        /* FORMAT CETAK PDF KHUSUS LIVE STOCK SUMMARY */
+        @media print {
+            body * { visibility: hidden; }
+            #liveStockModalContent, #liveStockModalContent * { visibility: visible; }
+            #liveStockModalContent { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 20px; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -50,7 +58,7 @@
         </div>
     </header>
 
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/25 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-80 bg-white text-slate-600 shadow-xl border-r border-slate-200 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col">
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
             <div class="flex items-center gap-3">
@@ -65,7 +73,6 @@
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
-        <!-- SIDEBAR MENU LENGKAP KEMBALI -->
         <div class="p-4 space-y-1.5 flex-1 overflow-y-auto text-xs">
             <div class="text-[11px] font-bold text-slate-400 px-3 tracking-wider mb-2">NAVIGASI</div>
             <a href="#" onclick="switchMenu('kapasitas')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs" id="menu-kapasitas">
@@ -104,10 +111,6 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-truck-arrow-right w-4 text-center"></i></div>
                 <span>Dashboard Antrian Truk</span>
             </a>
-            <a href="index.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
-                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-table-cells-large w-4 text-center"></i></div>
-                <span>Akses Aplikasi (Portal)</span>
-            </a>
         </div>
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
             LOADFLOW v1.1.2 &bull; Jayanti 3
@@ -124,6 +127,8 @@
                     <p class="text-xs text-slate-400 mt-0.5">Last Update: <span id="lastUpdateDate">14/08/2026</span> &bull; Status: <span class="text-emerald-500 font-medium">Terkini (Hari Ini)</span></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
+                    <!-- TOMBOL BARU: LIVE STOCK SUMMARY (DI SEBELAH MASTER SKU) -->
+                    <button onclick="openLiveStockModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs px-3.5 py-2 rounded-lg font-bold transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked"></i> Live Stock Summary</button>
                     <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Master SKU</button>
                     <button onclick="alert('Membuka Spreadsheet...')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel text-emerald-500"></i> Spreadsheet</button>
                     <button onclick="location.reload()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i></button>
@@ -137,7 +142,7 @@
                 <button onclick="switchKapasitasTab('HOLD')" id="btnCapHold" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">GDFG (HOLD QC)</button>
             </div>
 
-            <!-- KOTAK DASHBOARD KAPASITAS DENGAN WARNA PASTEL LENGKAP -->
+            <!-- KOTAK DASHBOARD KAPASITAS DENGAN KOTAK INTERAKTIF BERFUNGSI -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">TOTAL PALLET INDUK</div>
@@ -154,19 +159,21 @@
                     <div id="cardGabunganVal" class="text-xl font-bold text-slate-700">0 Plt</div>
                     <div class="text-[10px] text-slate-400">Dari 31.380 Total</div>
                 </div>
-                <div class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1">
+                <!-- KOTAK BARANG DI-HOLD (QC) BISA DIKLIK -->
+                <div onclick="openQcModalSummary()" class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1 cursor-pointer hover:bg-rose-100/50 transition">
                     <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
                     <div id="summaryHoldCount" class="text-xl font-bold text-rose-600">0.00 Plt</div>
-                    <div class="text-[10px] text-slate-400">Pallet Tidak Bisa Kirim</div>
+                    <div class="text-[10px] text-rose-500 font-semibold underline">Klik lihat detail &rarr;</div>
                 </div>
-                <div class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                <!-- KOTAK REALISASI MUAT BISA DIKLIK -->
+                <div onclick="switchMenu('realisasi')" class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1 cursor-pointer hover:bg-emerald-100/50 transition">
                     <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">REALISASI MUAT</div>
-                    <div class="text-xl font-bold text-slate-700">0 Truk</div>
+                    <div class="text-xl font-bold text-slate-700" id="summaryRealisasiTruk">0 Truk</div>
                     <div class="text-[10px] text-emerald-500 font-semibold">Sesuai target jadwal</div>
                 </div>
                 <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">ANTRIAN TRUK AKTIF</div>
-                    <div class="text-xl font-bold text-slate-700">0 Truk</div>
+                    <div class="text-xl font-bold text-slate-700" id="summaryAntrianTruk">0 Truk</div>
                     <a href="antrian.html" class="text-[10px] text-indigo-600 hover:underline font-semibold block">Buka Antrian &rarr;</a>
                 </div>
             </div>
@@ -197,9 +204,19 @@
 
         <!-- SECTION REALISASI -->
         <div id="section-realisasi" class="app-page space-y-6">
-            <div class="flex justify-between items-center bg-slate-800 text-white px-6 py-3.5 rounded-2xl shadow-2xs">
-                <h2 class="font-bold text-sm tracking-wide">Realisasi SPE</h2>
-                <button onclick="switchMenu('kapasitas')" class="bg-slate-700 text-xs px-3 py-1.5 rounded-lg">Kembali</button>
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <h2 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-truck-ramp-box text-emerald-500 mr-2"></i> Realisasi Muat & Pengiriman Truk</h2>
+                <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+            </div>
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="table-light">
+                            <tr><th>ID Truk</th><th>No Polisi</th><th>Ekspedisi</th><th>No. Doc</th><th>Jenis / Tujuan</th><th>Total Qty</th><th>Status Terkini</th><th>Jam Masuk</th></tr>
+                        </thead>
+                        <tbody id="realisasiTableBody"><tr><td colspan="8" class="text-muted">Belum ada data realisasi truk.</td></tr></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -251,7 +268,7 @@
         <div id="section-rdc" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-warehouse text-sky-500 mr-2"></i> Monitoring Pengiriman RDC (SLA Max 6 Jam)</h3>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderRdcMonitoringTable()">🔄 Refresh</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderRdcMonitoringTable()">Refresh</button>
             </div>
             <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                 <div class="card-body table-responsive">
@@ -290,9 +307,9 @@
         <!-- SECTION BIN LOC -->
         <div id="section-binloc" class="app-page space-y-6">
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
-                <button onclick="switchBinSubTab('stok')" id="btnBinSubStok" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">📦 STOK SAAT INI</button>
-                <button onclick="switchBinSubTab('movement')" id="btnBinSubMovement" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">🔄 RIWAYAT MOVEMENT</button>
-                <button onclick="switchBinSubTab('peta')" id="btnBinSubPeta" class="px-4 py-2 rounded-xl bg-indigo-400 text-white shadow-2xs">🗺️ PETA KAPASITAS</button>
+                <button onclick="switchBinSubTab('stok')" id="btnBinSubStok" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">STOK SAAT INI</button>
+                <button onclick="switchBinSubTab('movement')" id="btnBinSubMovement" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">RIWAYAT MOVEMENT</button>
+                <button onclick="switchBinSubTab('peta')" id="btnBinSubPeta" class="px-4 py-2 rounded-xl bg-indigo-400 text-white shadow-2xs">PETA KAPASITAS</button>
             </div>
 
             <div id="binContent-stok" class="hidden space-y-4">
@@ -342,8 +359,72 @@
 
     </main>
 
+    <!-- MODAL LIVE STOCK SUMMARY (LAPORAN STOK AKTIF DENGAN LOKASI RACKING & EKSPOR) -->
+    <div id="liveStockModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div id="liveStockModalContent" class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 text-xs">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-boxes-stacked text-indigo-500 mr-2"></i> Live Stock Summary (Stok Gudang Aktif)</h3>
+                    <p class="text-[10px] text-slate-400">Menampilkan hanya SKU yang memiliki stok fisik (> 0 krt) beserta blok rak & pallet-nya.</p>
+                </div>
+                <button onclick="closeLiveStockModal()" class="text-slate-400 hover:text-slate-600 text-base no-print"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Total Karton</th>
+                                <th>Konversi Pallet</th>
+                                <th>Lokasi Racking / Bin-Loc</th>
+                                <th>Prodate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liveStockTableBody">
+                            <tr><td colspan="6" class="text-muted">Memuat data stok aktif...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center no-print">
+                <div class="flex gap-2">
+                    <button onclick="printLiveStockPDF()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3.5 py-2 rounded-lg font-bold text-xs"><i class="fa-solid fa-print mr-1"></i> Cetak / Ekspor PDF</button>
+                    <button onclick="exportLiveStockExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 px-3.5 py-2 rounded-lg font-bold text-xs"><i class="fa-solid fa-file-excel mr-1"></i> Ekspor ke Excel</button>
+                </div>
+                <button onclick="closeLiveStockModal()" class="btn btn-sm btn-secondary px-4">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RINCIAN BARANG DI-HOLD (QC) -->
+    <div id="qcModalSummary" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden border border-slate-200 text-xs">
+            <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex justify-between items-center">
+                <h3 class="font-bold text-rose-700 text-sm"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Rincian Barang di-Hold (QC Karantina)</h3>
+                <button onclick="closeQcModalSummary()" class="text-slate-400 hover:text-slate-600 text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="pastel-header-red">
+                            <tr><th>SKU</th><th class="text-start">Nama Produk</th><th>No. Pallet</th><th>Jumlah Plt</th><th>Alasan Hold</th></tr>
+                        </thead>
+                        <tbody id="qcModalTableBody">
+                            <tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 text-end">
+                <button onclick="closeQcModalSummary()" class="btn btn-sm btn-secondary px-4">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DETAIL LORONG PETA KAPASITAS -->
-    <div id="binModal" class="fixed inset-0 bg-slate-900/20 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+    <div id="binModal" class="fixed inset-0 bg-slate-900/25 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden border border-slate-200 text-xs">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                 <h3 id="modalTitle" class="font-bold text-slate-700 text-sm">Denah Lorong</h3>
@@ -373,11 +454,21 @@
         let sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
         let qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
         let binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-        let antrianData = JSON.parse(localStorage.getItem('antrian')) || [];
+        let antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
 
         let currentBinWarehouse = 'INDUK';
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
+
+        function updateClock() {
+            const now = new Date();
+            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+            const clockEl = document.getElementById('realTimeClock');
+            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-indigo-400 mr-1"></i> ${dateStr} ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -396,25 +487,29 @@
             if(menuName === 'binloc') { renderBinMap(); renderCurrentStockTable(); renderMovementHistoryTable(); }
             if(menuName === 'opname') { renderQcHistoryTable(); renderReconciliationTable(); renderOpnameHistory(); }
             if(menuName === 'rdc') { renderRdcMonitoringTable(); }
+            if(menuName === 'realisasi') { renderRealisasiTable(); }
             if(window.innerWidth < 768) toggleSidebar();
         }
 
         function switchKapasitasTab(tab) {
             ['SUMMARY', 'LOKAL', 'EKSPOR', 'HOLD'].forEach(t => {
                 let btn = document.getElementById('btnCap' + t.charAt(0) + t.slice(1).toLowerCase());
-                if(btn) {
-                    btn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600';
-                }
+                if(btn) btn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600';
             });
             let activeBtn = document.getElementById('btnCap' + tab.charAt(0) + tab.slice(1).toLowerCase());
-            if(activeBtn) {
-                activeBtn.className = 'px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs';
+            if(activeBtn) activeBtn.className = 'px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs';
+            
+            if(tab === 'HOLD') {
+                openQcModalSummary();
             }
         }
 
-        // FUNGSI LINK OTOMATIS KAPASITAS DARI BIN-LOC
+        // FUNGSI LINK KAPASITAS, HOLD, DAN ANTRIAN AKTIF
         function updateDashboardCapacity() {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+
             let totalIndukPlt = 0;
             let totalAgingPlt = 0;
 
@@ -423,12 +518,8 @@
                 if(item.konversi) {
                     pltValue = parseFloat(item.konversi.split(' ')[0]) || 0;
                 }
-                if (item.gudang) {
-                    if (item.gudang.includes('Gudang Induk')) {
-                        totalIndukPlt += pltValue;
-                    } else if (item.gudang.includes('Gudang Aging')) {
-                        totalAgingPlt += pltValue;
-                    }
+                if (item.gudang && item.gudang.includes('Gudang Aging')) {
+                    totalAgingPlt += pltValue;
                 } else {
                     totalIndukPlt += pltValue;
                 }
@@ -437,6 +528,121 @@
             document.getElementById('cardIndukVal').innerText = totalIndukPlt.toFixed(1) + ' Plt';
             document.getElementById('cardAgingVal').innerText = totalAgingPlt.toFixed(1) + ' Plt';
             document.getElementById('cardGabunganVal').innerText = (totalIndukPlt + totalAgingPlt).toFixed(1) + ' Plt';
+
+            // Hitung total Pallet Hold QC
+            let totalHoldPlt = qcHistoryData.reduce((sum, h) => sum + (parseFloat(h.pallets) || 0), 0);
+            document.getElementById('summaryHoldCount').innerText = totalHoldPlt.toFixed(2) + ' Plt';
+
+            // Hitung realisasi muat dan antrian truk aktif
+            let totalProses = antrianData.filter(t => t.status === 'Proses Muat' || t.status === 'Selesai Muat').length;
+            let totalAntrian = antrianData.filter(t => t.status === 'Antrian' || t.status === 'Menunggu Dokumen').length;
+            
+            document.getElementById('summaryRealisasiTruk').innerText = totalProses + ' Truk';
+            document.getElementById('summaryAntrianTruk').innerText = totalAntrian + ' Truk';
+        }
+
+        // FUNGSI LIVE STOCK SUMMARY (HANYA MUNCUL SKU BERISI STOK & POSISI BLOK RACKING)
+        function openLiveStockModal() {
+            let tbody = document.getElementById('liveStockTableBody');
+            tbody.innerHTML = '';
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+
+            // Filter hanya yang karton > 0
+            let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
+
+            if(activeStock.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Tidak ada stok aktif di gudang saat ini.</td></tr>';
+            } else {
+                activeStock.forEach(item => {
+                    let skuCode = item.sku.split('|')[0].trim();
+                    let skuName = item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku;
+                    tbody.innerHTML += `<tr>
+                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${skuCode}</span></td>
+                        <td class="text-start fw-semibold">${skuName}</td>
+                        <td class="fw-bold text-indigo-600">${item.karton} krt</td>
+                        <td>${item.konversi || '-'}</td>
+                        <td><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">${item.lokasi} (${item.pallet})</span></td>
+                        <td>${item.prodate || item.tanggal || '-'}</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('liveStockModal').classList.remove('hidden');
+        }
+
+        function closeLiveStockModal() {
+            document.getElementById('liveStockModal').classList.add('hidden');
+        }
+
+        function printLiveStockPDF() {
+            window.print();
+        }
+
+        function exportLiveStockExcel() {
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
+            let csvContent = "data:text/csv;charset=utf-8,SKU,Nama Produk,Total Karton,Konversi Pallet,Lokasi Rak,Prodate\n";
+            
+            activeStock.forEach(item => {
+                csvContent += `"${item.sku}","${item.karton}","${item.konversi}","${item.lokasi}","${item.prodate || '-'}"\n`;
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Live_Stock_Summary_Mayora.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // FUNGSI MODAL HOLD QC SUMMARY
+        function openQcModalSummary() {
+            let tbody = document.getElementById('qcModalTableBody');
+            tbody.innerHTML = '';
+            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            
+            if(qcHistoryData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold QC.</td></tr>';
+            } else {
+                qcHistoryData.forEach(h => {
+                    tbody.innerHTML += `<tr>
+                        <td>${h.sku}</td>
+                        <td class="text-start">${h.name}</td>
+                        <td>${h.palletNo}</td>
+                        <td class="fw-bold text-rose-600">${h.pallets} Plt</td>
+                        <td class="text-start">${h.reason}</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('qcModalSummary').classList.remove('hidden');
+        }
+
+        function closeQcModalSummary() {
+            document.getElementById('qcModalSummary').classList.add('hidden');
+        }
+
+        function renderRealisasiTable() {
+            let tbody = document.getElementById('realisasiTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            if(antrianData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada data realisasi truk.</td></tr>';
+                return;
+            }
+            antrianData.forEach(t => {
+                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id}</span></td>
+                    <td class="fw-bold">${t.noPol}</td>
+                    <td>${t.ekspedisi}</td>
+                    <td>${t.noDoc}</td>
+                    <td>${t.jenis} &rarr; ${t.tujuan}</td>
+                    <td class="fw-bold text-emerald-600">${totalQty} krt</td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
+                    <td>${t.timeIn || '-'}</td>
+                </tr>`;
+            });
         }
 
         function processPasteData() {
@@ -474,15 +680,17 @@
         }
 
         function renderRdcMonitoringTable() {
-            antrianData = JSON.parse(localStorage.getItem('antrian')) || [];
+            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
             let tbody = document.getElementById('rdcMonitoringBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let rdcTrucks = antrianData.filter(t => t.jenis && t.jenis.toUpperCase().includes('RDC'));
             if(rdcTrucks.length === 0) { tbody.innerHTML = '<tr><td colspan="16" class="text-muted">Belum ada data truk RDC.</td></tr>'; return; }
             rdcTrucks.forEach(t => {
-                let skuItem = t.items && t.items.length > 0 ? t.items.map(i => i.sku).join(', ') : '-';
-                let namaBarangItem = t.items && t.items.length > 0 ? t.items.map(i => i.nama).join(', ') : '-';
-                tbody.innerHTML += `<tr><td>${t.masukText ? t.masukText.split(' ')[0] : '-'}</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.nodoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${t.qty || 0} Krt</td><td class="fw-bold">${t.nopol}</td><td>${t.ekspedisi}</td><td>${t.masukText ? t.masukText.split(' ')[1] : '-'}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>Aman</td><td>${t.status}</td></tr>`;
+                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+                let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
+                let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
+                tbody.innerHTML += `<tr><td>-</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.noDoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${totalQty} Krt</td><td class="fw-bold">${t.noPol}</td><td>${t.ekspedisi}</td><td>${t.timeIn || '-'}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>Aman</td><td>${t.status}</td></tr>`;
             });
         }
 
