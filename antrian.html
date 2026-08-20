@@ -494,13 +494,36 @@
         let t = truckQueue[index];
         document.getElementById('plTruckInfo').innerText = `${t.noPol} (${t.ekspedisi}) - Doc: ${t.noDoc}`;
         
-        // Muat data petugas dan shift yang tersimpan
         document.getElementById('plPetugas').value = t.petugas || '';
         document.getElementById('plShift').value = t.shift || 'Shift 1 (Pagi)';
 
         binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         renderPlTable();
         openModal('modalPickingList');
+    }
+
+    // FUNGSI renderPlTable YANG SEBELUMNYA TERLEWAT
+    function renderPlTable() {
+        let tbody = document.getElementById('plTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        if(activePlTruckIdx === null) return;
+        let t = truckQueue[activePlTruckIdx];
+        let list = t.pickingList || [];
+        if(list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>';
+            return;
+        }
+        list.forEach((item, idx) => {
+            tbody.innerHTML += `<tr>
+                <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                <td>${item.prodate || '-'}</td>
+                <td>${item.rak || '-'}</td>
+                <td>${item.pallet} Plt + ${item.receh} krt</td>
+                <td><b>${item.jumlah} krt</b></td>
+                <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
+            </tr>`;
+        });
     }
 
     function savePetugasShift() {
