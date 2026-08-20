@@ -175,6 +175,7 @@
                     <label>Total Karton Pengiriman *</label>
                     <input type="number" id="itemJumlahKarton" placeholder="Cth: 150" min="1" oninput="hitungKonversiAdmin()">
                     <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiAdminInfo">Konversi: 0 Pallet + 0 Karton Receh</span>
+                    <span class="text-[10px] fw-bold mt-1 block" id="stokWarningInfo"></span>
                 </div>
             </div>
 
@@ -392,9 +393,16 @@
     function onBatchSelected() {
         let select = document.getElementById('itemBatchSelect');
         let val = select.value;
-        if(val === "") { selectedBatchData = null; return; }
+        if(val === "") { 
+            selectedBatchData = null; 
+            document.getElementById('stokWarningInfo').innerText = "";
+            return; 
+        }
         let batches = JSON.parse(select.dataset.batches || '[]');
         selectedBatchData = batches[parseInt(val)];
+
+        let maxKarton = parseInt(selectedBatchData.karton) || 0;
+        document.getElementById('stokWarningInfo').innerHTML = `<span style="color:#059669; font-weight:bold;">✓ Stok tersedia di rak ini: ${maxKarton} karton</span>`;
     }
 
     function hitungKonversiAdmin() {
@@ -407,6 +415,17 @@
         let receh = krt % std;
 
         document.getElementById('konversiAdminInfo').innerText = `Konversi: ${pallet} Pallet + ${receh} Karton Receh (Standar ${std} krt/plt)`;
+
+        // Validasi sign warning jika melebihi stok rak terpilih
+        if (selectedBatchData) {
+            let maxKarton = parseInt(selectedBatchData.karton) || 0;
+            let warnEl = document.getElementById('stokWarningInfo');
+            if (krt > maxKarton) {
+                warnEl.innerHTML = `<span style="color:#dc2626; font-weight:bold;">⚠️ PERINGATAN: Qty (${krt} krt) melebihi stok rak (${maxKarton} krt)! Silakan gunakan sistem Multi-Pick (tambah rak lain).</span>`;
+            } else {
+                warnEl.innerHTML = `<span style="color:#059669; font-weight:bold;">✓ Stok tersedia di rak ini: ${maxKarton} karton</span>`;
+            }
+        }
     }
 
     document.addEventListener('click', function(e) {
@@ -470,6 +489,12 @@
         if(!skuInputVal || totalKrt <= 0) { alert('Harap pilih SKU dan isi jumlah total karton dengan benar!'); return; }
         if(!selectedBatchData) { alert('Harap pilih batch / lokasi rak yang berstatus Ready Kirim!'); return; }
 
+        let maxKarton = parseInt(selectedBatchData.karton) || 0;
+        if(totalKrt > maxKarton) {
+            alert(`Gagal! Jumlah pengiriman (${totalKrt} krt) melebihi stok yang tersedia di rak ${selectedBatchData.lokasi} (${maxKarton} krt). Silakan ambil sisanya dengan menambah baris rak (Multi-Pick).`);
+            return;
+        }
+
         let skuCode = skuInputVal.split('|')[0].trim();
         let skuName = skuInputVal.includes('|') ? skuInputVal.split('|')[1].trim() : skuInputVal;
         let std = getCartonPerPallet(skuCode);
@@ -497,6 +522,7 @@
         document.getElementById('itemBatchSelect').innerHTML = '<option value="">— Pilih SKU Terlebih Dahulu —</option>';
         document.getElementById('itemJumlahKarton').value = '';
         document.getElementById('konversiAdminInfo').innerText = 'Konversi: 0 Pallet + 0 Karton Receh';
+        document.getElementById('stokWarningInfo').innerText = '';
         selectedBatchData = null;
         renderPlTable();
     }
