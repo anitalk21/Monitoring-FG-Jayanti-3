@@ -243,7 +243,7 @@
         </div>
 
         <div id="dockDiv" class="form-group" style="display:none;">
-            <label>Pilih Loading Dock (1 s/d 32)</label>
+            <label>Pilih Loading Dock yang Aktif (1 s/d 32)</label>
             <select id="selectDock"></select>
         </div>
 
@@ -956,20 +956,17 @@
             let occupyingTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
             let isCurrentDock = (dName === currentTruckDock);
 
+            // JIKA TIDAK DAPAT DIGUNAKAN DAN BUKAN DOCK SAAT INI MILIK TRUK TERSEBUT, HAPUS / JANGAN MASUKKAN KE DROPDOWN
+            if (!styleInfo.usable && !isCurrentDock) {
+                continue; 
+            }
+
             let opt = document.createElement('option');
             opt.value = dName;
 
-            // KUNCI JIKA TIDAK DAPAT DIGUNAKAN ATAU SUDAH TERISI TRUK LAIN
-            if (!styleInfo.usable && !isCurrentDock) {
-                opt.disabled = true;
-                opt.innerText = `${dName} — (${styleInfo.label}) [TIDAK DAPAT DIGUNAKAN]`;
-                opt.style.color = '#9f1239';
-                opt.style.backgroundColor = '#ffe4e6';
-            } else if (occupyingTruck && !isCurrentDock) {
+            if (occupyingTruck && !isCurrentDock) {
                 opt.disabled = true;
                 opt.innerText = `${dName} — (${styleInfo.label}) [TERISI OLEH ${occupyingTruck.noPol}]`;
-                opt.style.color = '#9f1239';
-                opt.style.backgroundColor = '#ffe4e6';
             } else {
                 opt.innerText = `${dName} — (${styleInfo.label})${isCurrentDock ? ' [Saat ini]' : ''}`;
                 if(isCurrentDock) {
@@ -1008,11 +1005,20 @@
     function saveStatus() {
         if(activeStatusTruckIdx === null) return;
         let newSt = document.getElementById('selectStatus').value;
-        let prevSt = truckQueue[activeStatusTruckIdx].status;
+        let selectedDock = document.getElementById('selectDock').value;
+
+        if (newSt === 'Proses Muat') {
+            let dockNum = parseInt(selectedDock.replace('Dock ', ''));
+            let styleInfo = getDockStyling(dockNum);
+            if (!styleInfo.usable) {
+                alert('Peringatan: Loading Dock tersebut tidak dapat digunakan!');
+                return;
+            }
+        }
 
         truckQueue[activeStatusTruckIdx].status = newSt;
         if(newSt === 'Proses Muat') {
-            truckQueue[activeStatusTruckIdx].dock = document.getElementById('selectDock').value || 'Dock 01';
+            truckQueue[activeStatusTruckIdx].dock = selectedDock || 'Dock 01';
         } else if(newSt !== 'Proses Muat') {
             truckQueue[activeStatusTruckIdx].dock = '-';
         }
