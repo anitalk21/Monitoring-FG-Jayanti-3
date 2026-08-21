@@ -168,7 +168,8 @@
             </div>
         </div>
         
-        <div style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
+        <!-- BAGIAN INPUT BARANG (AKAN DI-LOCK JIKA SUDAH SELESAI MUAT / KELUAR) -->
+        <div id="formInputItemSection" style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
             <div class="form-group relative" style="margin-bottom:6px;">
                 <label>Cari SKU / Nama Produk (Tekan Enter untuk memilih)</label>
                 <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()" onkeydown="handleSkuKeydown(event)">
@@ -196,6 +197,10 @@
             <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>
         </div>
 
+        <div id="lockedNotice" style="display:none; background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:8px; margin-bottom:12px; color:#b45309; font-weight:bold; font-size:11px; text-align:center;">
+            🔒 Status truk sudah "Selesai Muat / Keluar". Penambahan atau pengubahan item Picking List dikunci.
+        </div>
+
         <div style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
             <table style="width:100%;">
                 <thead>
@@ -205,7 +210,7 @@
                         <th>Rak / Bin-Loc</th>
                         <th>Pallet & Receh</th>
                         <th>Total Krt</th>
-                        <th>Aksi</th>
+                        <th id="thAksiHead">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="plTableBody">
@@ -473,6 +478,7 @@
             dock: '-',
             timeIn: currentTimeStr,
             rawTime: new Date().getTime(),
+            frozenDurationMs: null, // Menyimpan durasi saat selesai muat
             petugas: '',
             shift: 'Shift 1 (Pagi)',
             pickingList: []
@@ -497,6 +503,11 @@
         document.getElementById('plPetugas').value = t.petugas || '';
         document.getElementById('plShift').value = t.shift || 'Shift 1 (Pagi)';
 
+        let isLocked = (t.status === 'Selesai Muat' || t.status === 'Keluar');
+        document.getElementById('formInputItemSection').style.display = isLocked ? 'none' : 'block';
+        document.getElementById('lockedNotice').style.display = isLocked ? 'block' : 'none';
+        document.getElementById('thAksiHead').style.display = isLocked ? 'none' : '';
+
         binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         renderPlTable();
         openModal('modalPickingList');
@@ -509,18 +520,21 @@
         if(activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
         let list = t.pickingList || [];
+        let isLocked = (t.status === 'Selesai Muat' || t.status === 'Keluar');
+
         if(list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="${isLocked ? 5 : 6}" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>`;
             return;
         }
         list.forEach((item, idx) => {
+            let actionTd = isLocked ? '' : `<td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>`;
             tbody.innerHTML += `<tr>
                 <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
                 <td>${item.prodate || '-'}</td>
                 <td>${item.rak || '-'}</td>
                 <td>${item.pallet} Plt + ${item.receh} krt</td>
                 <td><b>${item.jumlah} krt</b></td>
-                <td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>
+                ${actionTd}
             </tr>`;
         });
     }
@@ -534,6 +548,12 @@
 
     function addItemToTruckPickingList() {
         if (activePlTruckIdx === null) return;
+        let t = truckQueue[activePlTruckIdx];
+        if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
+            alert('Tidak dapat menambah item karena truk sudah Selesai Muat / Keluar!');
+            return;
+        }
+
         let skuInputVal = document.getElementById('itemSku').value;
         let totalKrt = parseInt(document.getElementById('itemJumlahKarton').value) || 0;
         
@@ -598,7 +618,13 @@
 
     function removePlItem(idx) {
         if(activePlTruckIdx === null) return;
-        let removedItem = truckQueue[activePlTruckIdx].pickingList[idx];
+        let t = truckQueue[activePlTruckIdx];
+        if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
+            alert('Tidak dapat menghapus item karena truk sudah Selesai Muat / Keluar!');
+            return;
+        }
+
+        let removedItem = t.pickingList[idx];
         
         if(removedItem) {
             let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -622,7 +648,7 @@
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
         }
 
-        truckQueue[activePlTruckIdx].pickingList.splice(idx, 1);
+        t.pickingList.splice(idx, 1);
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
         renderPlTable();
     }
@@ -878,8 +904,20 @@
 
             let rdcSlaHtml = '';
             if(t.jenis && t.jenis.includes('RDC')) {
-                let startRaw = t.rawTime || new Date().getTime();
-                let diffMs = new Date().getTime() - startRaw;
+                let diffMs = 0;
+                // Jika sudah selesai muat atau keluar, timer dibekukan menggunakan durasi tersimpan atau saat status berubah
+                if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
+                    if (!t.frozenDurationMs) {
+                        let startRaw = t.rawTime || new Date().getTime();
+                        t.frozenDurationMs = new Date().getTime() - startRaw;
+                    }
+                    diffMs = t.frozenDurationMs;
+                } else {
+                    t.frozenDurationMs = null; // Reset jika status kembali aktif
+                    let startRaw = t.rawTime || new Date().getTime();
+                    diffMs = new Date().getTime() - startRaw;
+                }
+
                 let diffHrs = diffMs / (1000 * 60 * 60);
                 let totalMins = Math.floor(diffMs / (1000 * 60));
                 let h = Math.floor(totalMins / 60);
@@ -899,8 +937,9 @@
                     labelSla = '⚠️ Perhatian (2-4 Jam)';
                 }
 
+                let freezeNotice = (t.status === 'Selesai Muat' || t.status === 'Keluar') ? ' [Selesai]' : '';
                 rdcSlaHtml = `<span style="background:${bgCol}; color:${textCol}; padding:2px 8px; border-radius:4px; font-weight:bold; margin-left:6px; font-size:10px;">
-                    ⏱️ RDC Timer: ${h}j ${m}m (${labelSla})
+                    ⏱️ RDC Timer${freezeNotice}: ${h}j ${m}m (${labelSla})
                 </span>`;
             }
 
@@ -956,7 +995,6 @@
             let occupyingTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
             let isCurrentDock = (dName === currentTruckDock);
 
-            // JIKA TIDAK DAPAT DIGUNAKAN DAN BUKAN DOCK SAAT INI MILIK TRUK TERSEBUT, HAPUS / JANGAN MASUKKAN KE DROPDOWN
             if (!styleInfo.usable && !isCurrentDock) {
                 continue; 
             }
@@ -1016,11 +1054,19 @@
             }
         }
 
-        truckQueue[activeStatusTruckIdx].status = newSt;
+        let targetTruck = truckQueue[activeStatusTruckIdx];
+        targetTruck.status = newSt;
+
+        // Jika berubah menjadi Selesai Muat atau Keluar, bekukan durasi timer RDC-nya
+        if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && !targetTruck.frozenDurationMs) {
+            let startRaw = targetTruck.rawTime || new Date().getTime();
+            targetTruck.frozenDurationMs = new Date().getTime() - startRaw;
+        }
+
         if(newSt === 'Proses Muat') {
-            truckQueue[activeStatusTruckIdx].dock = selectedDock || 'Dock 01';
+            targetTruck.dock = selectedDock || 'Dock 01';
         } else if(newSt !== 'Proses Muat') {
-            truckQueue[activeStatusTruckIdx].dock = '-';
+            targetTruck.dock = '-';
         }
 
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
