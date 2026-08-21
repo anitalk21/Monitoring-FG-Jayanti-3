@@ -502,7 +502,6 @@
         openModal('modalPickingList');
     }
 
-    // FUNGSI renderPlTable YANG SEBELUMNYA TERLEWAT
     function renderPlTable() {
         let tbody = document.getElementById('plTableBody');
         if(!tbody) return;
@@ -754,6 +753,24 @@
         openModal('modalDockDetail');
     }
 
+    function getDockStyling(dockNum) {
+        // Mengatur warna dan keterangan sesuai permintaan
+        if (dockNum === 1 || dockNum === 2) {
+            return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569' };
+        } else if (dockNum === 3 || dockNum === 4) {
+            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c' };
+        } else if ((dockNum >= 5 && dockNum <= 7) || dockNum === 19 || (dockNum >= 21 && dockNum <= 25) || (dockNum >= 27 && dockNum <= 32)) {
+            return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857' };
+        } else if (dockNum === 8 || dockNum === 14 || dockNum === 20 || dockNum === 26) {
+            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff' };
+        } else if (dockNum === 9) {
+            return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c' };
+        } else if ((dockNum >= 10 && dockNum <= 13) || (dockNum >= 15 && dockNum <= 18)) {
+            return { bg: 'rgba(59, 130, 246, 0.12)', border: '#3b82f6', label: 'Loading Ekspor AEO', textCol: '#1d4ed8' };
+        }
+        return { bg: '#f8fafc', border: '#cbd5e1', label: 'Tersedia', textCol: '#64748b' };
+    }
+
     function renderAll() {
         let container = document.getElementById('antrianCardContainer');
         let keyword = (document.getElementById('searchInput').value || '').toLowerCase();
@@ -778,16 +795,19 @@
             for(let i=1; i<=32; i++) {
                 let dName = `Dock ${i < 10 ? '0'+i : i}`;
                 let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
+                let styleInfo = getDockStyling(i);
+
                 if(assignedTruck) {
-                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.15)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">
+                    // Jika sedang ada truk muat, tetap prioritaskan indikator hijau aktif
+                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.15); margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;">
                         <strong style="color:#059669;">${dName} (Terisi)</strong><br>
                         <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
                         <span style="font-size:10px; color:#64748b;">Sopir: ${assignedTruck.sopir}<br>Doc: ${assignedTruck.noDoc}</span>
                     </div>`;
                 } else {
-                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #cbd5e1; margin-bottom:0; padding:10px; background:#f8fafc; cursor:pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
-                        <strong style="color:#64748b;">${dName}</strong><br>
-                        <span style="color:#94a3b8; font-style:italic;">Kosong / Tersedia</span>
+                    dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid ${styleInfo.border}; background: ${styleInfo.bg}; margin-bottom:0; padding:10px; cursor:pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <strong style="color:${styleInfo.textCol};">${dName}</strong><br>
+                        <span style="font-size:10px; font-weight:600; color:${styleInfo.textCol};">${styleInfo.label}</span>
                     </div>`;
                 }
             }
