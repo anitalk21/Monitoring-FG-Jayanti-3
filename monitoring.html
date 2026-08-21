@@ -127,7 +127,6 @@
                     <p class="text-xs text-slate-400 mt-0.5">Last Update: <span id="lastUpdateDate">14/08/2026</span> &bull; Status: <span class="text-emerald-500 font-medium">Terkini (Hari Ini)</span></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <!-- TOMBOL BARU: LIVE STOCK SUMMARY (DI SEBELAH MASTER SKU) -->
                     <button onclick="openLiveStockModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs px-3.5 py-2 rounded-lg font-bold transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked"></i> Live Stock Summary</button>
                     <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Master SKU</button>
                     <button onclick="alert('Membuka Spreadsheet...')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel text-emerald-500"></i> Spreadsheet</button>
@@ -142,7 +141,6 @@
                 <button onclick="switchKapasitasTab('HOLD')" id="btnCapHold" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600">GDFG (HOLD QC)</button>
             </div>
 
-            <!-- KOTAK DASHBOARD KAPASITAS DENGAN KOTAK INTERAKTIF BERFUNGSI -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="bg-indigo-50/40 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
                     <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">TOTAL PALLET INDUK</div>
@@ -159,13 +157,11 @@
                     <div id="cardGabunganVal" class="text-xl font-bold text-slate-700">0 Plt</div>
                     <div class="text-[10px] text-slate-400">Dari 31.380 Total</div>
                 </div>
-                <!-- KOTAK BARANG DI-HOLD (QC) BISA DIKLIK -->
                 <div onclick="openQcModalSummary()" class="bg-rose-50/40 p-4 rounded-2xl border border-rose-100 shadow-2xs space-y-1 cursor-pointer hover:bg-rose-100/50 transition">
                     <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">BARANG DI-HOLD (QC)</div>
                     <div id="summaryHoldCount" class="text-xl font-bold text-rose-600">0.00 Plt</div>
                     <div class="text-[10px] text-rose-500 font-semibold underline">Klik lihat detail &rarr;</div>
                 </div>
-                <!-- KOTAK REALISASI MUAT BISA DIKLIK -->
                 <div onclick="switchMenu('realisasi')" class="bg-emerald-50/40 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1 cursor-pointer hover:bg-emerald-100/50 transition">
                     <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">REALISASI MUAT</div>
                     <div class="text-xl font-bold text-slate-700" id="summaryRealisasiTruk">0 Truk</div>
@@ -212,9 +208,9 @@
                 <div class="card-body table-responsive">
                     <table class="table table-bordered align-middle text-center">
                         <thead class="table-light">
-                            <tr><th>ID Truk</th><th>No Polisi</th><th>Ekspedisi</th><th>No. Doc</th><th>Jenis / Tujuan</th><th>Total Qty</th><th>Status Terkini</th><th>Jam Masuk</th></tr>
+                            <tr><th>ID Truk</th><th>No Polisi</th><th>Ekspedisi</th><th>No. Doc</th><th>Jenis / Tujuan</th><th>Total Qty</th><th>Status Terkini</th><th>Jam Masuk</th><th>Jam Keluar</th><th>Durasi Stay (Pabrik)</th></tr>
                         </thead>
-                        <tbody id="realisasiTableBody"><tr><td colspan="8" class="text-muted">Belum ada data realisasi truk.</td></tr></tbody>
+                        <tbody id="realisasiTableBody"><tr><td colspan="10" class="text-muted">Belum ada data realisasi truk.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -359,7 +355,7 @@
 
     </main>
 
-    <!-- MODAL LIVE STOCK SUMMARY (LAPORAN STOK AKTIF DENGAN LOKASI RACKING & EKSPOR) -->
+    <!-- MODAL LIVE STOCK SUMMARY -->
     <div id="liveStockModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div id="liveStockModalContent" class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 text-xs">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
@@ -504,7 +500,6 @@
             }
         }
 
-        // FUNGSI LINK KAPASITAS, HOLD, DAN ANTRIAN AKTIF
         function updateDashboardCapacity() {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
@@ -529,11 +524,9 @@
             document.getElementById('cardAgingVal').innerText = totalAgingPlt.toFixed(1) + ' Plt';
             document.getElementById('cardGabunganVal').innerText = (totalIndukPlt + totalAgingPlt).toFixed(1) + ' Plt';
 
-            // Hitung total Pallet Hold QC
             let totalHoldPlt = qcHistoryData.reduce((sum, h) => sum + (parseFloat(h.pallets) || 0), 0);
             document.getElementById('summaryHoldCount').innerText = totalHoldPlt.toFixed(2) + ' Plt';
 
-            // Hitung realisasi muat dan antrian truk aktif
             let totalProses = antrianData.filter(t => t.status === 'Proses Muat' || t.status === 'Selesai Muat').length;
             let totalAntrian = antrianData.filter(t => t.status === 'Antrian' || t.status === 'Menunggu Dokumen').length;
             
@@ -541,13 +534,11 @@
             document.getElementById('summaryAntrianTruk').innerText = totalAntrian + ' Truk';
         }
 
-        // FUNGSI LIVE STOCK SUMMARY (HANYA MUNCUL SKU BERISI STOK & POSISI BLOK RACKING)
         function openLiveStockModal() {
             let tbody = document.getElementById('liveStockTableBody');
             tbody.innerHTML = '';
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
 
-            // Filter hanya yang karton > 0
             let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
 
             if(activeStock.length === 0) {
@@ -595,14 +586,13 @@
             document.body.removeChild(link);
         }
 
-        // FUNGSI MODAL HOLD QC SUMMARY
         function openQcModalSummary() {
             let tbody = document.getElementById('qcModalTableBody');
             tbody.innerHTML = '';
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
             
             if(qcHistoryData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold QC.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold.</td></tr>';
             } else {
                 qcHistoryData.forEach(h => {
                     tbody.innerHTML += `<tr>
@@ -627,11 +617,23 @@
             tbody.innerHTML = '';
             antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
             if(antrianData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Belum ada data realisasi truk.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-muted">Belum ada data realisasi truk.</td></tr>';
                 return;
             }
             antrianData.forEach(t => {
                 let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+                let timeIn = t.timeIn || '-';
+                let timeOut = t.timeOut || '-';
+                
+                let durationStr = '-';
+                if (t.rawTime && t.rawTimeOut) {
+                    let diffMs = t.rawTimeOut - t.rawTime;
+                    let totalMins = Math.floor(diffMs / (1000 * 60));
+                    let hrs = Math.floor(totalMins / 60);
+                    let mins = totalMins % 60;
+                    durationStr = `<b>${hrs}j ${mins}m</b>`;
+                }
+
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id}</span></td>
                     <td class="fw-bold">${t.noPol}</td>
@@ -640,7 +642,9 @@
                     <td>${t.jenis} &rarr; ${t.tujuan}</td>
                     <td class="fw-bold text-emerald-600">${totalQty} krt</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
-                    <td>${t.timeIn || '-'}</td>
+                    <td><span class="text-indigo-600 font-bold">${timeIn}</span></td>
+                    <td><span class="text-rose-600 font-bold">${timeOut}</span></td>
+                    <td>${durationStr}</td>
                 </tr>`;
             });
         }
@@ -690,7 +694,7 @@
                 let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
                 let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
                 let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
-                tbody.innerHTML += `<tr><td>-</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.noDoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${totalQty} Krt</td><td class="fw-bold">${t.noPol}</td><td>${t.ekspedisi}</td><td>${t.timeIn || '-'}</td><td>-</td><td>-</td><td>-</td><td>-</td><td>Aman</td><td>${t.status}</td></tr>`;
+                tbody.innerHTML += `<tr><td>-</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.noDoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${totalQty} Krt</td><td class="fw-bold">${t.noPol}</td><td>${t.ekspedisi}</td><td>${t.timeIn || '-'}</td><td>-</td><td>-</td><td>${t.timeOut || '-'}</td><td>-</td><td>Aman</td><td>${t.status}</td></tr>`;
             });
         }
 
