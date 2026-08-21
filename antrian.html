@@ -902,11 +902,11 @@
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
             let displayTimeIn = t.timeIn || '-';
-            let displayTimeOut = t.timeOut || '-';
+            let displayTimeOut = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
             let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.shift})` : '';
 
             let stayDurationInfo = '';
-            if (t.rawTime && t.rawTimeOut) {
+            if (t.status === 'Keluar' && t.rawTime && t.rawTimeOut) {
                 let durationMs = t.rawTimeOut - t.rawTime;
                 let totalMins = Math.floor(durationMs / (1000 * 60));
                 let hrs = Math.floor(totalMins / 60);
@@ -954,6 +954,26 @@
                 </span>`;
             }
 
+            // KUNCI FITUR UNTUK TRUK YANG STATUSNYA SUDAH KELUAR
+            let isKeluar = (t.status === 'Keluar');
+            let actionButtonsHtml = '';
+            if (isKeluar) {
+                actionButtonsHtml = `
+                    <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
+                        📄 Picking List (${plCount})
+                    </button>
+                    <span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
+                `;
+            } else {
+                actionButtonsHtml = `
+                    <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
+                        📄 Picking List (${plCount})
+                    </button>
+                    <button class="btn btn-primary" style="font-size:11px;" onclick="openStatusModal(${idx})">Pindah Status</button>
+                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
+                `;
+            }
+
             html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <div style="font-weight:bold; font-size:13px; color:#1e293b;">
@@ -966,17 +986,13 @@
                     <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
                         <span style="background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:bold;">🕒 Masuk: ${displayTimeIn}</span>
-                        <span style="background:#fef2f2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:bold;">🏁 Keluar: ${displayTimeOut}</span>
+                        ${isKeluar ? `<span style="background:#fef2f2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:bold;">🏁 Keluar: ${displayTimeOut}</span>` : ''}
                         ${stayDurationInfo}
                         ${rdcSlaHtml}
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
-                        📄 Picking List (${plCount})
-                    </button>
-                    <button class="btn btn-primary" style="font-size:11px;" onclick="openStatusModal(${idx})">Pindah Status</button>
-                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
+                    ${actionButtonsHtml}
                 </div>
             </div>`;
         });
@@ -990,6 +1006,10 @@
 
     let activeStatusTruckIdx = null;
     function openStatusModal(idx) {
+        if(truckQueue[idx].status === 'Keluar') {
+            alert('Truk sudah Keluar dan dikunci secara permanen!');
+            return;
+        }
         activeStatusTruckIdx = idx;
         document.getElementById('selectStatus').value = truckQueue[idx].status;
         populateDockDropdown(truckQueue[idx].dock);
@@ -1075,10 +1095,12 @@
             targetTruck.frozenDurationMs = new Date().getTime() - startRaw;
         }
 
-        // Catat jam keluar otomatis jika status diset Selesai Muat atau Keluar
-        if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && (!targetTruck.timeOut || targetTruck.timeOut === '-')) {
-            targetTruck.timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            targetTruck.rawTimeOut = new Date().getTime();
+        // Jam keluar & waktu stay HANYA dicatat jika status benar-benar "Keluar"
+        if (newSt === 'Keluar') {
+            if (!targetTruck.timeOut || targetTruck.timeOut === '-') {
+                targetTruck.timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                targetTruck.rawTimeOut = new Date().getTime();
+            }
         }
 
         if(newSt === 'Proses Muat') {
@@ -1093,6 +1115,10 @@
     }
 
     function deleteTruck(idx) {
+        if(truckQueue[idx].status === 'Keluar') {
+            alert('Truk sudah Keluar dan dikunci secara permanen!');
+            return;
+        }
         if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
             let t = truckQueue[idx];
             if(t && t.pickingList && t.pickingList.length > 0) {
