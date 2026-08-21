@@ -748,27 +748,28 @@
                 <p><strong>Waktu Masuk:</strong> ${assignedTruck.timeIn} ${pInfo}</p>
             `;
         } else {
-            bodyEl.innerHTML = `<p style="color:#64748b; font-style:italic; text-align:center; padding:15px;">${dockName} saat ini sedang kosong / tidak ada truk yang sedang melakukan proses muat.</p>`;
+            let dockNum = parseInt(dockName.replace('Dock ', ''));
+            let styleInfo = getDockStyling(dockNum);
+            bodyEl.innerHTML = `<p style="color:#64748b; font-style:italic; text-align:center; padding:15px;">${dockName} (${styleInfo.label}).</p>`;
         }
         openModal('modalDockDetail');
     }
 
     function getDockStyling(dockNum) {
-        // Mengatur warna dan keterangan sesuai permintaan
         if (dockNum === 1 || dockNum === 2) {
-            return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569' };
+            return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569', usable: true };
         } else if (dockNum === 3 || dockNum === 4) {
-            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c' };
+            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c', usable: false };
         } else if ((dockNum >= 5 && dockNum <= 7) || dockNum === 19 || (dockNum >= 21 && dockNum <= 25) || (dockNum >= 27 && dockNum <= 32)) {
-            return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857' };
+            return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857', usable: true };
         } else if (dockNum === 8 || dockNum === 14 || dockNum === 20 || dockNum === 26) {
-            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff' };
+            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff', usable: false };
         } else if (dockNum === 9) {
-            return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c' };
+            return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c', usable: true };
         } else if ((dockNum >= 10 && dockNum <= 13) || (dockNum >= 15 && dockNum <= 18)) {
-            return { bg: 'rgba(59, 130, 246, 0.12)', border: '#3b82f6', label: 'Loading Ekspor AEO', textCol: '#1d4ed8' };
+            return { bg: 'rgba(59, 130, 246, 0.12)', border: '#3b82f6', label: 'Loading Ekspor AEO', textCol: '#1d4ed8', usable: true };
         }
-        return { bg: '#f8fafc', border: '#cbd5e1', label: 'Tersedia', textCol: '#64748b' };
+        return { bg: '#f8fafc', border: '#cbd5e1', label: 'Tersedia', textCol: '#64748b', usable: true };
     }
 
     function renderAll() {
@@ -798,7 +799,6 @@
                 let styleInfo = getDockStyling(i);
 
                 if(assignedTruck) {
-                    // Jika sedang ada truk muat, tetap prioritaskan indikator hijau aktif
                     dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.15); margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;">
                         <strong style="color:#059669;">${dName} (Terisi)</strong><br>
                         <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
@@ -952,19 +952,26 @@
 
         for(let i=1; i<=32; i++) {
             let dName = `Dock ${i < 10 ? '0'+i : i}`;
+            let styleInfo = getDockStyling(i);
             let occupyingTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
             let isCurrentDock = (dName === currentTruckDock);
 
             let opt = document.createElement('option');
             opt.value = dName;
 
-            if (occupyingTruck && !isCurrentDock) {
+            // KUNCI JIKA TIDAK DAPAT DIGUNAKAN ATAU SUDAH TERISI TRUK LAIN
+            if (!styleInfo.usable && !isCurrentDock) {
                 opt.disabled = true;
-                opt.innerText = `${dName} — (Terisi oleh ${occupyingTruck.noPol})`;
+                opt.innerText = `${dName} — (${styleInfo.label}) [TIDAK DAPAT DIGUNAKAN]`;
+                opt.style.color = '#9f1239';
+                opt.style.backgroundColor = '#ffe4e6';
+            } else if (occupyingTruck && !isCurrentDock) {
+                opt.disabled = true;
+                opt.innerText = `${dName} — (${styleInfo.label}) [TERISI OLEH ${occupyingTruck.noPol}]`;
                 opt.style.color = '#9f1239';
                 opt.style.backgroundColor = '#ffe4e6';
             } else {
-                opt.innerText = dName + (isCurrentDock ? ' (Saat ini)' : ' (Kosong)');
+                opt.innerText = `${dName} — (${styleInfo.label})${isCurrentDock ? ' [Saat ini]' : ''}`;
                 if(isCurrentDock) {
                     opt.selected = true;
                 }
