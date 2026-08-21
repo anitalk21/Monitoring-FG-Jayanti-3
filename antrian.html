@@ -478,7 +478,9 @@
             dock: '-',
             timeIn: currentTimeStr,
             rawTime: new Date().getTime(),
-            frozenDurationMs: null, // Menyimpan durasi saat selesai muat
+            timeOut: '-',
+            rawTimeOut: null,
+            frozenDurationMs: null,
             petugas: '',
             shift: 'Shift 1 (Pagi)',
             pickingList: []
@@ -900,12 +902,21 @@
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
             let displayTimeIn = t.timeIn || '-';
+            let displayTimeOut = t.timeOut || '-';
             let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.shift})` : '';
+
+            let stayDurationInfo = '';
+            if (t.rawTime && t.rawTimeOut) {
+                let durationMs = t.rawTimeOut - t.rawTime;
+                let totalMins = Math.floor(durationMs / (1000 * 60));
+                let hrs = Math.floor(totalMins / 60);
+                let mins = totalMins % 60;
+                stayDurationInfo = ` | ⏳ Stay di Pabrik: <b>${hrs}j ${mins}m</b>`;
+            }
 
             let rdcSlaHtml = '';
             if(t.jenis && t.jenis.includes('RDC')) {
                 let diffMs = 0;
-                // Jika sudah selesai muat atau keluar, timer dibekukan menggunakan durasi tersimpan atau saat status berubah
                 if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
                     if (!t.frozenDurationMs) {
                         let startRaw = t.rawTime || new Date().getTime();
@@ -913,7 +924,7 @@
                     }
                     diffMs = t.frozenDurationMs;
                 } else {
-                    t.frozenDurationMs = null; // Reset jika status kembali aktif
+                    t.frozenDurationMs = null;
                     let startRaw = t.rawTime || new Date().getTime();
                     diffMs = new Date().getTime() - startRaw;
                 }
@@ -955,6 +966,8 @@
                     <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
                         <span style="background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:bold;">🕒 Masuk: ${displayTimeIn}</span>
+                        <span style="background:#fef2f2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:bold;">🏁 Keluar: ${displayTimeOut}</span>
+                        ${stayDurationInfo}
                         ${rdcSlaHtml}
                     </div>
                 </div>
@@ -1057,10 +1070,15 @@
         let targetTruck = truckQueue[activeStatusTruckIdx];
         targetTruck.status = newSt;
 
-        // Jika berubah menjadi Selesai Muat atau Keluar, bekukan durasi timer RDC-nya
         if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && !targetTruck.frozenDurationMs) {
             let startRaw = targetTruck.rawTime || new Date().getTime();
             targetTruck.frozenDurationMs = new Date().getTime() - startRaw;
+        }
+
+        // Catat jam keluar otomatis jika status diset Selesai Muat atau Keluar
+        if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && (!targetTruck.timeOut || targetTruck.timeOut === '-')) {
+            targetTruck.timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            targetTruck.rawTimeOut = new Date().getTime();
         }
 
         if(newSt === 'Proses Muat') {
