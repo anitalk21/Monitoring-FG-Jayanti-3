@@ -954,7 +954,7 @@
                 </span>`;
             }
 
-            // KUNCI FITUR UNTUK TRUK YANG STATUSNYA SUDAH KELUAR
+            // TOMBOL AKSI: UNTUK KELUAR, TOMBOL PINDAH STATUS DI-LOCK, TAPI TOMBOL HAPUS TETAP ADA
             let isKeluar = (t.status === 'Keluar');
             let actionButtonsHtml = '';
             if (isKeluar) {
@@ -962,7 +962,8 @@
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
                         📄 Picking List (${plCount})
                     </button>
-                    <span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
+                    <span style="background:#fef3c7; color:#b45309; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
+                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
                 `;
             } else {
                 actionButtonsHtml = `
@@ -1007,7 +1008,7 @@
     let activeStatusTruckIdx = null;
     function openStatusModal(idx) {
         if(truckQueue[idx].status === 'Keluar') {
-            alert('Truk sudah Keluar dan dikunci secara permanen!');
+            alert('Truk sudah Keluar dan statusnya dikunci!');
             return;
         }
         activeStatusTruckIdx = idx;
@@ -1095,7 +1096,6 @@
             targetTruck.frozenDurationMs = new Date().getTime() - startRaw;
         }
 
-        // Jam keluar & waktu stay HANYA dicatat jika status benar-benar "Keluar"
         if (newSt === 'Keluar') {
             if (!targetTruck.timeOut || targetTruck.timeOut === '-') {
                 targetTruck.timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1115,10 +1115,6 @@
     }
 
     function deleteTruck(idx) {
-        if(truckQueue[idx].status === 'Keluar') {
-            alert('Truk sudah Keluar dan dikunci secara permanen!');
-            return;
-        }
         if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
             let t = truckQueue[idx];
             if(t && t.pickingList && t.pickingList.length > 0) {
