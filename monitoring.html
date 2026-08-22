@@ -328,7 +328,12 @@
                 <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                     <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
                         <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor</span>
-                        <button onclick="renderEksporSummaryTable()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="downloadEksporExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-excel"></i> Download Excel
+                            </button>
+                            <button onclick="renderEksporSummaryTable()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
                     </div>
                     <div class="card-body table-responsive">
                         <table class="table table-bordered align-middle text-center">
@@ -862,6 +867,29 @@
                     </tr>
                 `;
             });
+        }
+
+        // FUNGSI DOWNLOAD EXCEL (CSV) SUMMARY EKSPOR
+        function downloadEksporExcel() {
+            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+            if(eksporPlanningData.length === 0) {
+                alert('Tidak ada data untuk diunduh.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,NOMOR SO,NOMOR QUOTATION,TANGGAL KEDATANGAN,SKU,NAME OF PRODUCT,TOTAL QUANTITY,No. DO,PRO DATE,EXP DATE,KODIFIKASI,EKSPEDISI,DESTINATION,PLANNING STUFFING BY SI DATE,REALISASI STUFFING DATE,JAM MASUK,START,NPE RELEASED,JAM KELUAR,STATUS,NOTE\n";
+            
+            eksporPlanningData.forEach(p => {
+                csvContent += `"${p.noSo || ''}","${p.quotation || ''}","${p.tglSi || ''}","${p.sku || ''}","${p.name || ''}","${p.qtySi || ''}","${p.noDo || ''}","${p.proDate || ''}","${p.expDate || ''}","${p.kodifikasi || ''}","${p.ekspedisi || ''}","${p.destination || ''}","${p.plant || ''}","${p.realisasiStuffing || ''}","${p.jamMasuk || ''}","${p.start || ''}","${p.npeReleased || ''}","${p.jamKeluar || ''}","${p.status || ''}","${p.note || ''}"\n`;
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Summary_Planning_Realisasi_Ekspor.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function renderEksporPlanningTable() {
