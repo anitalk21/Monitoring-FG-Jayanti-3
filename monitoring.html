@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (XLSX) CDN untuk membaca file Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; }
         .app-page { display: none; }
@@ -296,6 +298,9 @@
                     <button onclick="switchEksporTab('input')" id="topBtnInput" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
                         <i class="fa-solid fa-calendar-plus text-indigo-500"></i> Input Planning
                     </button>
+                    <a href="antrian.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                        <i class="fa-solid fa-truck-arrow-right"></i> Buka Portal Antrian
+                    </a>
                     <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
                 </div>
             </div>
@@ -327,7 +332,7 @@
 
                 <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                     <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor</span>
+                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor (Sinkron Otomatis dengan Portal Antrian)</span>
                         <div class="flex items-center gap-2">
                             <button onclick="downloadEksporExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-excel"></i> Download Excel
@@ -370,7 +375,7 @@
                 </div>
             </div>
 
-            <!-- KONTEN SUB-MENU: TAB INPUT PLANNING -->
+            <!-- KONTEN SUB-MENU: TAB INPUT PLANNING (DENGAN DRAG & DROP / UPLOAD EXCEL AKTIF) -->
             <div id="eksporContent-input" class="space-y-4 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
@@ -378,35 +383,38 @@
                             <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
                             <div>
                                 <h4 class="font-bold text-slate-700 text-xs mb-0">Input & Upload Master Planning Ekspor</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung langsung ke Portal Antrian Truk via No. SO</span></p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung otomatis ke Portal Antrian Truk via No. SO</span></p>
                             </div>
                         </div>
                         <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan & Hubungkan ke Portal
+                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan & Sinkronkan ke Portal Antrian
                         </button>
                     </div>
 
                     <div class="flex items-center gap-2 text-xs font-semibold">
-                        <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload Excel / CSV</button>
-                        <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual (Format Excel)</button>
+                        <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload Excel / CSV</button>
+                        <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual (Format Excel)</button>
                     </div>
 
-                    <div id="subContent-file" class="space-y-4 hidden">
-                        <div class="border-2 border-dashed border-emerald-300 bg-emerald-50/20 hover:bg-emerald-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
+                    <!-- AREA UPLOAD / DRAG & DROP FILE EXCEL AKTIF -->
+                    <div id="subContent-file" class="space-y-4">
+                        <div id="dropZone" class="border-2 border-dashed border-emerald-300 bg-emerald-50/20 hover:bg-emerald-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer relative" onclick="document.getElementById('excelFileInput').click()">
+                            <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv" onchange="handleExcelFileSelect(event)">
                             <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-emerald-200 shadow-2xs">
                                 <i class="fa-solid fa-file-excel"></i>
                             </div>
                             <div>
-                                <h5 class="font-bold text-slate-700 text-xs">Klik atau drag & drop file Excel / CSV ke sini</h5>
-                                <p class="text-[10px] text-slate-400 mt-1">Format kolom otomatis disesuaikan dengan header Planning Ekspor</p>
+                                <h5 class="font-bold text-slate-700 text-xs">Klik untuk memilih atau drag & drop file Excel / CSV ke sini</h5>
+                                <p class="text-[10px] text-slate-400 mt-1">Otomatis mendeteksi kolom: Week, Tgl SI, No Quotation, No SO, SKU, Qty, Ekspedisi, dll.</p>
                             </div>
+                            <div id="uploadStatusText" class="text-xs font-bold text-indigo-600 mt-2"></div>
                         </div>
                     </div>
 
-                    <div id="subContent-manual" class="space-y-4">
+                    <div id="subContent-manual" class="space-y-4 hidden">
                         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
                             <div class="text-slate-500 font-medium">
-                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span>
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik <b>Kode SKU</b>, maka <b>Nama Produk</b> akan terisi otomatis dari Database Master SKU.
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
@@ -429,7 +437,7 @@
                                             <th>NOMOR QUOTATION</th>
                                             <th class="bg-amber-100 text-amber-900">NO SO (SO PORTAL)</th>
                                             <th>SKU</th>
-                                            <th class="text-start">NAME OF PRODUCT</th>
+                                            <th class="text-start">NAME OF PRODUCT (Auto-Fill)</th>
                                             <th>TOTAL QUANTITY SI</th>
                                             <th>EKSPEDISI</th>
                                             <th>JUMLAH CONTAINER</th>
@@ -446,8 +454,8 @@
                                             <td><input type="date" class="form-control form-control-sm"></td>
                                             <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
                                             <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
-                                            <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
-                                            <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                                            <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
+                                            <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
                                             <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
                                             <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
                                             <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
@@ -714,6 +722,122 @@
             }
         }
 
+        // FUNGSI UPLOAD & DRAG & DROP FILE EXCEL MENGGUNAKAN SHEETJS
+        function handleExcelFileSelect(e) {
+            let files = e.target.files || e.dataTransfer.files;
+            if (!files || files.length === 0) return;
+            let file = files[0];
+            
+            let statusText = document.getElementById('uploadStatusText');
+            if(statusText) statusText.innerText = `Membaca file: ${file.name}...`;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data = new Uint8Array(e.target.result);
+                    let workbook = XLSX.read(data, {type: 'array'});
+                    let firstSheetName = workbook.SheetNames[0];
+                    let worksheet = workbook.Sheets[firstSheetName];
+                    let jsonSheet = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                    let importedCount = 0;
+                    // Melewati baris header (index 0), mulai membaca dari baris 1
+                    for (let i = 1; i < jsonSheet.length; i++) {
+                        let row = jsonSheet[i];
+                        if (row && row.length > 0) {
+                            let week = row[1] || '-';
+                            let tglSi = row[2] || '';
+                            let quotation = row[3] || '-';
+                            let noSo = row[4] || '';
+                            let sku = row[5] || '';
+                            let name = row[6] || '-';
+                            let qtySi = row[7] || 0;
+                            let ekspedisi = row[8] || '-';
+                            let container = row[9] || 1;
+                            let destination = row[10] || '-';
+                            let plant = row[11] || '-';
+                            let negara = row[12] || '-';
+
+                            if (noSo) {
+                                let newPlan = {
+                                    week: String(week), tglSi: String(tglSi), quotation: String(quotation), noSo: String(noSo),
+                                    sku: String(sku), name: String(name), qtySi: String(qtySi), ekspedisi: String(ekspedisi),
+                                    container: String(container), destination: String(destination), plant: String(plant), negara: String(negara),
+                                    noDo: '-', proDate: '-', expDate: '-', kodifikasi: '-', realisasiStuffing: '-',
+                                    jamMasuk: '-', start: '-', npeReleased: '-', jamKeluar: '-', status: 'Antrian', note: '-'
+                                };
+                                eksporPlanningData.push(newPlan);
+
+                                // Sinkronisasi otomatis ke portal antrian
+                                let existingAntrian = antrianData.find(t => t.noDoc === String(noSo));
+                                if(!existingAntrian) {
+                                    antrianData.push({
+                                        id: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
+                                        noPol: ekspedisi !== '-' ? ekspedisi + ' (Container)' : 'B 9999 EX',
+                                        ekspedisi: ekspedisi !== '-' ? ekspedisi : 'Ekspedisi Ekspor',
+                                        noDoc: String(noSo),
+                                        jenis: 'Ekspor',
+                                        tujuan: destination !== '-' ? destination : 'International',
+                                        status: 'Antrian',
+                                        timeIn: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                                        pickingList: [{ sku: String(sku), nama: String(name), jumlah: parseInt(qtySi) || 100 }]
+                                    });
+                                }
+                                importedCount++;
+                            }
+                        }
+                    }
+
+                    if (importedCount > 0) {
+                        localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
+                        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
+                        alert(`Berhasil mengimpor ${importedCount} data planning ekspor dari file Excel dan terhubung ke Portal Antrian!`);
+                        switchEksporTab('summary');
+                    } else {
+                        alert('Format file Excel tidak sesuai atau kolom No. SO kosong.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Gagal memproses file Excel. Pastikan format file benar.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Setup Drag & Drop Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            let dropZone = document.getElementById('dropZone');
+            if(dropZone) {
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('bg-emerald-100'); }, false);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('bg-emerald-100'); }, false);
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    let dt = e.dataTransfer;
+                    let files = dt.files;
+                    handleExcelFileSelect({ target: { files: files } });
+                }, false);
+            }
+        });
+
+        // AUTO-FILL NAMA PRODUK DARI MASTER SKU
+        function checkMasterSku(inputElement) {
+            let row = inputElement.closest('tr');
+            let skuInput = row.querySelector('.sku-input');
+            let nameInput = row.querySelector('.name-input');
+            
+            let enteredSku = skuInput.value.trim();
+            let dbStock = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+
+            if (dbStock[enteredSku]) {
+                nameInput.value = dbStock[enteredSku].name;
+            } else {
+                nameInput.value = '';
+            }
+        }
+
         function addManualRow() {
             let tbody = document.getElementById('manualTableBody');
             let rowCount = tbody.rows.length + 1;
@@ -724,8 +848,8 @@
                 <td><input type="date" class="form-control form-control-sm"></td>
                 <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
                 <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
-                <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
-                <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
+                <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
                 <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
                 <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
                 <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
@@ -751,8 +875,8 @@
                     <td><input type="date" class="form-control form-control-sm"></td>
                     <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
                     <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
-                    <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
-                    <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                    <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
+                    <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
                     <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
                     <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
                     <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
@@ -822,7 +946,7 @@
             if (savedCount > 0) {
                 localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
                 localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
-                alert(`Berhasil menyimpan ${savedCount} planning ekspor dan menghubungkan No. SO ke Portal Antrian!`);
+                alert(`Berhasil menyimpan ${savedCount} planning ekspor dan otomatis terhubung ke Portal Antrian Truk!`);
                 switchEksporTab('summary');
             } else {
                 alert('Pastikan minimal kolom No. SO terisi.');
@@ -833,7 +957,9 @@
             let tbody = document.getElementById('eksporSummaryTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
+            
             eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
 
             if(eksporPlanningData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="21" class="text-muted py-4">Belum ada data summary ekspor. Silakan masukkan planning terlebih dahulu.</td></tr>';
@@ -841,6 +967,17 @@
             }
 
             eksporPlanningData.forEach((p, index) => {
+                let matchingAntrian = antrianData.find(t => t.noDoc === p.noSo);
+                let currentStatus = p.status || 'Antrian';
+                let jamMasukVal = p.jamMasuk || '-';
+                let jamKeluarVal = p.jamKeluar || '-';
+
+                if (matchingAntrian) {
+                    currentStatus = matchingAntrian.status;
+                    jamMasukVal = matchingAntrian.timeIn || '-';
+                    jamKeluarVal = matchingAntrian.timeOut || '-';
+                }
+
                 tbody.innerHTML += `
                     <tr>
                         <td>${index + 1}</td>
@@ -858,18 +995,17 @@
                         <td>${p.destination || '-'}</td>
                         <td>${p.plant || '-'}</td>
                         <td>${p.realisasiStuffing || '-'}</td>
-                        <td>${p.jamMasuk || '-'}</td>
+                        <td><span class="text-indigo-600 font-bold">${jamMasukVal}</span></td>
                         <td>${p.start || '-'}</td>
                         <td>${p.npeReleased || '-'}</td>
-                        <td>${p.jamKeluar || '-'}</td>
-                        <td><span class="badge bg-amber-50 text-amber-700 border border-amber-200">${p.status || 'Antrian'}</span></td>
+                        <td><span class="text-rose-600 font-bold">${jamKeluarVal}</span></td>
+                        <td><span class="badge bg-amber-50 text-amber-700 border border-amber-200">${currentStatus}</span></td>
                         <td class="text-start">${p.note || '-'}</td>
                     </tr>
                 `;
             });
         }
 
-        // FUNGSI DOWNLOAD EXCEL (CSV) SUMMARY EKSPOR
         function downloadEksporExcel() {
             eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
             if(eksporPlanningData.length === 0) {
@@ -919,7 +1055,7 @@
                         <td>${p.destination || '-'}</td>
                         <td>${p.plant || '-'}</td>
                         <td>${p.negara || '-'}</td>
-                        <td><span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-link mr-1"></i> Aktif</span></td>
+                        <td><span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-link mr-1"></i> Terhubung ke Portal</span></td>
                     </tr>
                 `;
             });
@@ -931,8 +1067,8 @@
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
             if(document.getElementById('section-' + menuName)) {
-                document.getElementById('section-' + menuName).classList.remove('hidden');
                 document.getElementById('section-' + menuName).classList.add('active');
+                document.getElementById('section-' + menuName).classList.remove('hidden');
             }
             if(menuName === 'binloc') { renderBinMap(); renderCurrentStockTable(); renderMovementHistoryTable(); }
             if(menuName === 'opname') { renderQcHistoryTable(); renderReconciliationTable(); renderOpnameHistory(); }
@@ -950,9 +1086,7 @@
             let activeBtn = document.getElementById('btnCap' + tab.charAt(0) + tab.slice(1).toLowerCase());
             if(activeBtn) activeBtn.className = 'px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs';
             
-            if(tab === 'HOLD') {
-                openQcModalSummary();
-            }
+            if(tab === 'HOLD') { openQcModalSummary(); }
         }
 
         function updateDashboardCapacity() {
@@ -964,10 +1098,7 @@
             let totalAgingPlt = 0;
 
             binData.forEach(item => {
-                let pltValue = 0;
-                if(item.konversi) {
-                    pltValue = parseFloat(item.konversi.split(' ')[0]) || 0;
-                }
+                let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : 0;
                 if (item.gudang && item.gudang.includes('Gudang Aging')) {
                     totalAgingPlt += pltValue;
                 } else {
@@ -993,7 +1124,6 @@
             let tbody = document.getElementById('liveStockTableBody');
             tbody.innerHTML = '';
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-
             let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
 
             if(activeStock.length === 0) {
@@ -1015,23 +1145,16 @@
             document.getElementById('liveStockModal').classList.remove('hidden');
         }
 
-        function closeLiveStockModal() {
-            document.getElementById('liveStockModal').classList.add('hidden');
-        }
-
-        function printLiveStockPDF() {
-            window.print();
-        }
+        function closeLiveStockModal() { document.getElementById('liveStockModal').classList.add('hidden'); }
+        function printLiveStockPDF() { window.print(); }
 
         function exportLiveStockExcel() {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
             let csvContent = "data:text/csv;charset=utf-8,SKU,Nama Produk,Total Karton,Konversi Pallet,Lokasi Rak,Prodate\n";
-            
             activeStock.forEach(item => {
                 csvContent += `"${item.sku}","${item.karton}","${item.konversi}","${item.lokasi}","${item.prodate || '-'}"\n`;
             });
-
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1045,26 +1168,16 @@
             let tbody = document.getElementById('qcModalTableBody');
             tbody.innerHTML = '';
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
-            
             if(qcHistoryData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold.</td></tr>';
             } else {
                 qcHistoryData.forEach(h => {
-                    tbody.innerHTML += `<tr>
-                        <td>${h.sku}</td>
-                        <td class="text-start">${h.name}</td>
-                        <td>${h.palletNo}</td>
-                        <td class="fw-bold text-rose-600">${h.pallets} Plt</td>
-                        <td class="text-start">${h.reason}</td>
-                    </tr>`;
+                    tbody.innerHTML += `<tr><td>${h.sku}</td><td class="text-start">${h.name}</td><td>${h.palletNo}</td><td class="fw-bold text-rose-600">${h.pallets} Plt</td><td class="text-start">${h.reason}</td></tr>`;
                 });
             }
             document.getElementById('qcModalSummary').classList.remove('hidden');
         }
-
-        function closeQcModalSummary() {
-            document.getElementById('qcModalSummary').classList.add('hidden');
-        }
+        function closeQcModalSummary() { document.getElementById('qcModalSummary').classList.add('hidden'); }
 
         function renderRealisasiTable() {
             let tbody = document.getElementById('realisasiTableBody');
@@ -1077,18 +1190,6 @@
             }
             antrianData.forEach(t => {
                 let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
-                let timeIn = t.timeIn || '-';
-                let timeOut = t.timeOut || '-';
-                
-                let durationStr = '-';
-                if (t.rawTime && t.rawTimeOut) {
-                    let diffMs = t.rawTimeOut - t.rawTime;
-                    let totalMins = Math.floor(diffMs / (1000 * 60));
-                    let hrs = Math.floor(totalMins / 60);
-                    let mins = totalMins % 60;
-                    durationStr = `<b>${hrs}j ${mins}m</b>`;
-                }
-
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id}</span></td>
                     <td class="fw-bold">${t.noPol}</td>
@@ -1097,9 +1198,9 @@
                     <td>${t.jenis} &rarr; ${t.tujuan}</td>
                     <td class="fw-bold text-emerald-600">${totalQty} krt</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
-                    <td><span class="text-indigo-600 font-bold">${timeIn}</span></td>
-                    <td><span class="text-rose-600 font-bold">${timeOut}</span></td>
-                    <td>${durationStr}</td>
+                    <td><span class="text-indigo-600 font-bold">${t.timeIn || '-'}</span></td>
+                    <td><span class="text-rose-600 font-bold">${t.timeOut || '-'}</span></td>
+                    <td>-</td>
                 </tr>`;
             });
         }
@@ -1154,16 +1255,11 @@
         }
 
         function switchBinSubTab(tabId) {
-            ['stok', 'movement', 'peta'].forEach(id => {
-                document.getElementById(`binContent-${id}`).classList.add('hidden');
-            });
+            ['stok', 'movement', 'peta'].forEach(id => { document.getElementById(`binContent-${id}`).classList.add('hidden'); });
             document.getElementById(`binContent-${tabId}`).classList.remove('hidden');
         }
 
-        function switchBinWarehouse(wh) {
-            currentBinWarehouse = wh;
-            renderBinMap();
-        }
+        function switchBinWarehouse(wh) { currentBinWarehouse = wh; renderBinMap(); }
 
         function renderQcHistoryTable() {
             let tbody = document.getElementById('qcHistoryBody');
