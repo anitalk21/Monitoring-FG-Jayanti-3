@@ -280,7 +280,7 @@
             </div>
         </div>
 
-        <!-- SECTION EKSPOR (DENGAN KELENGKAPAN TAB SUMMARY, INPUT PLANNING, & PLANNING) -->
+        <!-- SECTION EKSPOR (DENGAN TAB UPLOAD FILE & INPUT MANUAL LENGKAP) -->
         <div id="section-ekspor" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -300,7 +300,7 @@
                 </div>
             </div>
 
-            <!-- SUB-MENU / TAB UTAMA EKSPOR (SUMMARY, INPUT PLANNING, PLANNING) -->
+            <!-- SUB-MENU / TAB UTAMA EKSPOR -->
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
                 <button onclick="switchEksporTab('summary')" id="tabEksporSummary" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">SUMMARY</button>
                 <button onclick="switchEksporTab('input')" id="tabEksporInput" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">INPUT PLANNING</button>
@@ -382,7 +382,7 @@
                 </div>
             </div>
 
-            <!-- KONTEN SUB-MENU: TAB INPUT PLANNING (PERSIS SEPERTI GAMBAR) -->
+            <!-- KONTEN SUB-MENU: TAB INPUT PLANNING -->
             <div id="eksporContent-input" class="space-y-4">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
                     <!-- HEADER BARIS UPLOAD & SIMPAN -->
@@ -405,31 +405,85 @@
                         <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual</button>
                     </div>
 
-                    <!-- CONFIG ROW: WEEK & TAHUN -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 text-xs items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-500 uppercase tracking-wide">WEEK (OPT.)</span>
-                            <input type="text" class="form-control form-control-sm bg-white" placeholder="auto dari tanggal...">
+                    <!-- KONTEN SUB: UPLOAD FILE -->
+                    <div id="subContent-file" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 text-xs items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-500 uppercase tracking-wide">WEEK (OPT.)</span>
+                                <input type="text" class="form-control form-control-sm bg-white" placeholder="auto dari tanggal...">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-500 uppercase tracking-wide">TAHUN</span>
+                                <input type="text" class="form-control form-control-sm bg-white font-bold text-indigo-600" value="2026">
+                            </div>
+                            <div>
+                                <button onclick="alert('Membuka file Excel/CSV...')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-excel"></i> Pilih Excel / CSV
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-500 uppercase tracking-wide">TAHUN</span>
-                            <input type="text" class="form-control form-control-sm bg-white font-bold text-indigo-600" value="2026">
-                        </div>
-                        <div>
-                            <button onclick="alert('Membuka file Excel/CSV...')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5">
-                                <i class="fa-solid fa-file-excel"></i> Pilih Excel / CSV
-                            </button>
+
+                        <div class="border-2 border-dashed border-amber-300 bg-amber-50/20 hover:bg-amber-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
+                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-amber-200 shadow-2xs">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-slate-700 text-xs">Klik, drag & drop, atau Ctrl+V paste screenshot</h5>
+                                <p class="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG, WEBP — bisa beberapa file</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- AREA DRAG & DROP FILE -->
-                    <div class="border-2 border-dashed border-amber-300 bg-amber-50/20 hover:bg-amber-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
-                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-amber-200 shadow-2xs">
-                            <i class="fa-solid fa-envelope"></i>
+                    <!-- KONTEN SUB: INPUT MANUAL (SESUAI GAMBAR REFERENSI KEDUA) -->
+                    <div id="subContent-manual" class="space-y-4 hidden">
+                        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
+                            <div class="text-slate-500 font-medium">
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
+                                    <i class="fa-solid fa-plus"></i> Tambah Baris
+                                </button>
+                                <button onclick="clearManualRows()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1">
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="font-bold text-slate-700 text-xs">Klik, drag & drop, atau Ctrl+V paste screenshot</h5>
-                            <p class="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG, WEBP — bisa beberapa file</p>
+
+                        <div class="card shadow-2xs border-0 bg-white p-3 rounded-2xl border border-slate-200">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle text-center" id="manualInputTable">
+                                    <thead class="pastel-header-dark">
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th>KETERANGAN</th>
+                                            <th>SO</th>
+                                            <th>QT</th>
+                                            <th>NEGARA</th>
+                                            <th>KODE</th>
+                                            <th class="text-start">MATERIAL</th>
+                                            <th style="width: 50px;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="manualTableBody">
+                                        <tr>
+                                            <td class="fw-bold">1</td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
+                                            <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
+                                            <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            <span>Tips: Copy sel dari Excel &rarr; klik sel pertama di tabel &rarr; Ctrl+V untuk paste banyak baris sekaligus</span>
                         </div>
                     </div>
                 </div>
@@ -637,7 +691,6 @@
             btn.classList.add('active');
         }
 
-        // FUNGSI SWITCH TAB DALAM MONITORING EKSPOR (SUMMARY, INPUT PLANNING, PLANNING)
         function switchEksporTab(tab) {
             ['summary', 'input', 'planning'].forEach(t => {
                 let contentEl = document.getElementById('eksporContent-' + t);
@@ -660,12 +713,65 @@
         function switchInputSub(sub) {
             let btnFile = document.getElementById('subInputFile');
             let btnManual = document.getElementById('subInputManual');
+            let contentFile = document.getElementById('subContent-file');
+            let contentManual = document.getElementById('subContent-manual');
+
             if(sub === 'file') {
                 btnFile.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
                 btnManual.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+                contentFile.classList.remove('hidden');
+                contentManual.classList.add('hidden');
             } else {
                 btnManual.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
                 btnFile.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+                contentManual.classList.remove('hidden');
+                contentFile.classList.add('hidden');
+            }
+        }
+
+        // FUNGSI UNTUK INPUT MANUAL TABEL PLANNING EKSPOR
+        function addManualRow() {
+            let tbody = document.getElementById('manualTableBody');
+            let rowCount = tbody.rows.length + 1;
+            let newRow = tbody.insertRow();
+            newRow.innerHTML = `
+                <td class="fw-bold">${rowCount}</td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
+                <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
+                <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
+            `;
+        }
+
+        function removeManualRow(btn) {
+            let row = btn.closest('tr');
+            row.remove();
+            reorderManualRows();
+        }
+
+        function clearManualRows() {
+            let tbody = document.getElementById('manualTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td class="fw-bold">1</td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
+                    <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
+                    <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
+                    <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
+                </tr>
+            `;
+        }
+
+        function reorderManualRows() {
+            let tbody = document.getElementById('manualTableBody');
+            for (let i = 0; i < tbody.rows.length; i++) {
+                tbody.rows[i].cells[0].innerText = i + 1;
             }
         }
 
@@ -1024,7 +1130,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             renderMasterSkuTable();
             updateDashboardCapacity();
-            switchEksporTab('input'); // Default membuka tab Input Planning sesuai gambar referensi
+            switchEksporTab('input'); // Default membuka tab Input Planning
         });
     </script>
 </body>
