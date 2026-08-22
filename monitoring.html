@@ -278,14 +278,128 @@
             </div>
         </div>
 
-        <!-- SECTION EKSPOR -->
+        <!-- SECTION EKSPOR (BARU DIUBAH MENGIKUTI REFERENSI) -->
         <div id="section-ekspor" class="app-page space-y-6">
-            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h3 class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-ship text-indigo-500 mr-2"></i> Monitoring Ekspor</h3>
-                <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-ship text-indigo-500"></i> Monitoring Ekspor
+                    </h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Kelola planning, capaian, dan pantau pengiriman ekspor secara real-time.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> Summary
+                    </button>
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                        <i class="fa-solid fa-calendar-plus"></i> Input Planning
+                    </button>
+                    <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                <p class="text-muted text-center">Belum ada data monitoring ekspor.</p>
+
+            <!-- SUB-MENU / TAB EKSPOR -->
+            <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
+                <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">SUMMARY</button>
+                <button class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">INPUT PLANNING</button>
+                <button class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">PLANNING</button>
+            </div>
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">DARI</label>
+                        <input type="date" class="form-control form-control-sm">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">SAMPAI</label>
+                        <input type="date" class="form-control form-control-sm">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">SKU / NAMA</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="kode atau nama...">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">NO. SO/DOC</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="no. SO...">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">NO. POL</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="no. pol...">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">TUJUAN</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="tujuan...">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-500 block mb-1">PLANT</label>
+                        <select class="form-select form-select-sm">
+                            <option>JAYANTI 3</option>
+                            <option>JAYANTI 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                    <button class="btn btn-dark btn-sm px-4 fw-bold text-xs"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tampilkan</button>
+                    <button class="btn btn-outline-secondary btn-sm px-3 text-xs"><i class="fa-solid fa-rotate-right mr-1"></i> Reset</button>
+                </div>
+            </div>
+
+            <!-- KARTU STATISTIK / RINGKASAN -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">% CAPAIAN</div>
+                    <div class="text-2xl font-bold text-slate-700">0%</div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">TOTAL PLANNING</div>
+                    <div class="text-2xl font-bold text-slate-700">0</div>
+                </div>
+                <div class="bg-sky-50/50 p-4 rounded-2xl border border-sky-100 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-sky-600 uppercase tracking-wide">TOTAL KEDATANGAN</div>
+                    <div class="text-2xl font-bold text-slate-700">0</div>
+                </div>
+                <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                    <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">KELUAR</div>
+                    <div class="text-2xl font-bold text-slate-700">0</div>
+                </div>
+            </div>
+
+            <!-- TABEL UTAMA CAPAIAN PLANNING EKSPOR -->
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
+                    <span class="font-bold text-slate-700 text-xs">Capaian Planning Ekspor</span>
+                    <span class="badge bg-indigo-50 text-indigo-600 border border-indigo-200">0 data</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>#</th>
+                                <th>NO SO</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Item</th>
+                                <th>Plan</th>
+                                <th>Tujuan</th>
+                                <th>No Pol</th>
+                                <th>No Container</th>
+                                <th>Ekspedisi</th>
+                                <th>Waktu Daftar</th>
+                                <th>Proses Loading</th>
+                                <th>Waktu Keluar</th>
+                                <th>Status</th>
+                                <th>Tgl Aktual</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="15" class="text-muted py-4">Belum ada data monitoring ekspor.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
