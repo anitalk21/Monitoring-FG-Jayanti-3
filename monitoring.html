@@ -387,7 +387,7 @@
                             </div>
                         </div>
                         <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan & Sinkronkan ke Portal Antrian
+                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan Planning Ekspor
                         </button>
                     </div>
 
@@ -726,7 +726,7 @@
             }
         }
 
-        // FUNGSI UPLOAD & DRAG & DROP FILE EXCEL MENGGUNAKAN SHEETJS
+        // FUNGSI UPLOAD & DRAG & DROP FILE EXCEL MENGGUNAKAN SHEETJS (TANPA MEMBUAT TRUK ANTRIAN OTOMATIS)
         function handleExcelFileSelect(e) {
             let files = e.target.files || e.dataTransfer.files;
             if (!files || files.length === 0) return;
@@ -770,21 +770,6 @@
                                     jamMasuk: '-', start: '-', npeReleased: '-', jamKeluar: '-', status: 'Antrian', note: '-'
                                 };
                                 eksporPlanningData.push(newPlan);
-
-                                let existingAntrian = antrianData.find(t => t.noDoc === String(noSo));
-                                if(!existingAntrian) {
-                                    antrianData.push({
-                                        id: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
-                                        noPol: ekspedisi !== '-' ? ekspedisi + ' (Container)' : 'B 9999 EX',
-                                        ekspedisi: ekspedisi !== '-' ? ekspedisi : 'Ekspedisi Ekspor',
-                                        noDoc: String(noSo),
-                                        jenis: 'Ekspor',
-                                        tujuan: destination !== '-' ? destination : 'International',
-                                        status: 'Antrian',
-                                        timeIn: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                                        pickingList: [{ sku: String(sku), nama: String(name), jumlah: parseInt(qtySi) || 100 }]
-                                    });
-                                }
                                 importedCount++;
                             }
                         }
@@ -792,7 +777,6 @@
 
                     if (importedCount > 0) {
                         localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
-                        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
                         alert(`Berhasil mengimpor ${importedCount} data planning ekspor dari file Excel!`);
                         switchEksporTab('planning');
                     } else {
@@ -942,28 +926,12 @@
                         jamMasuk: '-', start: '-', npeReleased: '-', jamKeluar: '-', status: 'Antrian', note: '-'
                     };
                     eksporPlanningData.push(newPlan);
-
-                    let existingAntrian = antrianData.find(t => t.noDoc === noSo);
-                    if(!existingAntrian) {
-                        antrianData.push({
-                            id: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
-                            noPol: ekspedisi ? ekspedisi + ' (Container)' : 'B 9999 EX',
-                            ekspedisi: ekspedisi || 'Ekspedisi Ekspor',
-                            noDoc: noSo,
-                            jenis: 'Ekspor',
-                            tujuan: destination || 'International',
-                            status: 'Antrian',
-                            timeIn: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                            pickingList: [{ sku: sku || 'SKU-00', nama: namaProduk || 'Material Ekspor', jumlah: parseInt(qtySi) || 100 }]
-                        });
-                    }
                     savedCount++;
                 }
             }
 
             if (savedCount > 0) {
                 localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
-                localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
                 alert(`Berhasil menyimpan ${savedCount} planning ekspor!`);
                 switchEksporTab('planning');
             } else {
