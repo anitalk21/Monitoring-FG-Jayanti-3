@@ -280,7 +280,7 @@
             </div>
         </div>
 
-        <!-- SECTION EKSPOR (DENGAN TAB UPLOAD FILE & INPUT MANUAL FORMAT EXCEL BARU YANG TERHUBUNG KE PORTAL ANTRIAN) -->
+        <!-- SECTION EKSPOR -->
         <div id="section-ekspor" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -290,11 +290,11 @@
                     <p class="text-[11px] text-slate-400 mt-0.5">Kelola planning, capaian, dan pantau pengiriman ekspor secara real-time.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="switchEksporTab('summary')" id="topBtnSummary" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> Summary
+                    <button onclick="switchEksporTab('summary')" id="topBtnSummary" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                        <i class="fa-solid fa-chart-pie"></i> Summary
                     </button>
-                    <button onclick="switchEksporTab('input')" id="topBtnInput" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
-                        <i class="fa-solid fa-calendar-plus"></i> Input Planning
+                    <button onclick="switchEksporTab('input')" id="topBtnInput" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-plus text-indigo-500"></i> Input Planning
                     </button>
                     <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
                 </div>
@@ -302,90 +302,72 @@
 
             <!-- SUB-MENU / TAB UTAMA EKSPOR -->
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
-                <button onclick="switchEksporTab('summary')" id="tabEksporSummary" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">SUMMARY</button>
-                <button onclick="switchEksporTab('input')" id="tabEksporInput" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">INPUT PLANNING</button>
+                <button onclick="switchEksporTab('summary')" id="tabEksporSummary" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">SUMMARY</button>
+                <button onclick="switchEksporTab('input')" id="tabEksporInput" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">INPUT PLANNING</button>
                 <button onclick="switchEksporTab('planning')" id="tabEksporPlanning" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">PLANNING</button>
             </div>
 
             <!-- KONTEN SUB-MENU: TAB SUMMARY -->
-            <div id="eksporContent-summary" class="space-y-6 hidden">
-                <div class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs text-xs">
-                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onclick="toggleFilter(this, 'group1')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-list mr-1 text-slate-400"></i> All</button>
-                        <button onclick="toggleFilter(this, 'group1')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-chart-pie mr-1"></i> Capaian Planning</button>
-                    </div>
-                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onclick="toggleFilter(this, 'group2')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-chart-bar mr-1 text-slate-400"></i> Capaian</button>
-                        <button onclick="toggleFilter(this, 'group2')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-envelope mr-1"></i> Detail</button>
-                    </div>
-                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onclick="toggleFilter(this, 'group3')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-regular fa-calendar mr-1"></i> By Planning</button>
-                        <button onclick="toggleFilter(this, 'group3')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-truck mr-1 text-slate-400"></i> By Aktual</button>
-                    </div>
-                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onclick="toggleFilter(this, 'group4')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-regular fa-calendar-days mr-1"></i> Tanggal</button>
-                        <button onclick="toggleFilter(this, 'group4')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-calendar-week mr-1 text-slate-400"></i> Week</button>
-                    </div>
-                </div>
-
-                <!-- FILTER BAR FORM INPUT -->
+            <div id="eksporContent-summary" class="space-y-6">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
                         <div><label class="font-bold text-slate-500 block mb-1">DARI</label><input type="date" class="form-control form-control-sm"></div>
                         <div><label class="font-bold text-slate-500 block mb-1">SAMPAI</label><input type="date" class="form-control form-control-sm"></div>
                         <div><label class="font-bold text-slate-500 block mb-1">SKU / NAMA</label><input type="text" class="form-control form-control-sm" placeholder="kode atau nama..."></div>
-                        <div><label class="font-bold text-slate-500 block mb-1">NO. SO/DOC</label><input type="text" class="form-control form-control-sm" placeholder="no. SO..."></div>
-                        <div><label class="font-bold text-slate-500 block mb-1">NO. POL</label><input type="text" class="form-control form-control-sm" placeholder="no. pol..."></div>
-                        <div><label class="font-bold text-slate-500 block mb-1">TUJUAN</label><input type="text" class="form-control form-control-sm" placeholder="tujuan..."></div>
-                        <div><label class="font-bold text-slate-500 block mb-1">PLANT</label><select class="form-select form-select-sm"><option>JAYANTI 3</option><option>JAYANTI 2</option></select></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">NO. SO</label><input type="text" class="form-control form-control-sm" placeholder="no. SO..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">EKSPEDISI</label><input type="text" class="form-control form-control-sm" placeholder="ekspedisi..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">DESTINATION</label><input type="text" class="form-control form-control-sm" placeholder="destination..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">STATUS</label><select class="form-select form-select-sm"><option value="">SEMUA</option><option>ANTRIAN</option><option>PROSES MUAT</option><option>SELESAI</option></select></div>
                     </div>
                     <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
-                        <button class="btn btn-dark btn-sm px-4 fw-bold text-xs"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tampilkan</button>
-                        <button class="btn btn-outline-secondary btn-sm px-3 text-xs"><i class="fa-solid fa-rotate-right mr-1"></i> Reset</button>
+                        <button onclick="renderEksporSummaryTable()" class="btn btn-dark btn-sm px-4 fw-bold text-xs"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tampilkan</button>
+                        <button onclick="renderEksporSummaryTable()" class="btn btn-outline-secondary btn-sm px-3 text-xs"><i class="fa-solid fa-rotate-right mr-1"></i> Reset</button>
                     </div>
                 </div>
 
-                <!-- KARTU STATISTIK / RINGKASAN -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
-                        <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">% CAPAIAN</div>
-                        <div class="text-2xl font-bold text-slate-700">0%</div>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">TOTAL PLANNING</div>
-                        <div class="text-2xl font-bold text-slate-700">0</div>
-                    </div>
-                    <div class="bg-sky-50/50 p-4 rounded-2xl border border-sky-100 shadow-2xs space-y-1">
-                        <div class="text-[11px] font-bold text-sky-600 uppercase tracking-wide">TOTAL KEDATANGAN</div>
-                        <div class="text-2xl font-bold text-slate-700">0</div>
-                    </div>
-                    <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
-                        <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">KELUAR</div>
-                        <div class="text-2xl font-bold text-slate-700">0</div>
-                    </div>
-                </div>
-
-                <!-- TABEL UTAMA CAPAIAN PLANNING EKSPOR -->
                 <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                     <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                        <span class="font-bold text-slate-700 text-xs">Capaian Planning Ekspor</span>
-                        <span class="badge bg-indigo-50 text-indigo-600 border border-indigo-200">0 data</span>
+                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor</span>
+                        <button onclick="renderEksporSummaryTable()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
                     </div>
                     <div class="card-body table-responsive">
                         <table class="table table-bordered align-middle text-center">
-                            <thead class="pastel-header-purple">
-                                <tr><th>#</th><th>NO SO</th><th>SKU</th><th class="text-start">Nama Item</th><th>Plan</th><th>Tujuan</th><th>No Pol</th><th>No Container</th><th>Ekspedisi</th><th>Waktu Daftar</th><th>Proses Loading</th><th>Waktu Keluar</th><th>Status</th><th>Tgl Aktual</th><th>Keterangan</th></tr>
+                            <thead class="pastel-header-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>NOMOR SO</th>
+                                    <th>NOMOR QUOTATION</th>
+                                    <th>TANGGAL KEDATANGAN</th>
+                                    <th>SKU</th>
+                                    <th class="text-start">NAME OF PRODUCT</th>
+                                    <th>TOTAL QUANTITY</th>
+                                    <th>No. DO</th>
+                                    <th>PRO DATE</th>
+                                    <th>EXP DATE</th>
+                                    <th>KODIFIKASI</th>
+                                    <th>EKSPEDISI</th>
+                                    <th>DESTINATION</th>
+                                    <th>PLANNING STUFFING BY SI DATE</th>
+                                    <th>REALISASI STUFFING DATE</th>
+                                    <th>JAM MASUK</th>
+                                    <th>START</th>
+                                    <th>NPE RELEASED</th>
+                                    <th>JAM KELUAR</th>
+                                    <th>STATUS</th>
+                                    <th class="text-start">NOTE</th>
+                                </tr>
                             </thead>
-                            <tbody><tr><td colspan="15" class="text-muted py-4">Belum ada data monitoring ekspor.</td></tr></tbody>
+                            <tbody id="eksporSummaryTableBody">
+                                <tr><td colspan="21" class="text-muted py-4">Belum ada data summary ekspor. Silakan masukkan planning terlebih dahulu.</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
             <!-- KONTEN SUB-MENU: TAB INPUT PLANNING -->
-            <div id="eksporContent-input" class="space-y-4">
+            <div id="eksporContent-input" class="space-y-4 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
-                    <!-- HEADER BARIS UPLOAD & SIMPAN -->
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
                         <div class="flex items-center gap-2">
                             <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
@@ -399,13 +381,11 @@
                         </button>
                     </div>
 
-                    <!-- SUB-TABS (UPLOAD EXCEL VS INPUT MANUAL) -->
                     <div class="flex items-center gap-2 text-xs font-semibold">
                         <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload Excel / CSV</button>
                         <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual (Format Excel)</button>
                     </div>
 
-                    <!-- KONTEN SUB: UPLOAD FILE -->
                     <div id="subContent-file" class="space-y-4 hidden">
                         <div class="border-2 border-dashed border-emerald-300 bg-emerald-50/20 hover:bg-emerald-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
                             <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-emerald-200 shadow-2xs">
@@ -418,11 +398,10 @@
                         </div>
                     </div>
 
-                    <!-- KONTEN SUB: INPUT MANUAL FORMAT EXCEL (SESUAI GAMBAR REFERENSI BARU) -->
                     <div id="subContent-manual" class="space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
                             <div class="text-slate-500 font-medium">
-                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span> (Kolom No. SO terhubung ke Portal Antrian)
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
@@ -476,11 +455,6 @@
                                 </table>
                             </div>
                         </div>
-
-                        <div class="text-[11px] text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center gap-2">
-                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
-                            <span>Tips: Kolom <b>NO SO (SO PORTAL)</b> berfungsi sebagai kunci utama yang otomatis menyambungkan data ekspor ini ke sistem Antrian Truk di Portal.</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -489,27 +463,14 @@
             <div id="eksporContent-planning" class="space-y-4 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-700 text-sm">Daftar Planning Ekspor Tersimpan (Terhubung ke Portal Antrian)</h3>
+                        <h3 class="font-bold text-slate-700 text-sm">Daftar Planning Ekspor Tersimpan</h3>
                         <button onclick="renderEksporPlanningTable()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle text-center">
                             <thead class="pastel-header-purple">
                                 <tr>
-                                    <th>#</th>
-                                    <th>WEEK</th>
-                                    <th>TGL SI</th>
-                                    <th>NO QUOTATION</th>
-                                    <th>NO SO (PORTAL)</th>
-                                    <th>SKU</th>
-                                    <th class="text-start">NAME OF PRODUCT</th>
-                                    <th>QTY SI</th>
-                                    <th>EKSPEDISI</th>
-                                    <th>CONTAINER</th>
-                                    <th>DESTINATION</th>
-                                    <th>PLANT</th>
-                                    <th>NEGARA</th>
-                                    <th>Status Link Antrian</th>
+                                    <th>#</th><th>WEEK</th><th>TGL SI</th><th>NO QUOTATION</th><th>NO SO (PORTAL)</th><th>SKU</th><th class="text-start">NAME OF PRODUCT</th><th>QTY SI</th><th>EKSPEDISI</th><th>CONTAINER</th><th>DESTINATION</th><th>PLANT</th><th>NEGARA</th><th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="savedEksporPlanningBody">
@@ -704,14 +665,6 @@
             document.getElementById('sidebarOverlay').classList.toggle('hidden');
         }
 
-        function toggleFilter(btn, groupName) {
-            let parentContainer = btn.parentElement;
-            parentContainer.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active');
-            });
-            btn.classList.add('active');
-        }
-
         function switchEksporTab(tab) {
             ['summary', 'input', 'planning'].forEach(t => {
                 let contentEl = document.getElementById('eksporContent-' + t);
@@ -728,6 +681,9 @@
             if(targetContent) targetContent.classList.remove('hidden');
             if(activeTabBtn) {
                 activeTabBtn.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs';
+            }
+            if(tab === 'summary') {
+                renderEksporSummaryTable();
             }
             if(tab === 'planning') {
                 renderEksporPlanningTable();
@@ -753,7 +709,6 @@
             }
         }
 
-        // FUNGSI TABEL INPUT MANUAL FORMAT EXCEL BARU
         function addManualRow() {
             let tbody = document.getElementById('manualTableBody');
             let rowCount = tbody.rows.length + 1;
@@ -811,7 +766,6 @@
             }
         }
 
-        // MENYIMPAN DATA PLANNING EKSPOR DAN MENGHUBUNGKAN NO SO KE PORTAL ANTRIAN
         function saveManualEksporPlanning() {
             let tbody = document.getElementById('manualTableBody');
             let rows = tbody.rows;
@@ -836,12 +790,13 @@
                     let newPlan = {
                         week: week, tglSi: tglSi, quotation: quotation, noSo: noSo,
                         sku: sku, name: namaProduk, qtySi: qtySi, ekspedisi: ekspedisi,
-                        container: container, destination: destination, plant: plant, negara: negara
+                        container: container, destination: destination, plant: plant, negara: negara,
+                        noDo: '-', proDate: '-', expDate: '-', kodifikasi: '-', realisasiStuffing: '-',
+                        jamMasuk: '-', start: '-', npeReleased: '-', jamKeluar: '-', status: 'Antrian', note: '-'
                     };
                     eksporPlanningData.push(newPlan);
 
-                    // LINK OTOMATIS KE PORTAL ANTRIAN (ANTRIAN.HTML)
-                    let existingAntrian = antrianData.find(t => t.noDoc === noSo || t.noPol === ekspedisi);
+                    let existingAntrian = antrianData.find(t => t.noDoc === noSo);
                     if(!existingAntrian) {
                         antrianData.push({
                             id: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
@@ -863,10 +818,50 @@
                 localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
                 localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
                 alert(`Berhasil menyimpan ${savedCount} planning ekspor dan menghubungkan No. SO ke Portal Antrian!`);
-                switchEksporTab('planning');
+                switchEksporTab('summary');
             } else {
-                alert('Pastikan minimal kolom No. SO (SO Portal) terisi untuk menyimpan data.');
+                alert('Pastikan minimal kolom No. SO terisi.');
             }
+        }
+
+        function renderEksporSummaryTable() {
+            let tbody = document.getElementById('eksporSummaryTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+
+            if(eksporPlanningData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="21" class="text-muted py-4">Belum ada data summary ekspor. Silakan masukkan planning terlebih dahulu.</td></tr>';
+                return;
+            }
+
+            eksporPlanningData.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo || '-'}</span></td>
+                        <td>${p.quotation || '-'}</td>
+                        <td>${p.tglSi || '-'}</td>
+                        <td>${p.sku || '-'}</td>
+                        <td class="text-start fw-semibold">${p.name || '-'}</td>
+                        <td class="fw-bold text-emerald-600">${p.qtySi || '0'}</td>
+                        <td>${p.noDo || '-'}</td>
+                        <td>${p.proDate || '-'}</td>
+                        <td>${p.expDate || '-'}</td>
+                        <td>${p.kodifikasi || '-'}</td>
+                        <td>${p.ekspedisi || '-'}</td>
+                        <td>${p.destination || '-'}</td>
+                        <td>${p.plant || '-'}</td>
+                        <td>${p.realisasiStuffing || '-'}</td>
+                        <td>${p.jamMasuk || '-'}</td>
+                        <td>${p.start || '-'}</td>
+                        <td>${p.npeReleased || '-'}</td>
+                        <td>${p.jamKeluar || '-'}</td>
+                        <td><span class="badge bg-amber-50 text-amber-700 border border-amber-200">${p.status || 'Antrian'}</span></td>
+                        <td class="text-start">${p.note || '-'}</td>
+                    </tr>
+                `;
+            });
         }
 
         function renderEksporPlanningTable() {
@@ -896,7 +891,7 @@
                         <td>${p.destination || '-'}</td>
                         <td>${p.plant || '-'}</td>
                         <td>${p.negara || '-'}</td>
-                        <td><span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-link mr-1"></i> Terhubung ke Portal</span></td>
+                        <td><span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-link mr-1"></i> Aktif</span></td>
                     </tr>
                 `;
             });
@@ -915,6 +910,7 @@
             if(menuName === 'opname') { renderQcHistoryTable(); renderReconciliationTable(); renderOpnameHistory(); }
             if(menuName === 'rdc') { renderRdcMonitoringTable(); }
             if(menuName === 'realisasi') { renderRealisasiTable(); }
+            if(menuName === 'ekspor') { renderEksporSummaryTable(); }
             if(window.innerWidth < 768) toggleSidebar();
         }
 
@@ -1230,7 +1226,7 @@
                 let rowCode = blockName.replace('Blok ', '').replace(' FG', '') + rNum;
                 gridHtml += `<button onclick="selectLorong('${rowCode}', '${rNum}')" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl text-center transition">
                     <div class="font-bold text-xs text-slate-700">${rowCode}</div>
-                    <div class="text-[9px] text-slate-400">Lorung</div>
+                    <div class="text-[9px] text-slate-400">Lorong</div>
                 </button>`;
             }
             document.getElementById('modalRowGrid').innerHTML = gridHtml;
@@ -1257,7 +1253,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             renderMasterSkuTable();
             updateDashboardCapacity();
-            switchEksporTab('input'); // Default membuka tab Input Planning
+            switchEksporTab('summary');
         });
     </script>
 </body>
