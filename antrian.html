@@ -46,31 +46,31 @@
 <header class="nav-bar">
     <div style="display: flex; align-items: center; gap: 15px;">
         <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian (Time Keeper & Admin)</span>
-        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>[cite: 5]
+        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
         <button class="btn-nav" onclick="renderAll()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
-        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>[cite: 5]
-        <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>[cite: 5]
-        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>[cite: 5]
+        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
+        <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
+        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
     </div>
 </header>
 
 <div class="container">
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">[cite: 5]
-        <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Semua Data</button>[cite: 5]
+        <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
+        <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Semua Data</button>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="countAntrianTab">0</span>)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen (<span id="countMenungguTab">0</span>)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="countProsesTab">0</span>)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat (<span id="countSelesaiTab">0</span>)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>[cite: 5]
-        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="countKeluarTab">0</span>)</button>[cite: 5]
+        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="countAntrianTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen (<span id="countMenungguTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="countProsesTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat (<span id="countSelesaiTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
+        <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>
+        <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>
+        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="countKeluarTab">0</span>)</button>
     </div>
 
     <div id="tabContentArea">
@@ -81,16 +81,16 @@
 <!-- MODAL DAFTAR MANUAL (TIME KEEPER) -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
-        <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>[cite: 5]
-        <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>[cite: 5]
+        <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+        <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>
         <form onsubmit="submitAntrian(event)">
-            <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>[cite: 5]
-            <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>[cite: 5]
-            <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>[cite: 5]
-            <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>[cite: 5]
+            <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
+            <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
+            <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
+            <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
             
             <div class="form-group">
-                <label>Jenis *</label>[cite: 5]
+                <label>Jenis *</label>
                 <select id="mJenis" required onchange="handleJenisChange()">
                     <option value="">— Pilih Jenis —</option>
                     <option value="LOKAL">LOKAL</option>
@@ -99,7 +99,7 @@
             </div>
 
             <div class="form-group" id="groupTipePengiriman" style="display:none;">
-                <label>Tipe Pengiriman *</label>[cite: 5]
+                <label>Tipe Pengiriman *</label>
                 <select id="mTipeLokal">
                     <option value="">— Pilih Tipe —</option>
                     <option value="RDC">RDC</option>
@@ -109,20 +109,20 @@
             </div>
 
             <div class="form-group" id="groupContainer" style="display:none;">
-                <label>No. Container (opsional)</label>[cite: 5]
+                <label>No. Container (opsional)</label>
                 <input type="text" id="mContainer" placeholder="CONTOH: TCKU1234567">
             </div>
 
             <div class="form-group">
-                <label>Tujuan Pengiriman *</label>[cite: 5]
+                <label>Tujuan Pengiriman *</label>
                 <input type="text" id="mTujuan" required placeholder="Masukkan tujuan pengiriman">
             </div>
 
-            <div class="form-group"><label>No. HP (opsional)</label><input type="text" id="mNoHp" placeholder="08123456789"></div>[cite: 5]
+            <div class="form-group"><label>No. HP (opsional)</label><input type="text" id="mNoHp" placeholder="08123456789"></div>
 
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;">Daftarkan & Ambil Nomor Antrian →</button>[cite: 5]
-                <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>[cite: 5]
+                <button type="submit" class="btn btn-primary" style="flex:1;">Daftarkan & Ambil Nomor Antrian →</button>
+                <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>
             </div>
         </form>
     </div>
@@ -131,11 +131,11 @@
 <!-- MODAL POPUP DETAIL LOADING DOCK -->
 <div id="modalDockDetail" class="modal">
     <div class="modal-content" style="width: 450px;">
-        <button type="button" onclick="closeModal('modalDockDetail')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>[cite: 5]
-        <h4 id="modalDockTitle" style="margin-top:0; color:#4f46e5;">Informasi Loading Dock</h4>[cite: 5]
-        <div id="modalDockBody" style="font-size: 12px; color: #334155; line-height: 1.6;"></div>[cite: 5]
+        <button type="button" onclick="closeModal('modalDockDetail')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+        <h4 id="modalDockTitle" style="margin-top:0; color:#4f46e5;">Informasi Loading Dock</h4>
+        <div id="modalDockBody" style="font-size: 12px; color: #334155; line-height: 1.6;"></div>
         <div style="margin-top: 20px; text-align: right;">
-            <button type="button" class="btn btn-primary" onclick="closeModal('modalDockDetail')">Tutup</button>[cite: 5]
+            <button type="button" class="btn btn-primary" onclick="closeModal('modalDockDetail')">Tutup</button>
         </div>
     </div>
 </div>
@@ -143,11 +143,11 @@
 <!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN) -->
 <div id="modalPickingList" class="modal">
     <div class="modal-content">
-        <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>[cite: 5]
+        <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
 
         <div style="border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px; padding-right:20px;">
-            <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)</h4>[cite: 5]
-            <span id="plTruckInfo" style="font-size:11px; font-weight:bold; color:#64748b;"></span>[cite: 5]
+            <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)</h4>
+            <span id="plTruckInfo" style="font-size:11px; font-weight:bold; color:#64748b;"></span>
         </div>
         
         <input type="hidden" id="plTruckIndex">
@@ -155,11 +155,11 @@
         <!-- INPUT NAMA PETUGAS & SHIFT KERJA -->
         <div style="display:flex; gap:10px; margin-bottom:10px; background:#f1f5f9; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
             <div style="flex:1;">
-                <label>Nama Petugas / Admin *</label>[cite: 5]
-                <input type="text" id="plPetugas" placeholder="Cth: Budi Setiawan" oninput="savePetugasShift()">[cite: 5]
+                <label>Nama Petugas / Admin *</label>
+                <input type="text" id="plPetugas" placeholder="Cth: Budi Setiawan" oninput="savePetugasShift()">
             </div>
             <div style="width:160px;">
-                <label>Shift Kerja *</label>[cite: 5]
+                <label>Shift Kerja *</label>
                 <select id="plShift" onchange="savePetugasShift()">
                     <option value="Shift 1 (Pagi)">Shift 1 (Pagi)</option>
                     <option value="Shift 2 (Sore)">Shift 2 (Sore)</option>
@@ -171,14 +171,14 @@
         <!-- BAGIAN INPUT BARANG (AKAN DI-LOCK JIKA SUDAH SELESAI MUAT / KELUAR) -->
         <div id="formInputItemSection" style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
             <div class="form-group relative" style="margin-bottom:6px;">
-                <label>Cari SKU / Nama Produk (Tekan Enter untuk memilih)</label>[cite: 5]
-                <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()" onkeydown="handleSkuKeydown(event)">[cite: 5]
-                <div id="adminSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>[cite: 5]
+                <label>Cari SKU / Nama Produk (Tekan Enter untuk memilih)</label>
+                <input type="text" id="itemSku" placeholder="Ketik SKU atau nama barang..." autocomplete="off" oninput="filterAdminSku()" onkeydown="handleSkuKeydown(event)">
+                <div id="adminSkuDropdown" class="absolute left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto z-50 hidden"></div>
             </div>
 
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <div style="flex:1;">
-                    <label>Pilih Batch / Lokasi Rak Tersedia (Smart FIFO & Aging Check)</label>[cite: 5]
+                    <label>Pilih Batch / Lokasi Rak Tersedia (Smart FIFO & Aging Check)</label>
                     <select id="itemBatchSelect" class="form-select form-select-sm" onchange="onBatchSelected()">
                         <option value="">— Pilih SKU Terlebih Dahulu —</option>
                     </select>
@@ -187,18 +187,18 @@
 
             <div style="display:flex; gap:6px; margin-bottom:8px;">
                 <div style="flex:1;">
-                    <label>Total Karton Pengiriman *</label>[cite: 5]
-                    <input type="number" id="itemJumlahKarton" placeholder="Cth: 150" min="1" oninput="hitungKonversiAdmin()">[cite: 5]
-                    <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiAdminInfo">Konversi: 0 Pallet + 0 Karton Receh</span>[cite: 5]
-                    <span class="text-[10px] fw-bold mt-1 block" id="stokWarningInfo"></span>[cite: 5]
+                    <label>Total Karton Pengiriman *</label>
+                    <input type="number" id="itemJumlahKarton" placeholder="Cth: 150" min="1" oninput="hitungKonversiAdmin()">
+                    <span class="text-[10px] text-indigo-600 fw-bold mt-1 block" id="konversiAdminInfo">Konversi: 0 Pallet + 0 Karton Receh</span>
+                    <span class="text-[10px] fw-bold mt-1 block" id="stokWarningInfo"></span>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>[cite: 5]
+            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>
         </div>
 
         <div id="lockedNotice" style="display:none; background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:8px; margin-bottom:12px; color:#b45309; font-weight:bold; font-size:11px; text-align:center;">
-            🔒 Status truk sudah "Selesai Muat / Keluar". Penambahan atau pengubahan item Picking List dikunci.[cite: 5]
+            🔒 Status truk sudah "Selesai Muat / Keluar". Penambahan atau pengubahan item Picking List dikunci.
         </div>
 
         <div style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
@@ -214,14 +214,14 @@
                     </tr>
                 </thead>
                 <tbody id="plTableBody">
-                    <tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>[cite: 5]
+                    <tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>
                 </tbody>
             </table>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5</button>[cite: 5]
-            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Selesai & Tutup</button>[cite: 5]
+            <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5</button>
+            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Selesai & Tutup</button>
         </div>
     </div>
 </div>
@@ -232,11 +232,11 @@
 <!-- MODAL PINDAH STATUS & DOUBLE CHECK GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
-        <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>[cite: 5]
-        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>[cite: 5]
+        <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
         
         <div class="form-group">
-            <label>Pilih Status Truk</label>[cite: 5]
+            <label>Pilih Status Truk</label>
             <select id="selectStatus" onchange="checkStatusChange()">
                 <option value="Antrian">Antrian</option>
                 <option value="Menunggu Dokumen">Menunggu Dokumen</option>
@@ -248,14 +248,14 @@
         </div>
 
         <div id="dockDiv" class="form-group" style="display:none;">
-            <label>Pilih Loading Dock yang Aktif (1 s/d 32)</label>[cite: 5]
+            <label>Pilih Loading Dock yang Aktif (1 s/d 32)</label>
             <select id="selectDock"></select>
         </div>
 
         <!-- BAGIAN DOUBLE-CHECK PICKING LIST SEBELUM GOODS ISSUE -->
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
-            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)</strong>[cite: 5]
-            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:</p>[cite: 5]
+            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)</strong>
+            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:</p>
             <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:8px; max-height:150px; overflow-y:auto;">
                 <table style="width:100%; margin:0; background:white;">
                     <thead>
@@ -266,15 +266,15 @@
                         </tr>
                     </thead>
                     <tbody id="doubleCheckTableBody">
-                        <tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.</td></tr>[cite: 5]
+                        <tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan & Potong Stok</button>[cite: 5]
-            <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>[cite: 5]
+            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan & Potong Stok</button>
+            <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
 </div>
@@ -954,6 +954,7 @@
                 </span>`;
             }
 
+            // TOMBOL AKSI: UNTUK KELUAR, TOMBOL PINDAH STATUS DI-LOCK, TAPI TOMBOL HAPUS TETAP ADA
             let isKeluar = (t.status === 'Keluar');
             let actionButtonsHtml = '';
             if (isKeluar) {
@@ -994,7 +995,7 @@
                 <div style="display:flex; gap:6px; align-items:center;">
                     ${actionButtonsHtml}
                 </div>
-            `;
+            </div>`;
         });
 
         if(html === '') {
