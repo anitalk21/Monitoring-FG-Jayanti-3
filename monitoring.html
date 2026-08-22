@@ -27,7 +27,9 @@
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         table th, table td { font-size: 12px !important; }
 
-        /* FORMAT CETAK PDF KHUSUS LIVE STOCK SUMMARY */
+        .filter-btn { background-color: #ffffff; color: #475569; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .filter-btn.active { background-color: #1e293b !important; color: #ffffff !important; border-color: #1e293b !important; }
+
         @media print {
             body * { visibility: hidden; }
             #liveStockModalContent, #liveStockModalContent * { visibility: visible; }
@@ -278,7 +280,7 @@
             </div>
         </div>
 
-        <!-- SECTION EKSPOR (DITAMBAHKAN BARIS TOMBOL FILTER SEPERTI PADA REFERENSI) -->
+        <!-- SECTION EKSPOR (DENGAN KELENGKAPAN TAB SUMMARY, INPUT PLANNING, & PLANNING) -->
         <div id="section-ekspor" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -288,136 +290,158 @@
                     <p class="text-[11px] text-slate-400 mt-0.5">Kelola planning, capaian, dan pantau pengiriman ekspor secara real-time.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
+                    <button onclick="switchEksporTab('summary')" id="topBtnSummary" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5">
                         <i class="fa-solid fa-chart-pie text-indigo-500"></i> Summary
                     </button>
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
+                    <button onclick="switchEksporTab('input')" id="topBtnInput" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow-2xs">
                         <i class="fa-solid fa-calendar-plus"></i> Input Planning
                     </button>
                     <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
                 </div>
             </div>
 
-            <!-- SUB-MENU / TAB UTAMA EKSPOR -->
+            <!-- SUB-MENU / TAB UTAMA EKSPOR (SUMMARY, INPUT PLANNING, PLANNING) -->
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
-                <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">SUMMARY</button>
-                <button class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">INPUT PLANNING</button>
-                <button class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">PLANNING</button>
+                <button onclick="switchEksporTab('summary')" id="tabEksporSummary" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">SUMMARY</button>
+                <button onclick="switchEksporTab('input')" id="tabEksporInput" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs">INPUT PLANNING</button>
+                <button onclick="switchEksporTab('planning')" id="tabEksporPlanning" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">PLANNING</button>
             </div>
 
-            <!-- BARIS TOMBOL FILTER TAMBAHAN (SESUAI GAMBAR REFERENSI) -->
-            <div class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs text-xs">
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button class="px-3 py-1.5 rounded-lg bg-white text-slate-700 font-semibold shadow-2xs"><i class="fa-solid fa-list mr-1 text-slate-400"></i> All</button>
-                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-semibold shadow-2xs"><i class="fa-solid fa-chart-pie mr-1 text-indigo-300"></i> Capaian Planning</button>
+            <!-- KONTEN SUB-MENU: TAB SUMMARY -->
+            <div id="eksporContent-summary" class="space-y-6 hidden">
+                <div class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs text-xs">
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="toggleFilter(this, 'group1')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-list mr-1 text-slate-400"></i> All</button>
+                        <button onclick="toggleFilter(this, 'group1')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-chart-pie mr-1"></i> Capaian Planning</button>
+                    </div>
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="toggleFilter(this, 'group2')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-chart-bar mr-1 text-slate-400"></i> Capaian</button>
+                        <button onclick="toggleFilter(this, 'group2')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-envelope mr-1"></i> Detail</button>
+                    </div>
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="toggleFilter(this, 'group3')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-regular fa-calendar mr-1"></i> By Planning</button>
+                        <button onclick="toggleFilter(this, 'group3')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-truck mr-1 text-slate-400"></i> By Aktual</button>
+                    </div>
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="toggleFilter(this, 'group4')" class="filter-btn active px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-regular fa-calendar-days mr-1"></i> Tanggal</button>
+                        <button onclick="toggleFilter(this, 'group4')" class="filter-btn px-3 py-1.5 rounded-lg font-semibold shadow-2xs"><i class="fa-solid fa-calendar-week mr-1 text-slate-400"></i> Week</button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button class="px-3 py-1.5 rounded-lg bg-white text-slate-700 font-semibold shadow-2xs"><i class="fa-solid fa-chart-bar mr-1 text-slate-400"></i> Capaian</button>
-                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-semibold shadow-2xs border border-amber-400"><i class="fa-solid fa-envelope mr-1 text-amber-400"></i> Detail</button>
-                </div>
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-semibold shadow-2xs"><i class="fa-regular fa-calendar mr-1 text-indigo-300"></i> By Planning</button>
-                    <button class="px-3 py-1.5 rounded-lg bg-white text-slate-700 font-semibold shadow-2xs"><i class="fa-solid fa-truck mr-1 text-slate-400"></i> By Aktual</button>
-                </div>
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-semibold shadow-2xs"><i class="fa-regular fa-calendar-days mr-1 text-indigo-300"></i> Tanggal</button>
-                    <button class="px-3 py-1.5 rounded-lg bg-white text-slate-700 font-semibold shadow-2xs"><i class="fa-solid fa-calendar-week mr-1 text-slate-400"></i> Week</button>
-                </div>
-            </div>
 
-            <!-- FILTER BAR FORM INPUT -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">DARI</label>
-                        <input type="date" class="form-control form-control-sm">
+                <!-- FILTER BAR FORM INPUT -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
+                        <div><label class="font-bold text-slate-500 block mb-1">DARI</label><input type="date" class="form-control form-control-sm"></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">SAMPAI</label><input type="date" class="form-control form-control-sm"></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">SKU / NAMA</label><input type="text" class="form-control form-control-sm" placeholder="kode atau nama..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">NO. SO/DOC</label><input type="text" class="form-control form-control-sm" placeholder="no. SO..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">NO. POL</label><input type="text" class="form-control form-control-sm" placeholder="no. pol..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">TUJUAN</label><input type="text" class="form-control form-control-sm" placeholder="tujuan..."></div>
+                        <div><label class="font-bold text-slate-500 block mb-1">PLANT</label><select class="form-select form-select-sm"><option>JAYANTI 3</option><option>JAYANTI 2</option></select></div>
                     </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">SAMPAI</label>
-                        <input type="date" class="form-control form-control-sm">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">SKU / NAMA</label>
-                        <input type="text" class="form-control form-control-sm" placeholder="kode atau nama...">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">NO. SO/DOC</label>
-                        <input type="text" class="form-control form-control-sm" placeholder="no. SO...">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">NO. POL</label>
-                        <input type="text" class="form-control form-control-sm" placeholder="no. pol...">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">TUJUAN</label>
-                        <input type="text" class="form-control form-control-sm" placeholder="tujuan...">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1">PLANT</label>
-                        <select class="form-select form-select-sm">
-                            <option>JAYANTI 3</option>
-                            <option>JAYANTI 2</option>
-                        </select>
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                        <button class="btn btn-dark btn-sm px-4 fw-bold text-xs"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tampilkan</button>
+                        <button class="btn btn-outline-secondary btn-sm px-3 text-xs"><i class="fa-solid fa-rotate-right mr-1"></i> Reset</button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
-                    <button class="btn btn-dark btn-sm px-4 fw-bold text-xs"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tampilkan</button>
-                    <button class="btn btn-outline-secondary btn-sm px-3 text-xs"><i class="fa-solid fa-rotate-right mr-1"></i> Reset</button>
-                </div>
-            </div>
 
-            <!-- KARTU STATISTIK / RINGKASAN -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
-                    <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">% CAPAIAN</div>
-                    <div class="text-2xl font-bold text-slate-700">0%</div>
+                <!-- KARTU STATISTIK / RINGKASAN -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 shadow-2xs space-y-1">
+                        <div class="text-[11px] font-bold text-indigo-600 uppercase tracking-wide">% CAPAIAN</div>
+                        <div class="text-2xl font-bold text-slate-700">0%</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">TOTAL PLANNING</div>
+                        <div class="text-2xl font-bold text-slate-700">0</div>
+                    </div>
+                    <div class="bg-sky-50/50 p-4 rounded-2xl border border-sky-100 shadow-2xs space-y-1">
+                        <div class="text-[11px] font-bold text-sky-600 uppercase tracking-wide">TOTAL KEDATANGAN</div>
+                        <div class="text-2xl font-bold text-slate-700">0</div>
+                    </div>
+                    <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
+                        <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">KELUAR</div>
+                        <div class="text-2xl font-bold text-slate-700">0</div>
+                    </div>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">TOTAL PLANNING</div>
-                    <div class="text-2xl font-bold text-slate-700">0</div>
-                </div>
-                <div class="bg-sky-50/50 p-4 rounded-2xl border border-sky-100 shadow-2xs space-y-1">
-                    <div class="text-[11px] font-bold text-sky-600 uppercase tracking-wide">TOTAL KEDATANGAN</div>
-                    <div class="text-2xl font-bold text-slate-700">0</div>
-                </div>
-                <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-2xs space-y-1">
-                    <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">KELUAR</div>
-                    <div class="text-2xl font-bold text-slate-700">0</div>
+
+                <!-- TABEL UTAMA CAPAIAN PLANNING EKSPOR -->
+                <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                    <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
+                        <span class="font-bold text-slate-700 text-xs">Capaian Planning Ekspor</span>
+                        <span class="badge bg-indigo-50 text-indigo-600 border border-indigo-200">0 data</span>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="pastel-header-purple">
+                                <tr><th>#</th><th>NO SO</th><th>SKU</th><th class="text-start">Nama Item</th><th>Plan</th><th>Tujuan</th><th>No Pol</th><th>No Container</th><th>Ekspedisi</th><th>Waktu Daftar</th><th>Proses Loading</th><th>Waktu Keluar</th><th>Status</th><th>Tgl Aktual</th><th>Keterangan</th></tr>
+                            </thead>
+                            <tbody><tr><td colspan="15" class="text-muted py-4">Belum ada data monitoring ekspor.</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- TABEL UTAMA CAPAIAN PLANNING EKSPOR -->
-            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                    <span class="font-bold text-slate-700 text-xs">Capaian Planning Ekspor</span>
-                    <span class="badge bg-indigo-50 text-indigo-600 border border-indigo-200">0 data</span>
+            <!-- KONTEN SUB-MENU: TAB INPUT PLANNING (PERSIS SEPERTI GAMBAR) -->
+            <div id="eksporContent-input" class="space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
+                    <!-- HEADER BARIS UPLOAD & SIMPAN -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-envelope-open-text"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-700 text-xs mb-0">Upload Tabel Planning Email (PDF / Screenshot)</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Upload file atau <span class="font-bold text-slate-600">Ctrl+V paste screenshot</span></p>
+                            </div>
+                        </div>
+                        <button onclick="alert('Menyimpan Planning Ekspor...')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan
+                        </button>
+                    </div>
+
+                    <!-- SUB-TABS (UPLOAD FILE VS INPUT MANUAL) -->
+                    <div class="flex items-center gap-2 text-xs font-semibold">
+                        <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload File</button>
+                        <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual</button>
+                    </div>
+
+                    <!-- CONFIG ROW: WEEK & TAHUN -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 text-xs items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-500 uppercase tracking-wide">WEEK (OPT.)</span>
+                            <input type="text" class="form-control form-control-sm bg-white" placeholder="auto dari tanggal...">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-500 uppercase tracking-wide">TAHUN</span>
+                            <input type="text" class="form-control form-control-sm bg-white font-bold text-indigo-600" value="2026">
+                        </div>
+                        <div>
+                            <button onclick="alert('Membuka file Excel/CSV...')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-excel"></i> Pilih Excel / CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AREA DRAG & DROP FILE -->
+                    <div class="border-2 border-dashed border-amber-300 bg-amber-50/20 hover:bg-amber-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-amber-200 shadow-2xs">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-slate-700 text-xs">Klik, drag & drop, atau Ctrl+V paste screenshot</h5>
+                            <p class="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG, WEBP — bisa beberapa file</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body table-responsive">
+            </div>
+
+            <!-- KONTEN SUB-MENU: TAB PLANNING -->
+            <div id="eksporContent-planning" class="space-y-4 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
+                    <h3 class="font-bold text-slate-700 text-sm mb-3">Daftar Planning Ekspor Aktif</h3>
                     <table class="table table-bordered align-middle text-center">
-                        <thead class="pastel-header-purple">
-                            <tr>
-                                <th>#</th>
-                                <th>NO SO</th>
-                                <th>SKU</th>
-                                <th class="text-start">Nama Item</th>
-                                <th>Plan</th>
-                                <th>Tujuan</th>
-                                <th>No Pol</th>
-                                <th>No Container</th>
-                                <th>Ekspedisi</th>
-                                <th>Waktu Daftar</th>
-                                <th>Proses Loading</th>
-                                <th>Waktu Keluar</th>
-                                <th>Status</th>
-                                <th>Tgl Aktual</th>
-                                <th>Keterangan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="15" class="text-muted py-4">Belum ada data monitoring ekspor.</td>
-                            </tr>
-                        </tbody>
+                        <thead class="pastel-header-purple"><tr><th>No SO</th><th>SKU</th><th class="text-start">Nama Produk</th><th>Plan (Qty)</th><th>Tujuan</th><th>No Container</th><th>Aksi</th></tr></thead>
+                        <tbody><tr><td colspan="7" class="text-muted">Belum ada planning ekspor dimasukkan.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -603,6 +627,46 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('sidebarOverlay').classList.toggle('hidden');
+        }
+
+        function toggleFilter(btn, groupName) {
+            let parentContainer = btn.parentElement;
+            parentContainer.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            btn.classList.add('active');
+        }
+
+        // FUNGSI SWITCH TAB DALAM MONITORING EKSPOR (SUMMARY, INPUT PLANNING, PLANNING)
+        function switchEksporTab(tab) {
+            ['summary', 'input', 'planning'].forEach(t => {
+                let contentEl = document.getElementById('eksporContent-' + t);
+                let tabBtn = document.getElementById('tabEkspor' + t.charAt(0).toUpperCase() + t.slice(1));
+                if(contentEl) contentEl.classList.add('hidden');
+                if(tabBtn) {
+                    tabBtn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50';
+                }
+            });
+
+            let targetContent = document.getElementById('eksporContent-' + tab);
+            let activeTabBtn = document.getElementById('tabEkspor' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            
+            if(targetContent) targetContent.classList.remove('hidden');
+            if(activeTabBtn) {
+                activeTabBtn.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs';
+            }
+        }
+
+        function switchInputSub(sub) {
+            let btnFile = document.getElementById('subInputFile');
+            let btnManual = document.getElementById('subInputManual');
+            if(sub === 'file') {
+                btnFile.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
+                btnManual.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+            } else {
+                btnManual.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
+                btnFile.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+            }
         }
 
         function switchMenu(menuName) {
@@ -960,6 +1024,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             renderMasterSkuTable();
             updateDashboardCapacity();
+            switchEksporTab('input'); // Default membuka tab Input Planning sesuai gambar referensi
         });
     </script>
 </body>
