@@ -11,21 +11,21 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
+        body { background-color: #f8fafc; color: #334155; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; }
         .app-page { display: none; }
         .app-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-dark { background-color: #e2e8f0 !important; color: #334155 !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; font-size: 12px; font-weight: bold; }
-        .pastel-header-red { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; font-size: 12px; font-weight: bold; }
+        .pastel-header-purple { background-color: #e9d5ff !important; color: #581c87 !important; border-color: #f3e8ff !important; font-size: 11px; font-weight: bold; }
+        .pastel-header-dark { background-color: #fef08a !important; color: #713f12 !important; border-color: #fde047 !important; font-size: 11px; font-weight: bold; }
+        .pastel-header-blue { background-color: #e0f2fe !important; color: #0369a1 !important; border-color: #bae6fd !important; font-size: 11px; font-weight: bold; }
+        .pastel-header-red { background-color: #ffe4e6 !important; color: #9f1239 !important; border-color: #fecdd3 !important; font-size: 11px; font-weight: bold; }
         
         .btn-pastel-primary { background-color: #818cf8 !important; border-color: #818cf8 !important; color: #ffffff !important; }
         .btn-pastel-primary:hover { background-color: #6366f1 !important; border-color: #6366f1 !important; }
 
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
-        table th, table td { font-size: 12px !important; }
+        table th, table td { font-size: 11px !important; white-space: nowrap; }
 
         .filter-btn { background-color: #ffffff; color: #475569; border: 1px solid #e2e8f0; transition: all 0.2s; }
         .filter-btn.active { background-color: #1e293b !important; color: #ffffff !important; border-color: #1e293b !important; }
@@ -280,7 +280,7 @@
             </div>
         </div>
 
-        <!-- SECTION EKSPOR (DENGAN TAB UPLOAD FILE & INPUT MANUAL LENGKAP) -->
+        <!-- SECTION EKSPOR (DENGAN TAB UPLOAD FILE & INPUT MANUAL FORMAT EXCEL BARU YANG TERHUBUNG KE PORTAL ANTRIAN) -->
         <div id="section-ekspor" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -388,57 +388,41 @@
                     <!-- HEADER BARIS UPLOAD & SIMPAN -->
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-envelope-open-text"></i></div>
+                            <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
                             <div>
-                                <h4 class="font-bold text-slate-700 text-xs mb-0">Upload Tabel Planning Email (PDF / Screenshot)</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Upload file atau <span class="font-bold text-slate-600">Ctrl+V paste screenshot</span></p>
+                                <h4 class="font-bold text-slate-700 text-xs mb-0">Input & Upload Master Planning Ekspor</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung langsung ke Portal Antrian Truk via No. SO</span></p>
                             </div>
                         </div>
-                        <button onclick="alert('Menyimpan Planning Ekspor...')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan
+                        <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan & Hubungkan ke Portal
                         </button>
                     </div>
 
-                    <!-- SUB-TABS (UPLOAD FILE VS INPUT MANUAL) -->
+                    <!-- SUB-TABS (UPLOAD EXCEL VS INPUT MANUAL) -->
                     <div class="flex items-center gap-2 text-xs font-semibold">
-                        <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload File</button>
-                        <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual</button>
+                        <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload Excel / CSV</button>
+                        <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual (Format Excel)</button>
                     </div>
 
                     <!-- KONTEN SUB: UPLOAD FILE -->
-                    <div id="subContent-file" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 text-xs items-center">
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-500 uppercase tracking-wide">WEEK (OPT.)</span>
-                                <input type="text" class="form-control form-control-sm bg-white" placeholder="auto dari tanggal...">
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-500 uppercase tracking-wide">TAHUN</span>
-                                <input type="text" class="form-control form-control-sm bg-white font-bold text-indigo-600" value="2026">
+                    <div id="subContent-file" class="space-y-4 hidden">
+                        <div class="border-2 border-dashed border-emerald-300 bg-emerald-50/20 hover:bg-emerald-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-emerald-200 shadow-2xs">
+                                <i class="fa-solid fa-file-excel"></i>
                             </div>
                             <div>
-                                <button onclick="alert('Membuka file Excel/CSV...')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-file-excel"></i> Pilih Excel / CSV
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="border-2 border-dashed border-amber-300 bg-amber-50/20 hover:bg-amber-50/40 transition rounded-2xl p-10 text-center space-y-3 cursor-pointer">
-                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl mx-auto flex items-center justify-center text-lg border border-amber-200 shadow-2xs">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-slate-700 text-xs">Klik, drag & drop, atau Ctrl+V paste screenshot</h5>
-                                <p class="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG, WEBP — bisa beberapa file</p>
+                                <h5 class="font-bold text-slate-700 text-xs">Klik atau drag & drop file Excel / CSV ke sini</h5>
+                                <p class="text-[10px] text-slate-400 mt-1">Format kolom otomatis disesuaikan dengan header Planning Ekspor</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- KONTEN SUB: INPUT MANUAL (SESUAI GAMBAR REFERENSI KEDUA) -->
-                    <div id="subContent-manual" class="space-y-4 hidden">
+                    <!-- KONTEN SUB: INPUT MANUAL FORMAT EXCEL (SESUAI GAMBAR REFERENSI BARU) -->
+                    <div id="subContent-manual" class="space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
                             <div class="text-slate-500 font-medium">
-                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span>
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik langsung atau <span class="font-bold text-slate-700">Ctrl+V paste dari Excel</span> (Kolom No. SO terhubung ke Portal Antrian)
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
@@ -451,29 +435,41 @@
                         </div>
 
                         <div class="card shadow-2xs border-0 bg-white p-3 rounded-2xl border border-slate-200">
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="max-height: 60vh;">
                                 <table class="table table-bordered align-middle text-center" id="manualInputTable">
                                     <thead class="pastel-header-dark">
                                         <tr>
-                                            <th style="width: 50px;">#</th>
-                                            <th>KETERANGAN</th>
-                                            <th>SO</th>
-                                            <th>QT</th>
+                                            <th>#</th>
+                                            <th>WEEK</th>
+                                            <th>PLANNING TGL SI</th>
+                                            <th>NOMOR QUOTATION</th>
+                                            <th class="bg-amber-100 text-amber-900">NO SO (SO PORTAL)</th>
+                                            <th>SKU</th>
+                                            <th class="text-start">NAME OF PRODUCT</th>
+                                            <th>TOTAL QUANTITY SI</th>
+                                            <th>EKSPEDISI</th>
+                                            <th>JUMLAH CONTAINER</th>
+                                            <th>DESTINATION</th>
+                                            <th>PLANT STUFING DI SI</th>
                                             <th>NEGARA</th>
-                                            <th>KODE</th>
-                                            <th class="text-start">MATERIAL</th>
-                                            <th style="width: 50px;">Aksi</th>
+                                            <th style="width: 40px;">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="manualTableBody">
                                         <tr>
                                             <td class="fw-bold">1</td>
-                                            <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
-                                            <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
-                                            <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
+                                            <td><input type="date" class="form-control form-control-sm"></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                                            <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
+                                            <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Destination..."></td>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Plant..."></td>
                                             <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
-                                            <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
-                                            <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
                                             <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
                                         </tr>
                                     </tbody>
@@ -483,7 +479,7 @@
 
                         <div class="text-[11px] text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center gap-2">
                             <i class="fa-solid fa-lightbulb text-amber-500"></i>
-                            <span>Tips: Copy sel dari Excel &rarr; klik sel pertama di tabel &rarr; Ctrl+V untuk paste banyak baris sekaligus</span>
+                            <span>Tips: Kolom <b>NO SO (SO PORTAL)</b> berfungsi sebagai kunci utama yang otomatis menyambungkan data ekspor ini ke sistem Antrian Truk di Portal.</span>
                         </div>
                     </div>
                 </div>
@@ -492,11 +488,35 @@
             <!-- KONTEN SUB-MENU: TAB PLANNING -->
             <div id="eksporContent-planning" class="space-y-4 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                    <h3 class="font-bold text-slate-700 text-sm mb-3">Daftar Planning Ekspor Aktif</h3>
-                    <table class="table table-bordered align-middle text-center">
-                        <thead class="pastel-header-purple"><tr><th>No SO</th><th>SKU</th><th class="text-start">Nama Produk</th><th>Plan (Qty)</th><th>Tujuan</th><th>No Container</th><th>Aksi</th></tr></thead>
-                        <tbody><tr><td colspan="7" class="text-muted">Belum ada planning ekspor dimasukkan.</td></tr></tbody>
-                    </table>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-700 text-sm">Daftar Planning Ekspor Tersimpan (Terhubung ke Portal Antrian)</h3>
+                        <button onclick="renderEksporPlanningTable()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="pastel-header-purple">
+                                <tr>
+                                    <th>#</th>
+                                    <th>WEEK</th>
+                                    <th>TGL SI</th>
+                                    <th>NO QUOTATION</th>
+                                    <th>NO SO (PORTAL)</th>
+                                    <th>SKU</th>
+                                    <th class="text-start">NAME OF PRODUCT</th>
+                                    <th>QTY SI</th>
+                                    <th>EKSPEDISI</th>
+                                    <th>CONTAINER</th>
+                                    <th>DESTINATION</th>
+                                    <th>PLANT</th>
+                                    <th>NEGARA</th>
+                                    <th>Status Link Antrian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="savedEksporPlanningBody">
+                                <tr><td colspan="14" class="text-muted py-4">Belum ada planning ekspor tersimpan.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -663,6 +683,7 @@
         let qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
         let binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         let antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+        let eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
 
         let currentBinWarehouse = 'INDUK';
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
@@ -708,6 +729,9 @@
             if(activeTabBtn) {
                 activeTabBtn.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs';
             }
+            if(tab === 'planning') {
+                renderEksporPlanningTable();
+            }
         }
 
         function switchInputSub(sub) {
@@ -729,19 +753,25 @@
             }
         }
 
-        // FUNGSI UNTUK INPUT MANUAL TABEL PLANNING EKSPOR
+        // FUNGSI TABEL INPUT MANUAL FORMAT EXCEL BARU
         function addManualRow() {
             let tbody = document.getElementById('manualTableBody');
             let rowCount = tbody.rows.length + 1;
             let newRow = tbody.insertRow();
             newRow.innerHTML = `
                 <td class="fw-bold">${rowCount}</td>
-                <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
-                <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
-                <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
+                <td><input type="date" class="form-control form-control-sm"></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
+                <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Destination..."></td>
+                <td><input type="text" class="form-control form-control-sm" placeholder="Plant..."></td>
                 <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
-                <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
-                <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
                 <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
             `;
         }
@@ -757,12 +787,18 @@
             tbody.innerHTML = `
                 <tr>
                     <td class="fw-bold">1</td>
-                    <td><input type="text" class="form-control form-control-sm" placeholder="Keterangan..."></td>
-                    <td><input type="text" class="form-control form-control-sm" placeholder="No SO..."></td>
-                    <td><input type="number" class="form-control form-control-sm" placeholder="Qty..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
+                    <td><input type="date" class="form-control form-control-sm"></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                    <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="SKU..."></td>
+                    <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Produk..."></td>
+                    <td><input type="number" class="form-control form-control-sm" placeholder="Qty SI..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Ekspedisi..."></td>
+                    <td><input type="number" class="form-control form-control-sm" placeholder="Container..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Destination..."></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Plant..."></td>
                     <td><input type="text" class="form-control form-control-sm" placeholder="Negara..."></td>
-                    <td><input type="text" class="form-control form-control-sm" placeholder="Kode..."></td>
-                    <td class="text-start"><input type="text" class="form-control form-control-sm" placeholder="Nama Material..."></td>
                     <td><button onclick="removeManualRow(this)" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-xmark"></i></button></td>
                 </tr>
             `;
@@ -773,6 +809,97 @@
             for (let i = 0; i < tbody.rows.length; i++) {
                 tbody.rows[i].cells[0].innerText = i + 1;
             }
+        }
+
+        // MENYIMPAN DATA PLANNING EKSPOR DAN MENGHUBUNGKAN NO SO KE PORTAL ANTRIAN
+        function saveManualEksporPlanning() {
+            let tbody = document.getElementById('manualTableBody');
+            let rows = tbody.rows;
+            let savedCount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                let inputs = rows[i].querySelectorAll('input');
+                let week = inputs[0].value.trim();
+                let tglSi = inputs[1].value.trim();
+                let quotation = inputs[2].value.trim();
+                let noSo = inputs[3].value.trim();
+                let sku = inputs[4].value.trim();
+                let namaProduk = inputs[5].value.trim();
+                let qtySi = inputs[6].value.trim();
+                let ekspedisi = inputs[7].value.trim();
+                let container = inputs[8].value.trim();
+                let destination = inputs[9].value.trim();
+                let plant = inputs[10].value.trim();
+                let negara = inputs[11].value.trim();
+
+                if (noSo) {
+                    let newPlan = {
+                        week: week, tglSi: tglSi, quotation: quotation, noSo: noSo,
+                        sku: sku, name: namaProduk, qtySi: qtySi, ekspedisi: ekspedisi,
+                        container: container, destination: destination, plant: plant, negara: negara
+                    };
+                    eksporPlanningData.push(newPlan);
+
+                    // LINK OTOMATIS KE PORTAL ANTRIAN (ANTRIAN.HTML)
+                    let existingAntrian = antrianData.find(t => t.noDoc === noSo || t.noPol === ekspedisi);
+                    if(!existingAntrian) {
+                        antrianData.push({
+                            id: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
+                            noPol: ekspedisi ? ekspedisi + ' (Container)' : 'B 9999 EX',
+                            ekspedisi: ekspedisi || 'Ekspedisi Ekspor',
+                            noDoc: noSo,
+                            jenis: 'Ekspor',
+                            tujuan: destination || 'International',
+                            status: 'Antrian',
+                            timeIn: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            pickingList: [{ sku: sku || 'SKU-00', nama: namaProduk || 'Material Ekspor', jumlah: parseInt(qtySi) || 100 }]
+                        });
+                    }
+                    savedCount++;
+                }
+            }
+
+            if (savedCount > 0) {
+                localStorage.setItem('ekspor_planning_jayanti3', JSON.stringify(eksporPlanningData));
+                localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
+                alert(`Berhasil menyimpan ${savedCount} planning ekspor dan menghubungkan No. SO ke Portal Antrian!`);
+                switchEksporTab('planning');
+            } else {
+                alert('Pastikan minimal kolom No. SO (SO Portal) terisi untuk menyimpan data.');
+            }
+        }
+
+        function renderEksporPlanningTable() {
+            let tbody = document.getElementById('savedEksporPlanningBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+
+            if(eksporPlanningData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="14" class="text-muted py-4">Belum ada planning ekspor tersimpan.</td></tr>';
+                return;
+            }
+
+            eksporPlanningData.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${p.week || '-'}</td>
+                        <td>${p.tglSi || '-'}</td>
+                        <td>${p.quotation || '-'}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo}</span></td>
+                        <td>${p.sku || '-'}</td>
+                        <td class="text-start fw-semibold">${p.name || '-'}</td>
+                        <td class="fw-bold text-emerald-600">${p.qtySi || '0'}</td>
+                        <td>${p.ekspedisi || '-'}</td>
+                        <td>${p.container || '-'}</td>
+                        <td>${p.destination || '-'}</td>
+                        <td>${p.plant || '-'}</td>
+                        <td>${p.negara || '-'}</td>
+                        <td><span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-link mr-1"></i> Terhubung ke Portal</span></td>
+                    </tr>
+                `;
+            });
         }
 
         function switchMenu(menuName) {
@@ -1103,7 +1230,7 @@
                 let rowCode = blockName.replace('Blok ', '').replace(' FG', '') + rNum;
                 gridHtml += `<button onclick="selectLorong('${rowCode}', '${rNum}')" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl text-center transition">
                     <div class="font-bold text-xs text-slate-700">${rowCode}</div>
-                    <div class="text-[9px] text-slate-400">Lorong</div>
+                    <div class="text-[9px] text-slate-400">Lorung</div>
                 </button>`;
             }
             document.getElementById('modalRowGrid').innerHTML = gridHtml;
