@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Finished Goods - PT. Mayora Indah Tbk</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3"></script>
+    <!-- Tailwind CSS CDN yang stabil -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Icons -->
@@ -54,7 +54,7 @@
         </div>
         <div class="flex items-center gap-2">
             <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
-                <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...[cite: 4]
+                <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...
             </span>
             <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
                 <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
@@ -117,7 +117,7 @@
             </a>
         </div>
         <div class="p-4 border-t border-slate-100 text-[11px] text-slate-400 text-center bg-slate-50/50">
-            LOADFLOW v1.1.2 &bull; Jayanti 3[cite: 4]
+            LOADFLOW v1.1.2 &bull; Jayanti 3
         </div>
     </aside>
 
@@ -332,7 +332,7 @@
 
                 <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                     <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor (Sinkron Otomatis dengan Portal Antrian via No. SO & No. Doc)</span>
+                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor (Sinkron Otomatis dengan Portal Antrian via No. SO)</span>
                         <div class="flex items-center gap-2">
                             <button onclick="downloadEksporExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-excel"></i> Download Excel
@@ -383,7 +383,7 @@
                             <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
                             <div>
                                 <h4 class="font-bold text-slate-700 text-xs mb-0">Input & Upload Master Planning Ekspor</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung otomatis ke Portal Antrian Truk via No. SO</span>[cite: 4]</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung otomatis ke Portal Antrian Truk via No. SO</span></p>
                             </div>
                         </div>
                         <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
@@ -413,7 +413,7 @@
                     <div id="subContent-manual" class="space-y-4 hidden">
                         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
                             <div class="text-slate-500 font-medium">
-                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik <b>Kode SKU</b>, maka <b>Nama Produk</b> akan terisi otomatis dari Database Master SKU.[cite: 4]
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik <b>Kode SKU</b>, maka <b>Nama Produk</b> akan terisi otomatis dari Database Master SKU.
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
@@ -436,7 +436,7 @@
                                             <th>NOMOR QUOTATION</th>
                                             <th class="bg-amber-100 text-amber-900">NO SO (SO PORTAL)</th>
                                             <th>SKU</th>
-                                            <th class="text-start">NAME OF PRODUCT (Auto-Fill)</th>[cite: 4]
+                                            <th class="text-start">NAME OF PRODUCT (Auto-Fill)</th>
                                             <th>TOTAL QUANTITY SI</th>
                                             <th>EKSPEDISI</th>
                                             <th>JUMLAH CONTAINER</th>
@@ -672,7 +672,7 @@
             const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
             const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
             const clockEl = document.getElementById('realTimeClock');
-            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-indigo-400 mr-1"></i> ${dateStr} ${timeStr}`;[cite: 4]
+            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-indigo-400 mr-1"></i> ${dateStr} ${timeStr}`;
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -937,7 +937,6 @@
             }
         }
 
-        // FUNGSI SINKRONISASI OTOMATIS DENGAN PORTAL ANTRIAN VIA NO. SO & NO. DOC
         function renderEksporSummaryTable() {
             let tbody = document.getElementById('eksporSummaryTableBody');
             if(!tbody) return;
@@ -952,7 +951,6 @@
             }
 
             eksporPlanningData.forEach((p, index) => {
-                // MENCARI DATA TRUK DI PORTAL ANTRIAN BERDASARKAN NO. SO YANG COCOK DENGAN NO. DOC
                 let matchingAntrian = antrianData.find(t => t.noDoc && p.noSo && t.noDoc.trim() === p.noSo.trim());
                 let currentStatus = p.status || 'Antrian';
                 let jamMasukVal = p.jamMasuk || '-';
