@@ -31,7 +31,6 @@
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
         .relative { position: relative; }
 
-        /* FORMAT CETAK PDF KHUSUS UKURAN A5 */
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
@@ -78,7 +77,6 @@
     </div>
 </div>
 
-<!-- MODAL DAFTAR MANUAL (TIME KEEPER) -->
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
@@ -128,7 +126,6 @@
     </div>
 </div>
 
-<!-- MODAL POPUP DETAIL LOADING DOCK -->
 <div id="modalDockDetail" class="modal">
     <div class="modal-content" style="width: 450px;">
         <button type="button" onclick="closeModal('modalDockDetail')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
@@ -140,7 +137,6 @@
     </div>
 </div>
 
-<!-- MODAL INPUT & KELOLA PICKING LIST (ADMIN) -->
 <div id="modalPickingList" class="modal">
     <div class="modal-content">
         <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
@@ -152,7 +148,6 @@
         
         <input type="hidden" id="plTruckIndex">
 
-        <!-- INPUT NAMA PETUGAS & SHIFT KERJA -->
         <div style="display:flex; gap:10px; margin-bottom:10px; background:#f1f5f9; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
             <div style="flex:1;">
                 <label>Nama Petugas / Admin *</label>
@@ -168,7 +163,6 @@
             </div>
         </div>
         
-        <!-- BAGIAN INPUT BARANG -->
         <div id="formInputItemSection" style="background:#f8fafc; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
             <div class="form-group relative" style="margin-bottom:6px;">
                 <label>Cari SKU / Nama Produk (Tekan Enter untuk memilih)</label>
@@ -226,10 +220,8 @@
     </div>
 </div>
 
-<!-- TEMPAT AREA CETAK PDF FORMAT A5 KHUSUS RESMI MAYORA -->
 <div id="printArea"></div>
 
-<!-- MODAL PINDAH STATUS & DOUBLE CHECK GOODS ISSUE -->
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
         <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
@@ -252,7 +244,6 @@
             <select id="selectDock"></select>
         </div>
 
-        <!-- BAGIAN DOUBLE-CHECK PICKING LIST SEBELUM GOODS ISSUE -->
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
             <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)</strong>
             <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:</p>
@@ -477,6 +468,7 @@
             status: 'Antrian',
             dock: '-',
             timeIn: currentTimeStr,
+            timeStartLoading: '-', // Properti Start Loading
             rawTime: new Date().getTime(),
             timeOut: '-',
             rawTimeOut: null,
@@ -902,6 +894,7 @@
             let plCount = (t.pickingList || []).length;
             let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
             let displayTimeIn = t.timeIn || '-';
+            let displayStartLoading = t.timeStartLoading || '-';
             let displayTimeOut = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
             let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.shift})` : '';
 
@@ -986,6 +979,7 @@
                     <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
                         <span style="background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:bold;">🕒 Masuk: ${displayTimeIn}</span>
+                        <span style="background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-weight:bold;">🚀 Start Loading: ${displayStartLoading}</span>
                         ${isKeluar ? `<span style="background:#fef2f2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:bold;">🏁 Keluar: ${displayTimeOut}</span>` : ''}
                         ${stayDurationInfo}
                         ${rdcSlaHtml}
@@ -1104,6 +1098,10 @@
 
         if(newSt === 'Proses Muat') {
             targetTruck.dock = selectedDock || 'Dock 01';
+            // Mencatat jam start loading secara otomatis saat masuk status "Proses Muat"
+            if(!targetTruck.timeStartLoading || targetTruck.timeStartLoading === '-') {
+                targetTruck.timeStartLoading = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
         } else if(newSt !== 'Proses Muat') {
             targetTruck.dock = '-';
         }
