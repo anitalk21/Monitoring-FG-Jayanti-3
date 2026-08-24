@@ -111,6 +111,10 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
             </a>
+            <a href="#" onclick="switchMenu('report')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-report">
+                <div class="bg-slate-100 p-2 rounded-lg text-emerald-500"><i class="fa-solid fa-chart-column w-4 text-center"></i></div>
+                <span>Laporan & Analitik (Report)</span>
+            </a>
             <a href="antrian.html" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-truck-arrow-right w-4 text-center"></i></div>
                 <span>Dashboard Antrian Truk</span>
@@ -332,7 +336,7 @@
 
                 <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
                     <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor (Sinkron Otomatis dengan Portal Antrian via No. SO)</span>
+                        <span class="font-bold text-slate-700 text-xs">Summary Realisasi & Planning Ekspor (Sinkron Otomatis dengan Portal Antrian via No. SO & QT)</span>
                         <div class="flex items-center gap-2">
                             <button onclick="downloadEksporExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-excel"></i> Download Excel
@@ -383,7 +387,7 @@
                             <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
                             <div>
                                 <h4 class="font-bold text-slate-700 text-xs mb-0">Input & Upload Master Planning Ekspor</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung otomatis ke Portal Antrian Truk via No. SO</span></p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Terhubung otomatis ke Portal Antrian Truk via No. SO & QT</span></p>
                             </div>
                         </div>
                         <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
@@ -563,6 +567,96 @@
             </div>
         </div>
 
+        <!-- SECTION REPORT (HARIAN, BULANAN, TAHUNAN) -->
+        <div id="section-report" class="app-page space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-emerald-500"></i> Laporan & Analitik Gudang (Report)
+                    </h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Rekapitulasi penerimaan barang, pengiriman lokal, hingga ekspor secara periodik.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchReportTab('harian')" id="tabReportHarian" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs">Harian (Daily)</button>
+                    <button onclick="switchReportTab('bulanan')" id="tabReportBulanan" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Bulanan (Monthly)</button>
+                    <button onclick="switchReportTab('tahunan')" id="tabReportTahunan" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Tahunan (Yearly)</button>
+                </div>
+            </div>
+
+            <!-- KONTEN REPORT HARIAN -->
+            <div id="reportContent-harian" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                        <div class="text-slate-400 text-[10px] uppercase font-bold">Total Masuk Hari Ini</div>
+                        <div class="text-xl font-bold text-slate-700 mt-1">0 Plt / Krt</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                        <div class="text-slate-400 text-[10px] uppercase font-bold">Total Pengiriman Lokal</div>
+                        <div class="text-xl font-bold text-indigo-600 mt-1">0 Truk</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                        <div class="text-slate-400 text-[10px] uppercase font-bold">Total Pengiriman Ekspor</div>
+                        <div class="text-xl font-bold text-emerald-600 mt-1">0 Kontainer</div>
+                    </div>
+                </div>
+
+                <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                    <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
+                        <span class="font-bold text-slate-700 text-xs">Log Aktivitas & Mutasi Harian Warehouse</span>
+                        <button onclick="renderReportData()" class="btn btn-sm btn-outline-secondary text-xs"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="table-light">
+                                <tr><th>Waktu</th><th>Kategori Aktivitas</th><th>No. Dokumen / QT / SO</th><th>SKU</th><th class="text-start">Nama Produk</th><th>Jumlah (Krt/Plt)</th><th>Petugas / Driver</th></tr>
+                            </thead>
+                            <tbody id="reportHarianTableBody">
+                                <tr><td colspan="7" class="text-muted py-4">Belum ada data aktivitas hari ini.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KONTEN REPORT BULANAN -->
+            <div id="reportContent-bulanan" class="space-y-4 hidden">
+                <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                    <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200">
+                        <span class="font-bold text-slate-700 text-xs">Rekapitulasi Bulanan Performa Penerimaan & Pengiriman</span>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="pastel-header-purple">
+                                <tr><th>Bulan</th><th>Total Penerimaan FG</th><th>Total Muat Lokal</th><th>Total Muat Ekspor</th><th>Total Selisih Opname</th><th>Status Kinerja</th></tr>
+                            </thead>
+                            <tbody id="reportBulananTableBody">
+                                <tr><td colspan="6" class="text-muted py-4">Menampilkan rekapitulasi bulanan...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KONTEN REPORT TAHUNAN -->
+            <div id="reportContent-tahunan" class="space-y-4 hidden">
+                <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                    <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200">
+                        <span class="font-bold text-slate-700 text-xs">Laporan Tahunan Kinerja Gudang Finished Goods PT Mayora Indah</span>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="pastel-header-dark">
+                                <tr><th>Tahun</th><th>Total Volume Masuk (Ton/Plt)</th><th>Total Volume Keluar (Lokal)</th><th>Total Volume Keluar (Ekspor)</th><th>Rata-rata SLA Pengiriman</th></tr>
+                            </thead>
+                            <tbody id="reportTahunanTableBody">
+                                <tr><td colspan="5" class="text-muted py-4">Menampilkan rekapitulasi tahunan...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- MODAL LIVE STOCK SUMMARY -->
@@ -705,6 +799,38 @@
             if(tab === 'planning') {
                 renderEksporPlanningTable();
             }
+        }
+
+        function switchReportTab(tab) {
+            ['harian', 'bulanan', 'tahunan'].forEach(t => {
+                document.getElementById('reportContent-' + t).classList.add('hidden');
+                document.getElementById('tabReport' + t.charAt(0).toUpperCase() + t.slice(1)).className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
+            });
+            document.getElementById('reportContent-' + tab).classList.remove('hidden');
+            document.getElementById('tabReport' + tab.charAt(0).toUpperCase() + tab.slice(1)).className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs';
+            if(tab === 'harian') renderReportData();
+        }
+
+        function renderReportData() {
+            let tbody = document.getElementById('reportHarianTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            if(binData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted py-4">Belum ada aktivitas hari ini.</td></tr>';
+                return;
+            }
+            binData.slice(-10).forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td>${item.tanggal || 'Hari Ini'}</td>
+                    <td><span class="badge bg-indigo-50 text-indigo-700">${item.category || 'Penerimaan'}</span></td>
+                    <td class="fw-bold">${item.pallet || '-'}</td>
+                    <td>${item.sku.split(' - ')[0]}</td>
+                    <td class="text-start">${item.sku}</td>
+                    <td class="fw-bold text-emerald-600">${item.konversi}</td>
+                    <td>${item.buyer || 'Admin'}</td>
+                </tr>`;
+            });
         }
 
         function switchInputSub(sub) {
@@ -952,7 +1078,7 @@
             }
 
             eksporPlanningData.forEach((p, index) => {
-                let matchingAntrian = antrianData.find(t => t.noDoc && p.noSo && t.noDoc.trim() === p.noSo.trim());
+                let matchingAntrian = antrianData.find(t => (t.noDoc && p.noSo && t.noDoc.trim() === p.noSo.trim()) || (t.noDoc && p.quotation && t.noDoc.trim() === p.quotation.trim()));
                 let currentStatus = p.status || 'Antrian';
                 let jamMasukVal = p.jamMasuk || '-';
                 let jamKeluarVal = p.jamKeluar || '-';
@@ -1073,7 +1199,7 @@
         }
 
         function switchMenu(menuName) {
-            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-rdc', 'section-ekspor', 'section-jalur', 'section-binloc', 'section-kpi'].forEach(id => {
+            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-rdc', 'section-ekspor', 'section-jalur', 'section-binloc', 'section-kpi', 'section-report'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -1086,6 +1212,7 @@
             if(menuName === 'rdc') { renderRdcMonitoringTable(); }
             if(menuName === 'realisasi') { renderRealisasiTable(); }
             if(menuName === 'ekspor') { renderEksporSummaryTable(); }
+            if(menuName === 'report') { renderReportData(); }
             if(window.innerWidth < 768) toggleSidebar();
         }
 
