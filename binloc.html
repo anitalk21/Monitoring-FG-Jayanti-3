@@ -673,7 +673,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Blok Rak</th>
-                                        <th>Lorong / Row</th>
+                                        <th>Lorong / Row & Kapasitas</th>
                                         <th>Karton di Rak Ini</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -721,6 +721,63 @@
             if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
             if (!Array.isArray(relokasiLogData)) relokasiLogData = [];
         } catch(e) { binData = []; qcHistoryData = []; relokasiLogData = []; sapStockData = {}; masterStockData = {}; }
+
+        // Konfigurasi Blok berdasarkan Denah Gudang (Menangani pembagian row & kapasitas per section)
+        function getBlockConfig(wh, blockName, rowNumber = 1) {
+            let cleanBlock = blockName.replace('Blok ', '').trim();
+            if (wh.includes('Induk')) {
+                if (cleanBlock === 'X') {
+                    if (rowNumber <= 12) return { totalRows: 28, maxPltPerRow: 36 };
+                    return { totalRows: 28, maxPltPerRow: 18 };
+                }
+                if (cleanBlock === 'T') {
+                    if (rowNumber <= 12) return { totalRows: 28, maxPltPerRow: 36 };
+                    return { totalRows: 28, maxPltPerRow: 24 };
+                }
+                if (cleanBlock === 'W') {
+                    if (rowNumber <= 7) return { totalRows: 29, maxPltPerRow: 18 };
+                    return { totalRows: 29, maxPltPerRow: 36 };
+                }
+                if (cleanBlock === 'S') {
+                    if (rowNumber <= 7) return { totalRows: 29, maxPltPerRow: 24 };
+                    return { totalRows: 29, maxPltPerRow: 36 };
+                }
+
+                const configMap = {
+                    'A': { totalRows: 11, maxPltPerRow: 36 },
+                    'B': { totalRows: 11, maxPltPerRow: 36 },
+                    'C': { totalRows: 11, maxPltPerRow: 36 },
+                    'D': { totalRows: 21, maxPltPerRow: 36 },
+                    'E': { totalRows: 11, maxPltPerRow: 36 },
+                    'F': { totalRows: 17, maxPltPerRow: 36 },
+                    'G': { totalRows: 29, maxPltPerRow: 36 },
+                    'H': { totalRows: 28, maxPltPerRow: 36 },
+                    'I': { totalRows: 11, maxPltPerRow: 36 },
+                    'J': { totalRows: 17, maxPltPerRow: 36 },
+                    'K': { totalRows: 29, maxPltPerRow: 36 },
+                    'L': { totalRows: 28, maxPltPerRow: 36 },
+                    'M': { totalRows: 11, maxPltPerRow: 36 },
+                    'N': { totalRows: 17, maxPltPerRow: 36 },
+                    'O': { totalRows: 29, maxPltPerRow: 36 },
+                    'P': { totalRows: 28, maxPltPerRow: 36 },
+                    'Q': { totalRows: 11, maxPltPerRow: 36 },
+                    'R': { totalRows: 17, maxPltPerRow: 36 },
+                    'U': { totalRows: 11, maxPltPerRow: 36 },
+                    'V': { totalRows: 17, maxPltPerRow: 36 }
+                };
+                return configMap[cleanBlock] || { totalRows: 20, maxPltPerRow: 36 };
+            } else {
+                const agingMap = {
+                    'B': { totalRows: 32, maxPltPerRow: 30 },
+                    'E': { totalRows: 32, maxPltPerRow: 30 },
+                    'H': { totalRows: 32, maxPltPerRow: 30 },
+                    'K': { totalRows: 32, maxPltPerRow: 30 },
+                    'N': { totalRows: 32, maxPltPerRow: 30 },
+                    'O': { totalRows: 6, maxPltPerRow: 30 }
+                };
+                return agingMap[cleanBlock] || { totalRows: 25, maxPltPerRow: 30 };
+            }
+        }
 
         function getBlockTotalPallets(gudangName, blockName) {
             let totalPlt = 0;
@@ -839,24 +896,6 @@
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
-        function getRowMax(wh, block) {
-            let cleanBlock = block.replace('Blok ', '');
-            if (wh.includes('Induk')) {
-                if (['A', 'B', 'C', 'E', 'I', 'M', 'Q', 'U'].includes(cleanBlock)) return 11;
-                if (['F', 'J', 'N', 'R', 'V'].includes(cleanBlock)) return 17;
-                if (['W', 'S'].includes(cleanBlock)) return 22;
-                if (['T', 'X'].includes(cleanBlock)) return 12;
-                if (['D'].includes(cleanBlock)) return 21;
-                if (['H', 'L', 'P'].includes(cleanBlock)) return 28;
-                if (['G', 'K', 'O', 'C'].includes(cleanBlock)) return 29;
-                return 20;
-            } else {
-                if (['B', 'E', 'H', 'K', 'N'].includes(cleanBlock)) return 32;
-                if (['O'].includes(cleanBlock)) return 6;
-                return 29;
-            }
-        }
-
         let penerimaanRowIdx = 0;
         function addPenerimaanRow() {
             penerimaanRowIdx++;
@@ -869,16 +908,15 @@
             let blockOpts = '<option value="">-- Pilih Blok --</option>';
             blocks.forEach(b => { 
                 let bName = `Blok ${b}`;
-                let totalPlt = getBlockTotalPallets(gudang, bName);
-                let warningTag = totalPlt >= 150 ? ' ⚠️ [PENUH]' : (totalPlt >= 100 ? ' ⚠️ [Hampir Penuh]' : '');
-                blockOpts += `<option value="${bName}">Blok ${b}${warningTag}</option>`; 
+                let config = getBlockConfig(gudang, bName, 1);
+                blockOpts += `<option value="${bName}">Blok ${b} (${config.totalRows} Row)</option>`; 
             });
 
             tr.innerHTML = `
                 <td><select class="form-select form-select-sm" id="pBlock_${penerimaanRowIdx}" required onchange="checkBlockCapacity(${penerimaanRowIdx}); updateRowDropdown(${penerimaanRowIdx});">${blockOpts}</select>
                     <div class="text-[10px] fw-bold mt-1" id="blockWarning_${penerimaanRowIdx}"></div>
                 </td>
-                <td><select class="form-select form-select-sm" id="pRowSelect_${penerimaanRowIdx}" required><option value="">-- Pilih Row --</option></select></td>
+                <td><select class="form-select form-select-sm" id="pRowSelect_${penerimaanRowIdx}" required><option value="">-- Pilih Blok Dulu --</option></select></td>
                 <td><input type="number" class="form-control form-control-sm text-center" id="pCarton_${penerimaanRowIdx}" required min="1" placeholder="Jml karton"></td>
                 <td><button type="button" class="btn btn-xs btn-outline-danger py-0 px-2" onclick="removePenerimaanRow(${penerimaanRowIdx})">X</button></td>
             `;
@@ -892,12 +930,13 @@
             if(!blockVal) { warnEl.innerHTML = ''; return; }
 
             let totalPlt = getBlockTotalPallets(gudang, blockVal);
-            if(totalPlt >= 150) {
-                warnEl.innerHTML = `<span class="text-rose-600">⚠️ Blok Penuh (${totalPlt.toFixed(1)} Plt)! Disarankan pilih blok lain.</span>`;
-            } else if(totalPlt >= 100) {
-                warnEl.innerHTML = `<span class="text-amber-600">⚠️ Hampir Penuh (${totalPlt.toFixed(1)} Plt)</span>`;
+            let config = getBlockConfig(gudang, blockVal, 1);
+            let maxTotalBlockPlt = config.totalRows * config.maxPltPerRow;
+
+            if(totalPlt >= maxTotalBlockPlt) {
+                warnEl.innerHTML = `<span class="text-rose-600">⚠️ Blok Penuh (${totalPlt.toFixed(1)} Plt)!</span>`;
             } else {
-                warnEl.innerHTML = `<span class="text-emerald-600">✓ Kapasitas Aman (${totalPlt.toFixed(1)} Plt)</span>`;
+                warnEl.innerHTML = `<span class="text-emerald-600">✓ Kapasitas Blok Aman (${totalPlt.toFixed(1)} Plt)</span>`;
             }
         }
 
@@ -912,10 +951,12 @@
             let rowSelect = document.getElementById('pRowSelect_' + idx);
             rowSelect.innerHTML = '<option value="">-- Pilih Row --</option>';
             if(!blockVal) return;
-            let maxRow = getRowMax(gudang, blockVal);
-            for(let i = 1; i <= maxRow; i++) {
+
+            let dummyConfig = getBlockConfig(gudang, blockVal, 1);
+            for(let i = 1; i <= dummyConfig.totalRows; i++) {
                 let rNum = i < 10 ? '0' + i : i;
-                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${maxRow})</option>`;
+                let actualConfig = getBlockConfig(gudang, blockVal, i);
+                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${actualConfig.maxPltPerRow} Plt)</option>`;
             }
         }
 
@@ -1575,10 +1616,11 @@
             let rowSelect = document.getElementById('relocDestRow');
             rowSelect.innerHTML = '<option value="">-- Pilih Row --</option>';
             if(!blockVal) return;
-            let maxRow = getRowMax(wh, blockVal);
-            for(let i = 1; i <= maxRow; i++) {
+            let dummyConfig = getBlockConfig(wh, blockVal, 1);
+            for(let i = 1; i <= dummyConfig.totalRows; i++) {
                 let rNum = i < 10 ? '0' + i : i;
-                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${maxRow})</option>`;
+                let actualConfig = getBlockConfig(wh, blockVal, i);
+                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${actualConfig.maxPltPerRow} Plt)</option>`;
             }
         }
 
@@ -1690,20 +1732,25 @@
                     }
                 });
 
+                let config = getBlockConfig(targetGudang, blockNameCode, 1);
+                let maxBlockCapacity = config.totalRows * config.maxPltPerRow;
+
                 let colorClass = 'bin-empty';
-                let statusText = 'Kosong (0 Plt)';
-                if(totalPltInBlock > 0 && totalPltInBlock < 50) {
+                let statusText = `Kosong (0 / ${maxBlockCapacity} Plt)`;
+                let ratio = totalPltInBlock / maxBlockCapacity;
+
+                if(totalPltInBlock > 0 && ratio < 0.5) {
                     colorClass = 'bin-low';
-                    statusText = `${totalPltInBlock.toFixed(1)} Plt (<50%)`;
-                } else if(totalPltInBlock >= 50 && totalPltInBlock < 100) {
+                    statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (<50%)`;
+                } else if(ratio >= 0.5 && ratio < 0.75) {
                     colorClass = 'bin-med';
-                    statusText = `${totalPltInBlock.toFixed(1)} Plt (50-75%)`;
-                } else if(totalPltInBlock >= 100 && totalPltInBlock < 150) {
+                    statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (50-75%)`;
+                } else if(ratio >= 0.75 && ratio < 1.0) {
                     colorClass = 'bin-high';
-                    statusText = `${totalPltInBlock.toFixed(1)} Plt (75-99%)`;
-                } else if(totalPltInBlock >= 150) {
+                    statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (75-99%)`;
+                } else if(totalPltInBlock >= maxBlockCapacity) {
                     colorClass = 'bin-full';
-                    statusText = `${totalPltInBlock.toFixed(1)} Plt (Penuh)`;
+                    statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (Penuh)`;
                 }
 
                 container.innerHTML += `<div class="p-3 rounded-xl border text-center shadow-2xs bin-item ${colorClass}" onclick="openBlockDetailModal('Blok ${b}')">
