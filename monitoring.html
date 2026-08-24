@@ -963,29 +963,25 @@
                     currentStatus = matchingAntrian.status || currentStatus;
                     jamMasukVal = matchingAntrian.timeIn || jamMasukVal;
                     jamKeluarVal = matchingAntrian.timeOut || jamKeluarVal;
-                    startTimeVal = matchingAntrian.timeStart || matchingAntrian.start || startTimeVal;
+                    startTimeVal = matchingAntrian.start || matchingAntrian.timeStart || matchingAntrian.jamMulai || startTimeVal;
                     noDoVal = matchingAntrian.noDoc || noDoVal;
 
                     if (matchingAntrian.pickingList && matchingAntrian.pickingList.length > 0) {
-                        let matchedPl = matchingAntrian.pickingList.find(item => item.sku && p.sku && item.sku.trim() === p.sku.trim());
+                        let matchedPl = matchingAntrian.pickingList.find(item => item.sku && p.sku && item.sku.trim() === p.sku.trim()) || matchingAntrian.pickingList[0];
                         if (matchedPl) {
-                            if (matchedPl.prodate) p.proDate = matchedPl.prodate;
-                            if (matchedPl.expDate) p.expDate = matchedPl.expDate;
-                            if (matchedPl.kodefikasi) p.kodifikasi = matchedPl.kodefikasi;
-                        } else {
-                            if (matchingAntrian.pickingList[0].prodate) p.proDate = matchingAntrian.pickingList[0].prodate;
-                            if (matchingAntrian.pickingList[0].expDate) p.expDate = matchingAntrian.pickingList[0].expDate;
-                            if (matchingAntrian.pickingList[0].kodefikasi) p.kodifikasi = matchingAntrian.pickingList[0].kodefikasi;
+                            p.proDate = matchedPl.prodate || matchedPl.proDate || matchedPl.tanggalProduksi || p.proDate;
+                            p.expDate = matchedPl.expDate || matchedPl.expiredDate || matchedPl.exp || p.expDate;
+                            p.kodifikasi = matchedPl.kodifikasi || matchedPl.kodefikasi || matchedPl.code || p.kodifikasi;
                         }
                     }
                 }
 
-                if ((!p.proDate || p.proDate === '-') && p.sku) {
-                    let matchedBin = binData.find(b => b.skuCode && p.sku && b.skuCode.trim() === p.sku.trim());
+                if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-') && p.sku) {
+                    let matchedBin = binData.find(b => b.sku && p.sku && b.sku.includes(p.sku.trim()));
                     if (matchedBin) {
-                        if (matchedBin.prodate) p.proDate = matchedBin.prodate;
-                        if (matchedBin.expDate) p.expDate = matchedBin.expDate;
-                        if (matchedBin.kodefikasi) p.kodifikasi = matchedBin.kodefikasi;
+                        if (!p.proDate || p.proDate === '-') p.proDate = matchedBin.prodate || matchedBin.tanggal || '-';
+                        if (!p.expDate || p.expDate === '-') p.expDate = matchedBin.expDate || matchedBin.expired || '-';
+                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || matchedBin.kodefikasi || '-';
                     }
                 }
 
