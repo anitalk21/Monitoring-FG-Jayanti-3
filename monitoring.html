@@ -437,7 +437,7 @@
                                             <th>#</th>
                                             <th>WEEK</th>
                                             <th>PLANNING TGL SI</th>
-                                            <th>NOMOR QUOTATION</th>
+                                            <th class="bg-indigo-100 text-indigo-900">NOMOR QUOTATION</th>
                                             <th class="bg-amber-100 text-amber-900">NO SO (SO PORTAL)</th>
                                             <th>SKU</th>
                                             <th class="text-start">NAME OF PRODUCT (Auto-Fill)</th>
@@ -455,7 +455,7 @@
                                             <td class="fw-bold">1</td>
                                             <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
                                             <td><input type="date" class="form-control form-control-sm"></td>
-                                            <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                                            <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No Quotation"></td>
                                             <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
                                             <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
                                             <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
@@ -972,7 +972,7 @@
                 <td class="fw-bold">${rowCount}</td>
                 <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
                 <td><input type="date" class="form-control form-control-sm"></td>
-                <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No Quotation"></td>
                 <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
                 <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
                 <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
@@ -999,7 +999,7 @@
                     <td class="fw-bold">1</td>
                     <td><input type="text" class="form-control form-control-sm" placeholder="15"></td>
                     <td><input type="date" class="form-control form-control-sm"></td>
-                    <td><input type="text" class="form-control form-control-sm" placeholder="No Quotation"></td>
+                    <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No Quotation"></td>
                     <td><input type="text" class="form-control form-control-sm font-bold text-indigo-600" placeholder="No SO..."></td>
                     <td><input type="text" class="form-control form-control-sm sku-input" placeholder="Ketik SKU..." oninput="checkMasterSku(this)"></td>
                     <td class="text-start"><input type="text" class="form-control form-control-sm name-input bg-slate-50" placeholder="Otomatis terisi..." readonly></td>
@@ -1116,7 +1116,7 @@
                     <tr>
                         <td>${index + 1}</td>
                         <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo || '-'}</span></td>
-                        <td>${p.quotation || '-'}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.quotation || '-'}</span></td>
                         <td>${p.tglSi || '-'}</td>
                         <td>${p.sku || '-'}</td>
                         <td class="text-start fw-semibold">${p.name || '-'}</td>
@@ -1179,7 +1179,7 @@
                         <td>${index + 1}</td>
                         <td>${p.week || '-'}</td>
                         <td>${p.tglSi || '-'}</td>
-                        <td>${p.quotation || '-'}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.quotation || '-'}</span></td>
                         <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo}</span></td>
                         <td>${p.sku || '-'}</td>
                         <td class="text-start fw-semibold">${p.name || '-'}</td>
