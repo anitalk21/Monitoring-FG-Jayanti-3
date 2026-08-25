@@ -56,7 +56,7 @@
         <div id="section-home" class="app-page active space-y-6">
             <div class="text-center max-w-xl mx-auto py-4">
                 <h2 class="text-2xl font-bold text-slate-700">Pilih Aktivitas Bin-Loc & Opname</h2>
-                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC fleksibel, aging 8 hari, opname, report penerimaan, dan peta rak.</p>
+                <p class="text-xs text-slate-400 mt-1">Pusat pencatatan fisik barang, karantina QC fleksibel, aging khusus Beng-Beng, opname, report, dan peta rak.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
@@ -88,7 +88,7 @@
                     <div class="bg-amber-50 text-amber-600 p-4 rounded-2xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
                     <div>
                         <h3 class="font-bold text-amber-700 text-sm">Monitoring Aging</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Masa Aging 8 Hari</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Aging Khusus Beng-Beng</p>
                     </div>
                 </div>
             </div>
@@ -165,11 +165,12 @@
             </div>
         </div>
 
+        <!-- SECTION AGING: LOGIKA KHUSUS BENG-BENG -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
-                    <h3 class="font-bold text-amber-800 text-base"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Monitoring Gudang Aging (Masa Aging 8 Hari)</h3>
-                    <p class="text-xs text-slate-400">Sistem otomatis memantau masa aging produk sejak tanggal masuk (FIFO). Mencapai 8 hari status menjadi Ready.</p>
+                    <h3 class="font-bold text-amber-800 text-base"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Monitoring Gudang Aging (Khusus SKU Beng-Beng)</h3>
+                    <p class="text-xs text-slate-400">Hanya produk Beng-Beng yang melewati masa aging 8 hari. Produk non-Beng-Beng di Aging berstatus Overflow (Bebas Aging).</p>
                 </div>
                 <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
@@ -624,7 +625,6 @@
                         </div>
                     </div>
 
-                    <!-- GRUP EKSPOR: INPUT NOMOR QT (QUOTATION) -->
                     <div id="eksporFieldGroup" class="mb-3 p-3 rounded-xl border border-violet-100 bg-violet-50/30" style="display: none;">
                         <div class="font-bold text-violet-700 mb-2 text-[11px]">INFORMASI TAMBAHAN PRODUK EKSPOR (NOMOR QUOTATION)</div>
                         <div class="row g-2 mb-2">
@@ -649,7 +649,6 @@
                         </div>
                     </div>
 
-                    <!-- INPUT SKU & KODEFIKASI MANUAL -->
                     <div class="row g-2 mb-3">
                         <div class="col-8 relative">
                             <label class="form-label fw-bold text-slate-600">Cari & Pilih SKU Produk *</label>
@@ -1282,7 +1281,6 @@
             });
         }
 
-        // FUNGSI PENERIMAAN DIPERBAIKI AGAR TIDAK DOUBLE ENTRY
         function submitPenerimaan(e) {
             e.preventDefault();
             let category = document.getElementById('pCategory').value;
@@ -1333,11 +1331,9 @@
                 let pltVal = (krtVal / stdKrt).toFixed(2);
                 let lokasiTarget = `${blockVal} - ${rowVal}`;
 
-                // CEK APAKAH SKU DAN LOKASI TERSEBUT SUDAH ADA DI BIN-LOC
                 let existingIndex = binData.findIndex(i => i.skuCode === skuCode && i.lokasi === lokasiTarget && i.gudang === gudang);
 
                 if (existingIndex !== -1) {
-                    // JIKA SUDAH ADA, UPDATE JUMLAH KARTONNYA AGAR TIDAK DOBEL
                     let existingItem = binData[existingIndex];
                     let oldKrt = parseFloat(existingItem.karton) || 0;
                     let totalKrt = oldKrt + krtVal;
@@ -1347,7 +1343,6 @@
                     existingItem.konversi = `${totalPlt} Pallet (${totalKrt} krt)`;
                     existingItem.tanggal = formattedDateStr;
                 } else {
-                    // JIKA BELUM ADA, MASUKKAN SEBAGAI BARIS BARU
                     let newItem = {
                         category: category,
                         gudang: gudang,
@@ -1514,6 +1509,7 @@
             });
         }
 
+        // LOGIKA BARU: MASA AGING HANYA UNTUK SKU BENG-BENG
         function renderAgingTable() {
             let tbody = document.getElementById('agingTableBody');
             if(!tbody) return;
@@ -1528,23 +1524,37 @@
 
             const nowTime = new Date().getTime();
             agingItems.forEach(item => {
-                let itemTime = item.timestamp || new Date().getTime();
-                let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
-                if(diffDays < 0) diffDays = 0;
-
-                let isReady = diffDays >= 8;
-                let statusBadge = isReady ? 
-                    '<span class="badge bg-success px-2 py-1">Ready</span>' : 
-                    `<span class="badge bg-warning text-dark px-2 py-1">Aging (${8 - diffDays} hari lagi)</span>`;
-
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
                 let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let checkStr = (code + " " + name).toUpperCase();
+
+                // Cek apakah produk adalah Beng-Beng
+                let isBengBeng = checkStr.includes('BENG');
+
+                let statusBadge = '';
+                let lamaAgingText = '-';
+
+                if (isBengBeng) {
+                    let itemTime = item.timestamp || new Date().getTime();
+                    let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
+                    if(diffDays < 0) diffDays = 0;
+
+                    let isReady = diffDays >= 8;
+                    lamaAgingText = `${diffDays} Hari`;
+                    statusBadge = isReady ? 
+                        '<span class="badge bg-success px-2 py-1">Ready</span>' : 
+                        `<span class="badge bg-warning text-dark px-2 py-1">Aging (${8 - diffDays} hari lagi)</span>`;
+                } else {
+                    // Produk Non-Beng-Beng di Gudang Aging (Overflow)
+                    lamaAgingText = '<span class="text-slate-400">Non-Aging (Overflow)</span>';
+                    statusBadge = '<span class="badge bg-emerald-100 text-emerald-700 px-2 py-1 fw-bold">Ready / Bebas Aging</span>';
+                }
 
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
                     <td class="text-start">${name}</td>
                     <td>${item.tanggal}</td>
-                    <td class="fw-semibold text-indigo-600">${diffDays} Hari</td>
+                    <td class="fw-semibold text-indigo-600">${lamaAgingText}</td>
                     <td><span class="badge bg-slate-100 text-slate-700">${item.lokasi}</span></td>
                     <td class="fw-bold">${item.konversi}</td>
                     <td>${statusBadge}</td>
