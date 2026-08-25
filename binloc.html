@@ -723,6 +723,16 @@
 
         try {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            
+            // PENGAMANAN LOG RIWAYAT: Jika binData kosong tapi arsip ada, pulihkan dari arsip agar tidak hilang!
+            let arsipRiwayat = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+            if (binData.length === 0 && arsipRiwayat.length > 0) {
+                binData = [...arsipRiwayat];
+                localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            } else if (binData.length > 0 && arsipRiwayat.length === 0) {
+                localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(binData));
+            }
+
             qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
             relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
             sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
@@ -1311,11 +1321,16 @@
                 binData.unshift(newItem);
             }
 
+            // SIMPAN KE STORAGE UTAMA DAN PERMANENKAN KE ARSIP RIWAYAT
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            let currentArsip = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+            binData.forEach(item => { currentArsip.unshift(item); });
+            localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(currentArsip));
+
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = todayIsoStr;
-            alert('Penerimaan barang berhasil disimpan ke beberapa rak sekaligus!');
+            alert('Penerimaan barang berhasil disimpan dan diamankan ke arsip riwayat!');
         }
 
         function toggleReportTable() {
@@ -1362,13 +1377,19 @@
             let tbody = document.getElementById('reportTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            let penerimaanItems = binData.filter(item => item.category !== 'Stock Opname');
+            
+            // AMBIL DATA DARI ARSIP PERMANEN AGAR TIDAK HILANG KETIGA DATA UTAMA BERUBAH/DIKIRIM
+            let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+            if(dataSource.length === 0) {
+                dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            }
+
+            let penerimaanItems = dataSource.filter(item => item.category !== 'Stock Opname');
             if(penerimaanItems.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="11" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
                 return;
             }
-            binData.forEach((item, index) => {
+            dataSource.forEach((item, index) => {
                 if(item.category === 'Stock Opname') return;
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
                 let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
