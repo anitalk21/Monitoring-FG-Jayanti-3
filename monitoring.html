@@ -1091,12 +1091,8 @@
                     jamMasukVal = matchingAntrian.timeIn || jamMasukVal;
                     jamKeluarVal = matchingAntrian.timeOut || jamKeluarVal;
                     
-                    // SINKRONISASI START DARI TIME START LOADING DI ANTRIAN
                     startTimeVal = matchingAntrian.timeStartLoading || matchingAntrian.timeStart || matchingAntrian.jamMulai || startTimeVal;
-                    
-                    // SINKRONISASI REALISASI STUFFING DATE DENGAN TANGGAL KEDATANGAN / JAM MASUK TRUCK
                     realisasiStuffingVal = matchingAntrian.timeIn ? (new Date().toLocaleDateString('id-ID')) : realisasiStuffingVal;
-
                     noDoVal = matchingAntrian.noDoc || noDoVal;
 
                     if (matchingAntrian.pickingList && matchingAntrian.pickingList.length > 0) {
@@ -1109,7 +1105,6 @@
                     }
                 }
 
-                // SINKRONISASI OTOMATIS KODIFIKASI KE PORTAL BIN-LOC / MASTER STOCK BERDASARKAN NO. QT ATAU SKU
                 if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-')) {
                     let matchedBin = binData.find(b => (p.quotation && b.qt && b.qt.trim() === p.quotation.trim()) || (b.sku && p.sku && b.sku.includes(p.sku.trim())));
                     if (matchedBin) {
@@ -1119,7 +1114,6 @@
                     }
                 }
 
-                // AMBIL DARI MASTER STOCK JIKA KODIFIKASI DI BIN-LOC KOSONG
                 if (!p.kodifikasi || p.kodifikasi === '-') {
                     let masterStockMap = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
                     if (p.sku && masterStockMap[p.sku.trim()]) {
@@ -1252,6 +1246,8 @@
             let totalAgingPlt = 0;
 
             binData.forEach(item => {
+                if (!item || !item.sku || item.sku.includes('undefined') || item.category === 'Ekspor') return;
+
                 let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : 0;
                 if (item.gudang && item.gudang.includes('Gudang Aging')) {
                     totalAgingPlt += pltValue;
@@ -1274,24 +1270,33 @@
             document.getElementById('summaryAntrianTruk').innerText = totalAntrian + ' Truk';
         }
 
+        // FUNGSI LIVE STOCK MODAL DENGAN FILTER KETAT (MENGHINDARI UNDEFINED / EKSPOR MENTAH)
         function openLiveStockModal() {
             let tbody = document.getElementById('liveStockTableBody');
             tbody.innerHTML = '';
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
+            
+            let activeStock = binData.filter(item => {
+                return item && 
+                       item.sku && 
+                       item.sku !== 'undefined' && 
+                       !item.sku.includes('undefined') && 
+                       item.category !== 'Ekspor' && 
+                       parseInt(item.karton || 0) > 0;
+            });
 
             if(activeStock.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Tidak ada stok aktif di gudang saat ini.</td></tr>';
             } else {
                 activeStock.forEach(item => {
-                    let skuCode = item.sku.split('|')[0].trim();
+                    let skuCode = item.sku.includes('|') ? item.sku.split('|')[0].trim() : item.sku.split(' - ')[0].trim();
                     let skuName = item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku;
                     tbody.innerHTML += `<tr>
                         <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${skuCode}</span></td>
                         <td class="text-start fw-semibold">${skuName}</td>
                         <td class="fw-bold text-indigo-600">${item.karton} krt</td>
                         <td>${item.konversi || '-'}</td>
-                        <td><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">${item.lokasi} (${item.pallet})</span></td>
+                        <td><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">${item.lokasi} (${item.pallet || '-'})</span></td>
                         <td>${item.prodate || item.tanggal || '-'}</td>
                     </tr>`;
                 });
@@ -1304,7 +1309,7 @@
 
         function exportLiveStockExcel() {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            let activeStock = binData.filter(item => parseInt(item.karton || 0) > 0);
+            let activeStock = binData.filter(item => item && item.sku && !item.sku.includes('undefined') && item.category !== 'Ekspor' && parseInt(item.karton || 0) > 0);
             let csvContent = "data:text/csv;charset=utf-8,SKU,Nama Produk,Total Karton,Konversi Pallet,Lokasi Rak,Prodate\n";
             activeStock.forEach(item => {
                 csvContent += `"${item.sku}","${item.karton}","${item.konversi}","${item.lokasi}","${item.prodate || '-'}"\n`;
@@ -1536,4 +1541,3 @@
     </script>
 </body>
 </html>
-```[cite: 7]
