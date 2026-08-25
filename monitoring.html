@@ -1084,12 +1084,19 @@
                 let jamKeluarVal = p.jamKeluar || '-';
                 let startTimeVal = p.start || '-';
                 let noDoVal = p.noDo || '-';
+                let realisasiStuffingVal = p.realisasiStuffing || '-';
 
                 if (matchingAntrian) {
                     currentStatus = matchingAntrian.status || currentStatus;
                     jamMasukVal = matchingAntrian.timeIn || jamMasukVal;
                     jamKeluarVal = matchingAntrian.timeOut || jamKeluarVal;
-                    startTimeVal = matchingAntrian.start || matchingAntrian.timeStart || matchingAntrian.jamMulai || startTimeVal;
+                    
+                    // SINKRONISASI START DARI TIME START LOADING DI ANTRIAN
+                    startTimeVal = matchingAntrian.timeStartLoading || matchingAntrian.timeStart || matchingAntrian.jamMulai || startTimeVal;
+                    
+                    // SINKRONISASI REALISASI STUFFING DATE DENGAN TANGGAL KEDATANGAN / JAM MASUK TRUCK
+                    realisasiStuffingVal = matchingAntrian.timeIn ? (new Date().toLocaleDateString('id-ID')) : realisasiStuffingVal;
+
                     noDoVal = matchingAntrian.noDoc || noDoVal;
 
                     if (matchingAntrian.pickingList && matchingAntrian.pickingList.length > 0) {
@@ -1102,13 +1109,21 @@
                     }
                 }
 
-                // PENCOCOKAN OTOMATIS KE PORTAL BIN-LOC BERDASARKAN NO. QT ATAU SKU
+                // SINKRONISASI OTOMATIS KODIFIKASI KE PORTAL BIN-LOC / MASTER STOCK BERDASARKAN NO. QT ATAU SKU
                 if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-')) {
                     let matchedBin = binData.find(b => (p.quotation && b.qt && b.qt.trim() === p.quotation.trim()) || (b.sku && p.sku && b.sku.includes(p.sku.trim())));
                     if (matchedBin) {
                         if (!p.proDate || p.proDate === '-') p.proDate = matchedBin.prodate || matchedBin.tanggal || '-';
                         if (!p.expDate || p.expDate === '-') p.expDate = matchedBin.expDate || '-';
-                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || '-';
+                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || matchedBin.code || '-';
+                    }
+                }
+
+                // AMBIL DARI MASTER STOCK JIKA KODIFIKASI DI BIN-LOC KOSONG
+                if (!p.kodifikasi || p.kodifikasi === '-') {
+                    let masterStockMap = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+                    if (p.sku && masterStockMap[p.sku.trim()]) {
+                        p.kodifikasi = masterStockMap[p.sku.trim()].kodifikasi || masterStockMap[p.sku.trim()].code || '-';
                     }
                 }
 
@@ -1128,7 +1143,7 @@
                         <td>${p.ekspedisi || '-'}</td>
                         <td>${p.destination || '-'}</td>
                         <td>${p.plant || '-'}</td>
-                        <td>${p.realisasiStuffing || '-'}</td>
+                        <td>${realisasiStuffingVal}</td>
                         <td><span class="text-indigo-600 font-bold">${jamMasukVal}</span></td>
                         <td><span class="text-emerald-600 font-bold">${startTimeVal}</span></td>
                         <td>${p.npeReleased || '-'}</td>
@@ -1521,3 +1536,4 @@
     </script>
 </body>
 </html>
+```[cite: 7]
