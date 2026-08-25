@@ -724,7 +724,6 @@
         try {
             binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             
-            // PENGAMANAN LOG RIWAYAT: Jika binData kosong tapi arsip ada, pulihkan dari arsip agar tidak hilang!
             let arsipRiwayat = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
             if (binData.length === 0 && arsipRiwayat.length > 0) {
                 binData = [...arsipRiwayat];
@@ -806,6 +805,23 @@
                     if(item.konversi) {
                         let p = parseFloat(item.konversi.split(' ')[0]) || 0;
                         totalPlt += p;
+                    }
+                }
+            });
+            return totalPlt;
+        }
+
+        // PERHITUNGAN PALLET AKTIF PADA ROW TERTENTU SECARA LIVE
+        function getRowTotalPallets(gudangName, blockName, rowName) {
+            let totalPlt = 0;
+            binData.forEach(item => {
+                if(item.gudang && item.gudang.includes(gudangName) && item.lokasi) {
+                    let targetLoc = `${blockName} - ${rowName}`;
+                    if(item.lokasi.trim() === targetLoc.trim()) {
+                        if(item.konversi) {
+                            let p = parseFloat(item.konversi.split(' ')[0]) || 0;
+                            totalPlt += p;
+                        }
                     }
                 }
             });
@@ -972,6 +988,7 @@
             if(tr) tr.remove();
         }
 
+        // PEMBARUAN: ROW YANG PENUH DITAMPILKAN NAMUN DINONAKTIFKAN (DISABLED)
         function updateRowDropdown(idx) {
             let gudang = document.getElementById('pGudang').value;
             let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -982,8 +999,24 @@
             let dummyConfig = getBlockConfig(gudang, blockVal, 1);
             for(let i = 1; i <= dummyConfig.totalRows; i++) {
                 let rNum = i < 10 ? '0' + i : i;
+                let rowNameStr = `Row ${rNum}`;
                 let actualConfig = getBlockConfig(gudang, blockVal, i);
-                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${actualConfig.maxPltPerRow} Plt)</option>`;
+                
+                let currentFilledPlt = getRowTotalPallets(gudang, blockVal, rowNameStr);
+                let isFull = currentFilledPlt >= actualConfig.maxPltPerRow;
+
+                let opt = document.createElement('option');
+                opt.value = rowNameStr;
+                
+                if (isFull) {
+                    opt.disabled = true;
+                    opt.innerText = `${rowNameStr} (Penuh - ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.style.color = '#991b1b';
+                    opt.style.backgroundColor = '#fee2e2';
+                } else {
+                    opt.innerText = `${rowNameStr} (Tersedia ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                }
+                rowSelect.appendChild(opt);
             }
         }
 
@@ -1321,7 +1354,6 @@
                 binData.unshift(newItem);
             }
 
-            // SIMPAN KE STORAGE UTAMA DAN PERMANENKAN KE ARSIP RIWAYAT
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             let currentArsip = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
             binData.forEach(item => { currentArsip.unshift(item); });
@@ -1363,10 +1395,29 @@
             }
         }
 
+        // PERBAIKAN FUNGSI HAPUS: MENGHAPUS BERDASARKAN DATA SPESIFIK PADA ARSIP & STORAGE
         function deleteReportItem(index) {
             if(confirm('Apakah Anda yakin ingin menghapus log riwayat ini?')) {
-                binData.splice(index, 1);
-                localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+                let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+                if(dataSource.length === 0) {
+                    dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+                }
+
+                let targetItem = dataSource[index];
+                if(targetItem) {
+                    // Hapus dari arsip permanen
+                    dataSource.splice(index, 1);
+                    localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(dataSource));
+
+                    // Hapus juga dari data utama binloc jika ada kecocokan identik
+                    binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+                    let mainIdx = binData.findIndex(i => i.tanggal === targetItem.tanggal && i.lokasi === targetItem.lokasi && i.pallet === targetItem.pallet && i.karton === targetItem.karton);
+                    if(mainIdx !== -1) {
+                        binData.splice(mainIdx, 1);
+                        localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+                    }
+                }
+
                 renderReportTable();
                 renderOpnameReportTable();
                 alert('Log riwayat berhasil dihapus.');
@@ -1378,7 +1429,6 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
-            // AMBIL DATA DARI ARSIP PERMANEN AGAR TIDAK HILANG KETIGA DATA UTAMA BERUBAH/DIKIRIM
             let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
             if(dataSource.length === 0) {
                 dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -1684,8 +1734,24 @@
             let dummyConfig = getBlockConfig(wh, blockVal, 1);
             for(let i = 1; i <= dummyConfig.totalRows; i++) {
                 let rNum = i < 10 ? '0' + i : i;
+                let rowNameStr = `Row ${rNum}`;
                 let actualConfig = getBlockConfig(wh, blockVal, i);
-                rowSelect.innerHTML += `<option value="Row ${rNum}">Row ${rNum} (Maks ${actualConfig.maxPltPerRow} Plt)</option>`;
+                
+                let currentFilledPlt = getRowTotalPallets(wh, blockVal, rowNameStr);
+                let isFull = currentFilledPlt >= actualConfig.maxPltPerRow;
+
+                let opt = document.createElement('option');
+                opt.value = rowNameStr;
+                
+                if (isFull) {
+                    opt.disabled = true;
+                    opt.innerText = `${rowNameStr} (Penuh - ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.style.color = '#991b1b';
+                    opt.style.backgroundColor = '#fee2e2';
+                } else {
+                    opt.innerText = `${rowNameStr} (Tersedia ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                }
+                rowSelect.appendChild(opt);
             }
         }
 
