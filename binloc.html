@@ -811,7 +811,6 @@
             return totalPlt;
         }
 
-        // PERHITUNGAN PALLET AKTIF PADA ROW TERTENTU SECARA LIVE
         function getRowTotalPallets(gudangName, blockName, rowName) {
             let totalPlt = 0;
             binData.forEach(item => {
@@ -988,7 +987,7 @@
             if(tr) tr.remove();
         }
 
-        // PEMBARUAN: ROW YANG PENUH DITAMPILKAN NAMUN DINONAKTIFKAN (DISABLED)
+        // PEMBARUAN: MENAMPILKAN SISA KAPASITAS KOSONG DI DROPDOWN ROW
         function updateRowDropdown(idx) {
             let gudang = document.getElementById('pGudang').value;
             let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1003,6 +1002,9 @@
                 let actualConfig = getBlockConfig(gudang, blockVal, i);
                 
                 let currentFilledPlt = getRowTotalPallets(gudang, blockVal, rowNameStr);
+                let sisaKapasitas = actualConfig.maxPltPerRow - currentFilledPlt;
+                if (sisaKapasitas < 0) sisaKapasitas = 0;
+
                 let isFull = currentFilledPlt >= actualConfig.maxPltPerRow;
 
                 let opt = document.createElement('option');
@@ -1010,11 +1012,11 @@
                 
                 if (isFull) {
                     opt.disabled = true;
-                    opt.innerText = `${rowNameStr} (Penuh - ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.innerText = `${rowNameStr} (Penuh - Terisi ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
                     opt.style.color = '#991b1b';
                     opt.style.backgroundColor = '#fee2e2';
                 } else {
-                    opt.innerText = `${rowNameStr} (Tersedia ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.innerText = `${rowNameStr} (Sisa Kosong: ${sisaKapasitas.toFixed(1)} Plt dari ${actualConfig.maxPltPerRow} Plt)`;
                 }
                 rowSelect.appendChild(opt);
             }
@@ -1395,7 +1397,6 @@
             }
         }
 
-        // PERBAIKAN FUNGSI HAPUS: MENGHAPUS BERDASARKAN DATA SPESIFIK PADA ARSIP & STORAGE
         function deleteReportItem(index) {
             if(confirm('Apakah Anda yakin ingin menghapus log riwayat ini?')) {
                 let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
@@ -1405,11 +1406,9 @@
 
                 let targetItem = dataSource[index];
                 if(targetItem) {
-                    // Hapus dari arsip permanen
                     dataSource.splice(index, 1);
                     localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(dataSource));
 
-                    // Hapus juga dari data utama binloc jika ada kecocokan identik
                     binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
                     let mainIdx = binData.findIndex(i => i.tanggal === targetItem.tanggal && i.lokasi === targetItem.lokasi && i.pallet === targetItem.pallet && i.karton === targetItem.karton);
                     if(mainIdx !== -1) {
@@ -1738,6 +1737,9 @@
                 let actualConfig = getBlockConfig(wh, blockVal, i);
                 
                 let currentFilledPlt = getRowTotalPallets(wh, blockVal, rowNameStr);
+                let sisaKapasitas = actualConfig.maxPltPerRow - currentFilledPlt;
+                if (sisaKapasitas < 0) sisaKapasitas = 0;
+
                 let isFull = currentFilledPlt >= actualConfig.maxPltPerRow;
 
                 let opt = document.createElement('option');
@@ -1745,11 +1747,11 @@
                 
                 if (isFull) {
                     opt.disabled = true;
-                    opt.innerText = `${rowNameStr} (Penuh - ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.innerText = `${rowNameStr} (Penuh - Terisi ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
                     opt.style.color = '#991b1b';
                     opt.style.backgroundColor = '#fee2e2';
                 } else {
-                    opt.innerText = `${rowNameStr} (Tersedia ${currentFilledPlt.toFixed(1)}/${actualConfig.maxPltPerRow} Plt)`;
+                    opt.innerText = `${rowNameStr} (Sisa Kosong: ${sisaKapasitas.toFixed(1)} Plt dari ${actualConfig.maxPltPerRow} Plt)`;
                 }
                 rowSelect.appendChild(opt);
             }
