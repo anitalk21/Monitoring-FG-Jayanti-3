@@ -1102,12 +1102,13 @@
                     }
                 }
 
-                if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-') && p.sku) {
-                    let matchedBin = binData.find(b => b.sku && p.sku && b.sku.includes(p.sku.trim()));
+                // PENCOCOKAN OTOMATIS KE PORTAL BIN-LOC BERDASARKAN NO. QT ATAU SKU
+                if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-')) {
+                    let matchedBin = binData.find(b => (p.quotation && b.qt && b.qt.trim() === p.quotation.trim()) || (b.sku && p.sku && b.sku.includes(p.sku.trim())));
                     if (matchedBin) {
                         if (!p.proDate || p.proDate === '-') p.proDate = matchedBin.prodate || matchedBin.tanggal || '-';
-                        if (!p.expDate || p.expDate === '-') p.expDate = matchedBin.expDate || matchedBin.expired || '-';
-                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || matchedBin.kodefikasi || '-';
+                        if (!p.expDate || p.expDate === '-') p.expDate = matchedBin.expDate || '-';
+                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || '-';
                     }
                 }
 
