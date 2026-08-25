@@ -987,7 +987,6 @@
             if(tr) tr.remove();
         }
 
-        // PEMBARUAN: MENAMPILKAN SISA KAPASITAS KOSONG DI DROPDOWN ROW
         function updateRowDropdown(idx) {
             let gudang = document.getElementById('pGudang').value;
             let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1283,6 +1282,7 @@
             });
         }
 
+        // FUNGSI PENERIMAAN DIPERBAIKI AGAR TIDAK DOUBLE ENTRY
         function submitPenerimaan(e) {
             e.preventDefault();
             let category = document.getElementById('pCategory').value;
@@ -1331,29 +1331,46 @@
                 let rowVal = document.getElementById('pRowSelect_' + idx).value;
                 let krtVal = parseFloat(document.getElementById('pCarton_' + idx).value) || 0;
                 let pltVal = (krtVal / stdKrt).toFixed(2);
+                let lokasiTarget = `${blockVal} - ${rowVal}`;
 
-                let newItem = {
-                    category: category,
-                    gudang: gudang,
-                    plant: plant,
-                    line: line,
-                    tanggal: formattedDateStr,
-                    timestamp: new Date(dateInputVal).getTime() || new Date().getTime(),
-                    shift: shift,
-                    skuCode: skuCode,
-                    namaProduk: namaProduk,
-                    sku: skuInputFull,
-                    kodefikasi: kodefikasiVal,
-                    qt: qt,
-                    prodate: prodateFormatted,
-                    expDate: expDateFormatted,
-                    buyer: buyer,
-                    lokasi: `${blockVal} - ${rowVal}`,
-                    pallet: palletRange,
-                    karton: krtVal,
-                    konversi: `${pltVal} Pallet (${krtVal} krt)`
-                };
-                binData.unshift(newItem);
+                // CEK APAKAH SKU DAN LOKASI TERSEBUT SUDAH ADA DI BIN-LOC
+                let existingIndex = binData.findIndex(i => i.skuCode === skuCode && i.lokasi === lokasiTarget && i.gudang === gudang);
+
+                if (existingIndex !== -1) {
+                    // JIKA SUDAH ADA, UPDATE JUMLAH KARTONNYA AGAR TIDAK DOBEL
+                    let existingItem = binData[existingIndex];
+                    let oldKrt = parseFloat(existingItem.karton) || 0;
+                    let totalKrt = oldKrt + krtVal;
+                    let totalPlt = (totalKrt / stdKrt).toFixed(2);
+
+                    existingItem.karton = totalKrt;
+                    existingItem.konversi = `${totalPlt} Pallet (${totalKrt} krt)`;
+                    existingItem.tanggal = formattedDateStr;
+                } else {
+                    // JIKA BELUM ADA, MASUKKAN SEBAGAI BARIS BARU
+                    let newItem = {
+                        category: category,
+                        gudang: gudang,
+                        plant: plant,
+                        line: line,
+                        tanggal: formattedDateStr,
+                        timestamp: new Date(dateInputVal).getTime() || new Date().getTime(),
+                        shift: shift,
+                        skuCode: skuCode,
+                        namaProduk: namaProduk,
+                        sku: skuInputFull,
+                        kodefikasi: kodefikasiVal,
+                        qt: qt,
+                        prodate: prodateFormatted,
+                        expDate: expDateFormatted,
+                        buyer: buyer,
+                        lokasi: lokasiTarget,
+                        pallet: palletRange,
+                        karton: krtVal,
+                        konversi: `${pltVal} Pallet (${krtVal} krt)`
+                    };
+                    binData.unshift(newItem);
+                }
             }
 
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
@@ -1364,7 +1381,7 @@
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = todayIsoStr;
-            alert('Penerimaan barang berhasil disimpan dan diamankan ke arsip riwayat!');
+            alert('Penerimaan barang berhasil disimpan tanpa duplikasi data!');
         }
 
         function toggleReportTable() {
