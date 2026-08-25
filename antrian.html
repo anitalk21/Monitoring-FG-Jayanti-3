@@ -215,7 +215,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5</button>
-            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Selesai & Tutup</button>
+            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Simpan & Selesai</button>
         </div>
     </div>
 </div>
@@ -468,7 +468,7 @@
             status: 'Antrian',
             dock: '-',
             timeIn: currentTimeStr,
-            timeStartLoading: '-', // Properti Start Loading
+            timeStartLoading: '-', 
             rawTime: new Date().getTime(),
             timeOut: '-',
             rawTimeOut: null,
@@ -1098,7 +1098,6 @@
 
         if(newSt === 'Proses Muat') {
             targetTruck.dock = selectedDock || 'Dock 01';
-            // Mencatat jam start loading secara otomatis saat masuk status "Proses Muat"
             if(!targetTruck.timeStartLoading || targetTruck.timeStartLoading === '-') {
                 targetTruck.timeStartLoading = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
