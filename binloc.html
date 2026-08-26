@@ -131,7 +131,7 @@
             </div>
         </div>
 
-        <!-- SECTION REPORT -->
+        <!-- SECTION REPORT DENGAN FITUR FILTER & CARI -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -142,6 +142,30 @@
                     <button onclick="switchSection('home')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
                 </div>
             </div>
+
+            <!-- PANEL PENCARIAN & FILTER REPORT -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                    <label class="form-label text-[11px] fw-bold text-slate-600 mb-1">Cari Cepat (SKU / Produk / Pallet)</label>
+                    <input type="text" id="reportSearch" class="form-control form-control-sm" placeholder="Ketik kata kunci..." oninput="filterReportTable()">
+                </div>
+                <div>
+                    <label class="form-label text-[11px] fw-bold text-slate-600 mb-1">Filter Kategori</label>
+                    <select id="reportFilterCat" class="form-select form-select-sm" onchange="filterReportTable()">
+                        <option value="">Semua Kategori (Lokal & Ekspor)</option>
+                        <option value="Lokal">Lokal</option>
+                        <option value="Ekspor">Ekspor</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-[11px] fw-bold text-slate-600 mb-1">Filter Tanggal Masuk</label>
+                    <input type="date" id="reportFilterDate" class="form-control form-control-sm" onchange="filterReportTable()">
+                </div>
+                <div class="flex items-end">
+                    <button class="btn btn-sm btn-outline-secondary w-100 fw-bold" onclick="resetReportFilter()">Reset Filter</button>
+                </div>
+            </div>
+
             <div id="reportTableContainer" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center text-xs">
@@ -821,14 +845,14 @@
                 return configMap[cleanBlock] || { totalRows: 20, maxPltPerRow: 36 };
             } else {
                 const agingMap = {
-                    'B': { totalRows: 32, maxPltPerRow: 30 },
-                    'E': { totalRows: 32, maxPltPerRow: 30 },
-                    'H': { totalRows: 32, maxPltPerRow: 30 },
-                    'K': { totalRows: 32, maxPltPerRow: 30 },
-                    'N': { totalRows: 32, maxPltPerRow: 30 },
-                    'O': { totalRows: 6, maxPltPerRow: 30 }
+                    'B': { totalRows: 32, maxPltPerRow: 36 },
+                    'E': { totalRows: 32, maxPltPerRow: 36 },
+                    'H': { totalRows: 32, maxPltPerRow: 36 },
+                    'K': { totalRows: 32, maxPltPerRow: 36 },
+                    'N': { totalRows: 32, maxPltPerRow: 36 },
+                    'O': { totalRows: 6, maxPltPerRow: 36 }
                 };
-                return agingMap[cleanBlock] || { totalRows: 25, maxPltPerRow: 30 };
+                return agingMap[cleanBlock] || { totalRows: 25, maxPltPerRow: 36 };
             }
         }
 
@@ -1443,21 +1467,64 @@
         }
 
         function renderReportTable() {
-            let tbody = document.getElementById('reportTableBody');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
+            let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+            if(dataSource.length === 0) {
+                dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            }
+            populateReportTableRows(dataSource);
+        }
+
+        function filterReportTable() {
             let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
             if(dataSource.length === 0) {
                 dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             }
 
-            let penerimaanItems = dataSource.filter(item => item.category !== 'Stock Opname');
+            let searchVal = document.getElementById('reportSearch').value.toLowerCase().trim();
+            let catVal = document.getElementById('reportFilterCat').value;
+            let dateVal = document.getElementById('reportFilterDate').value;
+
+            let filtered = dataSource.filter(item => {
+                if(item.category === 'Stock Opname') return false;
+
+                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let textMatch = !searchVal || code.toLowerCase().includes(searchVal) || name.toLowerCase().includes(searchVal) || item.pallet.toLowerCase().includes(searchVal) || item.lokasi.toLowerCase().includes(searchVal);
+
+                let catMatch = !catVal || item.category === catVal;
+
+                let dateMatch = true;
+                if(dateVal) {
+                    let parts = dateVal.split('-');
+                    let formattedDateFilter = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    dateMatch = item.tanggal === formattedDateFilter;
+                }
+
+                return textMatch && catMatch && dateMatch;
+            });
+
+            populateReportTableRows(filtered);
+        }
+
+        function resetReportFilter() {
+            document.getElementById('reportSearch').value = '';
+            document.getElementById('reportFilterCat').value = '';
+            document.getElementById('reportFilterDate').value = '';
+            renderReportTable();
+        }
+
+        function populateReportTableRows(dataList) {
+            let tbody = document.getElementById('reportTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let penerimaanItems = dataList.filter(item => item.category !== 'Stock Opname');
             if(penerimaanItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="text-muted">Tidak ada riwayat penerimaan barang yang sesuai dengan filter.</td></tr>';
                 return;
             }
-            dataSource.forEach((item, index) => {
+
+            dataList.forEach((item, index) => {
                 if(item.category === 'Stock Opname') return;
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
                 let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
