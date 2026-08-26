@@ -27,6 +27,9 @@
         .bin-item:hover { transform: scale(1.02); }
         .sku-dropdown-item { cursor: pointer; padding: 6px 10px; font-size: 11px; border-bottom: 1px solid #f1f5f9; background: #fff; }
         .sku-dropdown-item:hover { background-color: #f8fafc; color: #0284c7; }
+
+        .card-menu-title { font-size: 13px !important; font-weight: 700 !important; line-height: 1.2; }
+        .card-menu-desc { font-size: 11px !important; color: #64748b !important; margin-top: 2px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -288,21 +291,25 @@
                 </div>
             </div>
 
-            <!-- TOMBOL NAVIGASI MENU UTAMA OPNAME (BERBENTUK KARTU) -->
+            <!-- TOMBOL NAVIGASI MENU UTAMA OPNAME (UKURAN FONT & TAMPILAN DISAMAKAN) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div onclick="toggleOpnameReportModal()" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-4 cursor-pointer transition shadow-2xs flex items-center gap-4 group">
-                    <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition"><i class="fa-solid fa-clock-rotate-left text-lg"></i></div>
+                    <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition flex items-center justify-center shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                    </div>
                     <div>
-                        <h4 class="font-bold text-purple-800 text-xs uppercase mb-0">Lihat Log Riwayat Opname</h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Cek arsip hasil hitung fisik terdahulu</p>
+                        <h4 class="card-menu-title text-purple-800 uppercase mb-0">Lihat Log Riwayat Opname</h4>
+                        <p class="card-menu-desc">Cek arsip hasil hitung fisik terdahulu</p>
                     </div>
                 </div>
 
                 <div onclick="toggleSapSection()" class="bg-white hover:border-amber-300 border border-slate-200 rounded-2xl p-4 cursor-pointer transition shadow-2xs flex items-center gap-4 group">
-                    <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition"><i class="fa-solid fa-file-excel text-lg"></i></div>
+                    <div class="bg-amber-50 text-amber-600 p-3 rounded-xl border border-amber-100 group-hover:scale-105 transition flex items-center justify-center shrink-0" style="width: 44px; height: 44px;">
+                        <i class="fa-solid fa-file-excel text-base"></i>
+                    </div>
                     <div>
-                        <h4 class="font-bold text-amber-800 text-xs uppercase mb-0">Menu Rekonsiliasi & Input SAP</h4>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Bandingkan data SAP dengan fisik aktual</p>
+                        <h4 class="card-menu-title text-amber-800 uppercase mb-0">Menu Rekonsiliasi & Input SAP</h4>
+                        <p class="card-menu-desc">Bandingkan data SAP dengan fisik aktual</p>
                     </div>
                 </div>
             </div>
@@ -1907,7 +1914,7 @@
                     colorClass = 'bin-med';
                     statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (50-75%)`;
                 } else if(ratio >= 0.75 && ratio < 1.0) {
-                    colorClass, 'bin-high';
+                    colorClass = 'bin-high';
                     statusText = `${totalPltInBlock.toFixed(1)} / ${maxBlockCapacity} Plt (75-99%)`;
                 } else if(totalPltInBlock >= maxBlockCapacity) {
                     colorClass = 'bin-full';
