@@ -168,6 +168,41 @@
             </div>
         </div>
 
+        <!-- SECTION LOG OPNAME TERPISAH (HALAMAN FULL TABLE) -->
+        <div id="section-opname-log" class="app-page space-y-6 max-w-6xl mx-auto">
+            <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                <div>
+                    <h3 class="font-bold text-purple-800 text-base"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Log Riwayat Hasil Stock Opname Tersimpan</h3>
+                    <p class="text-xs text-slate-400">Arsip lengkap seluruh hasil perhitungan fisik opname gudang.</p>
+                </div>
+                <div>
+                    <button onclick="switchSection('opname')" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Kembali ke Form Opname</button>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center text-xs mb-0">
+                        <thead class="pastel-header-purple">
+                            <tr>
+                                <th>Tanggal Opname</th>
+                                <th>Area Gudang</th>
+                                <th>Plant</th>
+                                <th>Stock Keeper</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Lokasi Rak</th>
+                                <th>Fisik (Karton & Pallet)</th>
+                                <th>Aksi Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="opnameReportTableBody">
+                            <tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- SECTION AGING: KHUSUS BENG-BENG -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
@@ -293,7 +328,7 @@
 
             <!-- TOMBOL NAVIGASI MENU UTAMA OPNAME (UKURAN FONT & TAMPILAN DISAMAKAN) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div onclick="toggleOpnameReportModal()" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-4 cursor-pointer transition shadow-2xs flex items-center gap-4 group">
+                <div onclick="switchSection('opname-log')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-4 cursor-pointer transition shadow-2xs flex items-center gap-4 group">
                     <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition flex items-center justify-center shrink-0" style="width: 44px; height: 44px;">
                         <i class="fa-solid fa-clock-rotate-left text-base"></i>
                     </div>
@@ -457,41 +492,6 @@
         </div>
 
     </main>
-
-    <!-- MODAL POPUP LOG RIWAYAT STOCK OPNAME -->
-    <div id="modalOpnameReport" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-5xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
-            <div class="bg-purple-50 px-6 py-4 border-b border-purple-100 flex justify-between items-center">
-                <h3 class="font-bold text-purple-800 text-sm"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Log Riwayat Hasil Stock Opname Tersimpan</h3>
-                <button onclick="closeModal('modalOpnameReport')" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle text-center text-xs mb-0">
-                        <thead class="pastel-header-purple">
-                            <tr>
-                                <th>Tanggal Opname</th>
-                                <th>Area Gudang</th>
-                                <th>Plant</th>
-                                <th>Stock Keeper</th>
-                                <th>SKU</th>
-                                <th class="text-start">Nama Produk</th>
-                                <th>Lokasi Rak</th>
-                                <th>Fisik (Karton & Pallet)</th>
-                                <th>Aksi Hapus</th>
-                            </tr>
-                        </thead>
-                        <tbody id="opnameReportTableBody">
-                            <tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
-                <button type="button" class="btn btn-sm btn-outline-secondary px-4" onclick="closeModal('modalOpnameReport')">Tutup</button>
-            </div>
-        </div>
-    </div>
 
     <div id="modalDetailBlok" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full overflow-hidden border border-slate-200 animate-fadeIn">
@@ -1127,11 +1127,6 @@
             }
         }
 
-        function toggleOpnameReportModal() {
-            renderOpnameReportTable();
-            document.getElementById('modalOpnameReport').classList.remove('hidden');
-        }
-
         function processSapPaste() {
             const text = document.getElementById('sapPasteArea').value.trim();
             if(!text) { alert('Data SAP masih kosong!'); return; }
@@ -1151,7 +1146,7 @@
         }
 
         function switchSection(sectionId) {
-            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-cari', 'section-peta', 'section-report'].forEach(id => {
+            ['section-home', 'section-qc', 'section-aging', 'section-opname', 'section-opname-log', 'section-cari', 'section-peta', 'section-report'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -1161,6 +1156,7 @@
             if(sectionId === 'aging') renderAgingTable();
             if(sectionId === 'qc') { autoFillQcByDate(); renderActiveHoldTable(); }
             if(sectionId === 'report') renderReportTable();
+            if(sectionId === 'opname-log') renderOpnameReportTable();
         }
 
         function openPenerimaanModal(category) {
@@ -1607,7 +1603,6 @@
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             alert('Hasil Stock Opname berhasil disimpan!');
             clearOpnameRows();
-            renderOpnameReportTable();
             renderReconciliationTable();
         }
 
