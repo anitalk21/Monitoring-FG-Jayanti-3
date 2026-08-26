@@ -44,14 +44,14 @@
 
 <header class="nav-bar">
     <div style="display: flex; align-items: center; gap: 15px;">
-        <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian (Time Keeper & Admin)</span>
+        <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian (Time Keeper & Admin)[cite: 3]</span>
         <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
         <button class="btn-nav" onclick="renderAll()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
-        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
-        <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
-        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
+        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)[cite: 3]</button>
+        <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama[cite: 3]</a>
+        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar[cite: 3]</a>
     </div>
 </header>
 
@@ -62,14 +62,14 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="countAntrianTab">0</span>)</button>
-        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen (<span id="countMenungguTab">0</span>)</button>
-        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="countProsesTab">0</span>)</button>
-        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat (<span id="countSelesaiTab">0</span>)</button>
-        <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)</button>
-        <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)</button>
-        <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊</button>
-        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="countKeluarTab">0</span>)</button>
+        <button class="tab-btn active" onclick="switchMainTab('AntrianTab', this)">Semua / Antrian (<span id="countAntrianTab">0</span>)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('MenungguDokumenTab', this)">Menunggu Dokumen (<span id="countMenungguTab">0</span>)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('ProsesMuatTab', this)">Proses Muat (<span id="countProsesTab">0</span>)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('SelesaiMuatTab', this)">Selesai Muat (<span id="countSelesaiTab">0</span>)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('TreatmentTab', this)">Treatment ⚠️ (<span id="countTreatmentTab">0</span>)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('DockTab', this)">Loading Dock (32)[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('AnalisisTab', this)">Analisis 📊[cite: 3]</button>
+        <button class="tab-btn" onclick="switchMainTab('KeluarTab', this)">Keluar (<span id="countKeluarTab">0</span>)[cite: 3]</button>
     </div>
 
     <div id="tabContentArea">
@@ -80,7 +80,7 @@
 <div id="modalManual" class="modal">
     <div class="modal-content">
         <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
-        <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>
+        <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)[cite: 3]</h4>
         <form onsubmit="submitAntrian(event)">
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
             <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
@@ -119,7 +119,7 @@
             <div class="form-group"><label>No. HP (opsional)</label><input type="text" id="mNoHp" placeholder="08123456789"></div>
 
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;">Daftarkan & Ambil Nomor Antrian →</button>
+                <button type="submit" class="btn btn-primary" style="flex:1;">Daftarkan & Ambil Nomor Antrian →[cite: 3]</button>
                 <button type="button" class="btn" onclick="closeModal('modalManual')">Batal</button>
             </div>
         </form>
@@ -129,7 +129,7 @@
 <div id="modalDockDetail" class="modal">
     <div class="modal-content" style="width: 450px;">
         <button type="button" onclick="closeModal('modalDockDetail')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
-        <h4 id="modalDockTitle" style="margin-top:0; color:#4f46e5;">Informasi Loading Dock</h4>
+        <h4 id="modalDockTitle" style="margin-top:0; color:#4f46e5;">Informasi Loading Dock[cite: 3]</h4>
         <div id="modalDockBody" style="font-size: 12px; color: #334155; line-height: 1.6;"></div>
         <div style="margin-top: 20px; text-align: right;">
             <button type="button" class="btn btn-primary" onclick="closeModal('modalDockDetail')">Tutup</button>
@@ -142,7 +142,7 @@
         <button type="button" onclick="closeModal('modalPickingList')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:18px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
 
         <div style="border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px; padding-right:20px;">
-            <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)</h4>
+            <h4 style="margin:0; color:#4f46e5;">📦 Input & Kelola Picking List (Admin)[cite: 3]</h4>
             <span id="plTruckInfo" style="font-size:11px; font-weight:bold; color:#64748b;"></span>
         </div>
         
@@ -188,11 +188,11 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk</button>
+            <button type="button" class="btn btn-primary" style="width:100%; font-size:11px;" onclick="addItemToTruckPickingList()">+ Tambahkan Item Ini ke Picking List Truk[cite: 3]</button>
         </div>
 
         <div id="lockedNotice" style="display:none; background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:8px; margin-bottom:12px; color:#b45309; font-weight:bold; font-size:11px; text-align:center;">
-            🔒 Status truk sudah "Selesai Muat / Keluar". Penambahan atau pengubahan item Picking List dikunci.
+            🔒 Status truk sudah "Selesai Muat / Keluar". Penambahan atau pengubahan item Picking List dikunci.[cite: 3]
         </div>
 
         <div style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
@@ -214,8 +214,8 @@
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5</button>
-            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Simpan & Selesai</button>
+            <button class="btn" onclick="printPickingList()" style="font-size:11px; background:#e0e7ff; color:#4338ca; border-color:#c7d2fe;">🖨️ Cetak Format A5[cite: 3]</button>
+            <button type="button" class="btn btn-primary" onclick="closeModal('modalPickingList')">Simpan & Selesai[cite: 3]</button>
         </div>
     </div>
 </div>
@@ -225,28 +225,28 @@
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
         <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
-        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
+        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue[cite: 3]</h4>
         
         <div class="form-group">
             <label>Pilih Status Truk</label>
             <select id="selectStatus" onchange="checkStatusChange()">
-                <option value="Antrian">Antrian</option>
-                <option value="Menunggu Dokumen">Menunggu Dokumen</option>
-                <option value="Proses Muat">Proses Muat</option>
-                <option value="Selesai Muat">Selesai Muat (Verifikasi Goods Issue & Menunggu Surat Jalan di Parkiran)</option>
-                <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
-                <option value="Keluar">Keluar Gudang (Permanen)</option>
+                <option value="Antrian">Antrian[cite: 3]</option>
+                <option value="Menunggu Dokumen">Menunggu Dokumen[cite: 3]</option>
+                <option value="Proses Muat">Proses Muat[cite: 3]</option>
+                <option value="Selesai Muat">Selesai Muat (Verifikasi Goods Issue & Menunggu Surat Jalan di Parkiran)[cite: 3]</option>
+                <option value="Treatment">Treatment (Bau/Kotor/Basah)[cite: 3]</option>
+                <option value="Keluar">Keluar Gudang (Permanen)[cite: 3]</option>
             </select>
         </div>
 
         <div id="dockDiv" class="form-group" style="display:none;">
-            <label>Pilih Loading Dock yang Aktif (1 s/d 32)</label>
+            <label>Pilih Loading Dock yang Aktif (1 s/d 32)[cite: 3]</label>
             <select id="selectDock"></select>
         </div>
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
-            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)</strong>
-            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:</p>
+            <strong style="color:#e11d48; display:block; margin-bottom:4px;">Verifikasi Barang Keluar (Goods Issue & Pecah Pallet -R)[cite: 3]</strong>
+            <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:8px;">Periksa kembali rincian muatan berikut. Sisa barang akan otomatis terpecah menjadi format -R1, -R2 di sistem Bin-Loc:[cite: 3]</p>
             <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:8px; max-height:150px; overflow-y:auto;">
                 <table style="width:100%; margin:0; background:white;">
                     <thead>
@@ -264,7 +264,7 @@
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan & Potong Stok</button>
+            <button class="btn btn-primary" onclick="saveStatus()" style="flex:1;">Simpan Perubahan & Potong Stok[cite: 3]</button>
             <button type="button" class="btn" onclick="closeModal('modalStatus')">Tutup</button>
         </div>
     </div>
@@ -480,7 +480,7 @@
 
         truckQueue.unshift(newTruck);
         localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
-        alert('Truk berhasil didaftarkan oleh Time Keeper!');
+        alert('Truk berhasil didaftarkan oleh Time Keeper![cite: 3]');
         closeModal('modalManual');
         e.target.reset();
         document.getElementById('groupTipePengiriman').style.display = 'none';
@@ -779,11 +779,11 @@
         if (dockNum === 1 || dockNum === 2) {
             return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569', usable: true, cat: 'Lokal' };
         } else if (dockNum === 3 || dockNum === 4) {
-            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c', usable: false, cat: 'Lokal' };
+            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c', usable: false, cat: '' };
         } else if ((dockNum >= 5 && dockNum <= 7) || dockNum === 19 || (dockNum >= 21 && dockNum <= 25) || (dockNum >= 27 && dockNum <= 32)) {
             return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857', usable: true, cat: 'Lokal' };
         } else if (dockNum === 8 || dockNum === 14 || dockNum === 20 || dockNum === 26) {
-            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff', usable: false, cat: 'Lokal' };
+            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff', usable: false, cat: '' };
         } else if (dockNum === 9) {
             return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c', usable: true, cat: 'Ekspor' };
         } else if ((dockNum >= 10 && dockNum <= 13) || (dockNum >= 15 && dockNum <= 18)) {
@@ -818,15 +818,21 @@
                 let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
                 let styleInfo = getDockStyling(i);
 
-                // Badge Indikator Lokal / Ekspor pada kartu Dock
-                let categoryBadge = styleInfo.cat === 'Ekspor' 
-                    ? `<span style="float: right; background: #dbeafe; color: #1e40af; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Ekspor</span>`
-                    : `<span style="float: right; background: #d1fae5; color: #065f46; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Lokal</span>`;
+                let categoryBadge = '';
+                if (styleInfo.cat === 'Ekspor') {
+                    categoryBadge = `<span style="float: right; background: #dbeafe; color: #1e40af; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Ekspor</span>`;
+                } else if (styleInfo.cat === 'Lokal') {
+                    categoryBadge = `<span style="float: right; background: #d1fae5; color: #065f46; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Lokal</span>`;
+                }
 
                 if(assignedTruck) {
+                    // Deteksi jenis & muatan truk yang sedang terisi (misal: Lokal - RDC atau Ekspor - China)[cite: 3]
+                    let truckTypeClean = assignedTruck.jenis ? assignedTruck.jenis.replace('LOKAL • ', 'Lokal - ').replace('EKSPOR (Container: ', 'Ekspor - ').replace(')', '') : '';
+                    let truckInfoDisplay = truckTypeClean ? `<br><span style="color:#0284c7; font-weight:600;">Muatan: ${truckTypeClean}</span>` : '';
+
                     dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.15); margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;">
                         <strong style="color:#059669;">${dName} (Terisi)</strong> ${categoryBadge}<br>
-                        <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
+                        <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})${truckInfoDisplay}<br>
                         <span style="font-size:10px; color:#64748b;">Sopir: ${assignedTruck.sopir}<br>Doc: ${assignedTruck.noDoc}</span>
                     </div>`;
                 } else {
@@ -845,8 +851,8 @@
             let totalTruk = truckQueue.length;
             container.innerHTML = `
                 <div class="card">
-                    <h4 style="margin-top:0; color:#4f46e5;">📊 Analisis Ringkas Operasional Gudang</h4>
-                    <p style="font-size:11px; color:#64748b;">Berikut adalah rekapitulasi data status truk yang tercatat dalam sistem:</p>
+                    <h4 style="margin-top:0; color:#4f46e5;">📊 Analisis Ringkas Operasional Gudang[cite: 3]</h4>
+                    <p style="font-size:11px; color:#64748b;">Berikut adalah rekapitulasi data status truk yang tercatat dalam sistem:[cite: 3]</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
                         <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; text-align:center;">
                             <span style="font-size:11px; color:#64748b; font-weight:bold;">Total Terdaftar</span>
@@ -957,18 +963,18 @@
             if (isKeluar) {
                 actionButtonsHtml = `
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
-                        📄 Picking List (${plCount})
+                        📄 Picking List (${plCount})[cite: 3]
                     </button>
-                    <span style="background:#fef3c7; color:#b45309; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
-                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
+                    <span style="background:#fef3c7; color:#b45309; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked[cite: 3]</span>
+                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus[cite: 3]</button>
                 `;
             } else {
                 actionButtonsHtml = `
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
-                        📄 Picking List (${plCount})
+                        📄 Picking List (${plCount})[cite: 3]
                     </button>
-                    <button class="btn btn-primary" style="font-size:11px;" onclick="openStatusModal(${idx})">Pindah Status</button>
-                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
+                    <button class="btn btn-primary" style="font-size:11px;" onclick="openStatusModal(${idx})">Pindah Status[cite: 3]</button>
+                    <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus[cite: 3]</button>
                 `;
             }
 
@@ -997,7 +1003,7 @@
         });
 
         if(html === '') {
-            html = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Tidak ada data truk untuk kategori atau pencarian ini.</div>';
+            html = '<div class="card" style="text-align:center; color:#94a3b8; padding:30px;">Tidak ada data truk untuk kategori atau pencarian ini.[cite: 3]</div>';
         }
 
         container.innerHTML = html;
@@ -1006,7 +1012,7 @@
     let activeStatusTruckIdx = null;
     function openStatusModal(idx) {
         if(truckQueue[idx].status === 'Keluar') {
-            alert('Truk sudah Keluar dan statusnya dikunci!');
+            alert('Truk sudah Keluar dan statusnya dikunci![cite: 3]');
             return;
         }
         activeStatusTruckIdx = idx;
@@ -1034,7 +1040,7 @@
             let opt = document.createElement('option');
             opt.value = dName;
 
-            let catLabel = styleInfo.cat === 'Ekspor' ? '[EKSPOR]' : '[LOKAL]';
+            let catLabel = styleInfo.cat === 'Ekspor' ? '[EKSPOR]' : (styleInfo.cat === 'Lokal' ? '[LOKAL]' : '');
 
             if (occupyingTruck && !isCurrentDock) {
                 opt.disabled = true;
@@ -1061,7 +1067,7 @@
             tbody.innerHTML = '';
             let list = t.pickingList || [];
             if(list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="color:#94a3b8;">Tidak ada data picking list untuk truk ini.[cite: 3]</td></tr>';
             } else {
                 list.forEach(item => {
                     tbody.innerHTML += `<tr>
@@ -1083,7 +1089,7 @@
             let dockNum = parseInt(selectedDock.replace('Dock ', ''));
             let styleInfo = getDockStyling(dockNum);
             if (!styleInfo.usable) {
-                alert('Peringatan: Loading Dock tersebut tidak dapat digunakan!');
+                alert('Peringatan: Loading Dock tersebut tidak dapat digunakan![cite: 3]');
                 return;
             }
         }
@@ -1118,7 +1124,7 @@
     }
 
     function deleteTruck(idx) {
-        if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
+        if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?[cite: 3]')) {
             let t = truckQueue[idx];
             if(t && t.pickingList && t.pickingList.length > 0) {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
@@ -1151,7 +1157,7 @@
     }
 
     function resetData() {
-        if(confirm('Yakin ingin mereset seluruh data antrian truk?')) {
+        if(confirm('Yakin ingin mereset seluruh data antrian truk?[cite: 3]')) {
             truckQueue = [];
             localStorage.removeItem('antrian_truk_jayanti3');
             renderAll();
