@@ -1384,6 +1384,8 @@
             let rowTrs = document.getElementById('penerimaanRowsBody').children;
             if(rowTrs.length === 0) { alert('Harap tambahkan minimal 1 baris lokasi rak!'); return; }
 
+            let currentArsip = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
+
             for(let tr of rowTrs) {
                 let idx = tr.id.split('_')[1];
                 let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1393,6 +1395,28 @@
                 let lokasiTarget = `${blockVal} - ${rowVal}`;
 
                 let existingIndex = binData.findIndex(i => i.skuCode === skuCode && i.lokasi === lokasiTarget && i.gudang === gudang);
+
+                let newItem = {
+                    category: category,
+                    gudang: gudang,
+                    plant: plant,
+                    line: line,
+                    tanggal: formattedDateStr,
+                    timestamp: new Date(dateInputVal).getTime() || new Date().getTime(),
+                    shift: shift,
+                    skuCode: skuCode,
+                    namaProduk: namaProduk,
+                    sku: skuInputFull,
+                    kodefikasi: kodefikasiVal,
+                    qt: qt,
+                    prodate: prodateFormatted,
+                    expDate: expDateFormatted,
+                    buyer: buyer,
+                    lokasi: lokasiTarget,
+                    pallet: palletRange,
+                    karton: krtVal,
+                    konversi: `${pltVal} Pallet (${krtVal} krt)`
+                };
 
                 if (existingIndex !== -1) {
                     let existingItem = binData[existingIndex];
@@ -1404,40 +1428,20 @@
                     existingItem.konversi = `${totalPlt} Pallet (${totalKrt} krt)`;
                     existingItem.tanggal = formattedDateStr;
                 } else {
-                    let newItem = {
-                        category: category,
-                        gudang: gudang,
-                        plant: plant,
-                        line: line,
-                        tanggal: formattedDateStr,
-                        timestamp: new Date(dateInputVal).getTime() || new Date().getTime(),
-                        shift: shift,
-                        skuCode: skuCode,
-                        namaProduk: namaProduk,
-                        sku: skuInputFull,
-                        kodefikasi: kodefikasiVal,
-                        qt: qt,
-                        prodate: prodateFormatted,
-                        expDate: expDateFormatted,
-                        buyer: buyer,
-                        lokasi: lokasiTarget,
-                        pallet: palletRange,
-                        karton: krtVal,
-                        konversi: `${pltVal} Pallet (${krtVal} krt)`
-                    };
                     binData.unshift(newItem);
                 }
+
+                // Masukkan item baru secara unik ke arsip riwayat tanpa looping seluruh binData
+                currentArsip.unshift(newItem);
             }
 
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            let currentArsip = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-            binData.forEach(item => { currentArsip.unshift(item); });
             localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(currentArsip));
 
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = todayIsoStr;
-            alert('Penerimaan barang berhasil disimpan tanpa duplikasi data!');
+            alert('Penerimaan barang berhasil disimpan!');
         }
 
         function deleteReportItem(index) {
