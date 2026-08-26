@@ -777,19 +777,19 @@
 
     function getDockStyling(dockNum) {
         if (dockNum === 1 || dockNum === 2) {
-            return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569', usable: true };
+            return { bg: 'rgba(148, 163, 184, 0.15)', border: '#94a3b8', label: 'Loading MDC Lokal', textCol: '#475569', usable: true, cat: 'Lokal' };
         } else if (dockNum === 3 || dockNum === 4) {
-            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c', usable: false };
+            return { bg: 'rgba(249, 115, 22, 0.12)', border: '#f97316', label: 'Tidak dapat digunakan (Area Baterai)', textCol: '#c2410c', usable: false, cat: 'Lokal' };
         } else if ((dockNum >= 5 && dockNum <= 7) || dockNum === 19 || (dockNum >= 21 && dockNum <= 25) || (dockNum >= 27 && dockNum <= 32)) {
-            return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857', usable: true };
+            return { bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', label: dockNum >= 19 ? 'Loading Lokal (RDC & Direct)' : 'Racking dan Plant Lain', textCol: '#047857', usable: true, cat: 'Lokal' };
         } else if (dockNum === 8 || dockNum === 14 || dockNum === 20 || dockNum === 26) {
-            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff', usable: false };
+            return { bg: '#334155', border: '#1e293b', label: 'Tidak dapat digunakan', textCol: '#ffffff', usable: false, cat: 'Lokal' };
         } else if (dockNum === 9) {
-            return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c', usable: true };
+            return { bg: 'rgba(239, 68, 68, 0.12)', border: '#ef4444', label: 'Loading GSV (USA)', textCol: '#b91c1c', usable: true, cat: 'Ekspor' };
         } else if ((dockNum >= 10 && dockNum <= 13) || (dockNum >= 15 && dockNum <= 18)) {
-            return { bg: 'rgba(59, 130, 246, 0.12)', border: '#3b82f6', label: 'Loading Ekspor AEO', textCol: '#1d4ed8', usable: true };
+            return { bg: 'rgba(59, 130, 246, 0.12)', border: '#3b82f6', label: 'Loading Ekspor AEO', textCol: '#1d4ed8', usable: true, cat: 'Ekspor' };
         }
-        return { bg: '#f8fafc', border: '#cbd5e1', label: 'Tersedia', textCol: '#64748b', usable: true };
+        return { bg: '#f8fafc', border: '#cbd5e1', label: 'Tersedia', textCol: '#64748b', usable: true, cat: 'Lokal' };
     }
 
     function renderAll() {
@@ -818,15 +818,20 @@
                 let assignedTruck = truckQueue.find(tr => tr.status === 'Proses Muat' && tr.dock === dName);
                 let styleInfo = getDockStyling(i);
 
+                // Badge Indikator Lokal / Ekspor pada kartu Dock
+                let categoryBadge = styleInfo.cat === 'Ekspor' 
+                    ? `<span style="float: right; background: #dbeafe; color: #1e40af; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Ekspor</span>`
+                    : `<span style="float: right; background: #d1fae5; color: #065f46; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: bold;">Lokal</span>`;
+
                 if(assignedTruck) {
                     dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.15); margin-bottom:0; padding:10px; cursor:pointer; transition:0.2s;">
-                        <strong style="color:#059669;">${dName} (Terisi)</strong><br>
+                        <strong style="color:#059669;">${dName} (Terisi)</strong> ${categoryBadge}<br>
                         <span style="font-weight:bold; color:#1e293b;">${assignedTruck.noPol}</span> (${assignedTruck.ekspedisi})<br>
                         <span style="font-size:10px; color:#64748b;">Sopir: ${assignedTruck.sopir}<br>Doc: ${assignedTruck.noDoc}</span>
                     </div>`;
                 } else {
                     dockHtml += `<div class="card" onclick="showDockDetail('${dName}')" style="border-left: 4px solid ${styleInfo.border}; background: ${styleInfo.bg}; margin-bottom:0; padding:10px; cursor:pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                        <strong style="color:${styleInfo.textCol};">${dName}</strong><br>
+                        <strong style="color:${styleInfo.textCol};">${dName}</strong> ${categoryBadge}<br>
                         <span style="font-size:10px; font-weight:600; color:${styleInfo.textCol};">${styleInfo.label}</span>
                     </div>`;
                 }
@@ -1029,11 +1034,13 @@
             let opt = document.createElement('option');
             opt.value = dName;
 
+            let catLabel = styleInfo.cat === 'Ekspor' ? '[EKSPOR]' : '[LOKAL]';
+
             if (occupyingTruck && !isCurrentDock) {
                 opt.disabled = true;
-                opt.innerText = `${dName} — (${styleInfo.label}) [TERISI OLEH ${occupyingTruck.noPol}]`;
+                opt.innerText = `${dName} ${catLabel} — (${styleInfo.label}) [TERISI OLEH ${occupyingTruck.noPol}]`;
             } else {
-                opt.innerText = `${dName} — (${styleInfo.label})${isCurrentDock ? ' [Saat ini]' : ''}`;
+                opt.innerText = `${dName} ${catLabel} — (${styleInfo.label})${isCurrentDock ? ' [Saat ini]' : ''}`;
                 if(isCurrentDock) {
                     opt.selected = true;
                 }
