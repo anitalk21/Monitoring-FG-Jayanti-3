@@ -96,8 +96,9 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-ship w-4 text-center"></i></div>
                 <span>Monitoring Ekspor</span>
             </a>
-            <a href="#" onclick="switchMenu('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-indigo-50/70 text-indigo-600 font-semibold transition border border-indigo-100 shadow-2xs" id="menu-jalur">
-                <div class="bg-white p-2 rounded-lg text-indigo-500 shadow-2xs"><i class="fa-solid fa-road w-4 text-center"></i></div>
+            <!-- MENU STOCK JALUR DIUBAH MENJADI STANDAR SEPERTI YANG LAIN -->
+            <a href="#" onclick="switchMenu('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-jalur">
+                <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-road w-4 text-center"></i></div>
                 <span>Stock Jalur</span>
             </a>
             <a href="#" onclick="switchMenu('binloc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-binloc">
@@ -809,7 +810,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Safe LocalStorage Loaders dengan penanganan error agar tidak freeze
         function safeGetStorage(key, fallback) {
             try {
                 let item = localStorage.getItem(key);
