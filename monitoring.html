@@ -100,11 +100,6 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-road w-4 text-center"></i></div>
                 <span>Stock Jalur</span>
             </a>
-            <!-- MENU DIPISAH: TRACEABILITY PRODUCT -->
-            <a href="#" onclick="switchMenu('traceability')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-traceability">
-                <div class="bg-amber-50 p-2 rounded-lg text-amber-600"><i class="fa-solid fa-magnifying-glass-chart w-4 text-center"></i></div>
-                <span>Traceability Product</span>
-            </a>
             <a href="#" onclick="switchMenu('binloc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-binloc">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-location-dot w-4 text-center"></i></div>
                 <span>Bin Loc</span>
@@ -113,6 +108,7 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-gauge-high w-4 text-center"></i></div>
                 <span>KPI</span>
             </a>
+            <!-- MENU LAPORAN & REPORT (MENCAKUP TRACEABILITY DI DALAMNYA)[cite: 6] -->
             <a href="#" onclick="switchMenu('report')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-report">
                 <div class="bg-slate-100 p-2 rounded-lg text-emerald-500"><i class="fa-solid fa-chart-column w-4 text-center"></i></div>
                 <span>Laporan & Analitik (Report)</span>
@@ -559,80 +555,6 @@
             </div>
         </div>
 
-        <!-- SECTION TRACEABILITY PRODUCT (DIPISAH & BERBASIS PRODUK/PRODATE)[cite: 6] -->
-        <div id="section-traceability" class="app-page space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <div class="flex items-center gap-3">
-                    <div class="bg-amber-100 text-amber-700 p-3 rounded-2xl border border-amber-200 text-base shadow-2xs">
-                        <i class="fa-solid fa-magnifying-glass-chart"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-700 text-sm">Traceability Product & Random Audit</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Lacak rekam jejak pengiriman truk murni berdasarkan <b>Produk, SKU, atau Tanggal Produksi (Prodate)</b>.</p>
-                    </div>
-                </div>
-                <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
-            </div>
-
-            <!-- KOTAK PENCARIAN TRACEABILITY BERBASIS PRODUK / PRODATE -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-                <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider"><i class="fa-solid fa-filter text-amber-500 mr-1.5"></i> Parameter Pencarian Trace Produk</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1 text-[11px]">KODE SKU / NAMA PRODUK</label>
-                        <input type="text" id="traceSearchSku" class="form-control form-control-sm" placeholder="Cth: 312743 atau Superstar..." oninput="renderTraceabilityResults()">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1 text-[11px]">TANGGAL PRODUKSI (PRODATE)</label>
-                        <input type="text" id="traceSearchProdate" class="form-control form-control-sm" placeholder="Cth: 15/08/2026..." oninput="renderTraceabilityResults()">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-500 block mb-1 text-[11px]">TUJUAN / EKSPEDISI / NO. DOC</label>
-                        <input type="text" id="traceSearchKeyword" class="form-control form-control-sm" placeholder="Cth: Canada / Seino / SO-001..." oninput="renderTraceabilityResults()">
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
-                    <button onclick="renderTraceabilityResults()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-2xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-magnifying-glass"></i> Jalankan Trace Produk
-                    </button>
-                    <button onclick="resetTraceabilityFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-xl transition">
-                        Reset Filter
-                    </button>
-                </div>
-            </div>
-
-            <!-- TABEL HASIL TRACEABILITY -->
-            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
-                <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
-                    <span class="font-bold text-slate-700 text-xs"><i class="fa-solid fa-list-check text-indigo-500 mr-1.5"></i> Hasil Rekam Jejak (Life Cycle) Produk ke Pengiriman Truk</span>
-                    <button onclick="printTraceabilityReport()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-print"></i> Cetak Berita Acara Trace
-                    </button>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered align-middle text-center">
-                        <thead class="pastel-header-dark">
-                            <tr>
-                                <th>No</th>
-                                <th>SKU & Nama Produk</th>
-                                <th>Tanggal Produksi (Prodate)</th>
-                                <th>Lokasi Rak Asal (Bin-Loc)</th>
-                                <th>Jumlah Muat (Krt)</th>
-                                <th>No. Dokumen (SO/DO)</th>
-                                <th>No. Polisi & Ekspedisi</th>
-                                <th>Tanggal Kirim Aktual</th>
-                                <th>Tujuan</th>
-                                <th>Petugas / Shift</th>
-                            </tr>
-                        </thead>
-                        <tbody id="traceabilityTableBody">
-                            <tr><td colspan="10" class="text-muted py-4">Silakan masukkan parameter pencarian di atas untuk memulai trace produk.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
         <!-- SECTION BIN LOC -->
         <div id="section-binloc" class="app-page space-y-6">
             <div class="flex items-center gap-2 border-b border-slate-200 pb-3 text-xs font-semibold">
@@ -686,19 +608,20 @@
             </div>
         </div>
 
-        <!-- SECTION REPORT -->
+        <!-- SECTION REPORT (DIPERLUAS: TERMASUK SUB-MENU HARIAN, BULANAN, TAHUNAN, & TRACEABILITY PRODUCT)[cite: 6] -->
         <div id="section-report" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-emerald-500"></i> Laporan & Analitik Gudang (Report)
                     </h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Rekapitulasi penerimaan barang, pengiriman lokal, hingga ekspor secara periodik.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Rekapitulasi penerimaan, pengiriman, hingga rekam jejak (traceability) produk secara periodik.</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="switchReportTab('harian')" id="tabReportHarian" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs">Harian (Daily)</button>
-                    <button onclick="switchReportTab('bulanan')" id="tabReportBulanan" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Bulanan (Monthly)</button>
-                    <button onclick="switchReportTab('tahunan')" id="tabReportTahunan" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Tahunan (Yearly)</button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="switchReportTab('harian')" id="tabReportHarian" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs">Harian</button>
+                    <button onclick="switchReportTab('bulanan')" id="tabReportBulanan" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Bulanan</button>
+                    <button onclick="switchReportTab('tahunan')" id="tabReportTahunan" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold">Tahunan</button>
+                    <button onclick="switchReportTab('traceability')" id="tabReportTraceability" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-amber-700 text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-chart"></i> Traceability Product</button>
                 </div>
             </div>
 
@@ -774,6 +697,65 @@
                     </div>
                 </div>
             </div>
+
+            <!-- KONTEN REPORT: TRACEABILITY PRODUCT (DIMASUKKAN KE DALAM REPORT)[cite: 6] -->
+            <div id="reportContent-traceability" class="space-y-4 hidden">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                    <h4 class="font-bold text-slate-700 text-xs uppercase tracking-wider"><i class="fa-solid fa-filter text-amber-500 mr-1.5"></i> Parameter Pencarian Trace Produk</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="font-bold text-slate-500 block mb-1 text-[11px]">KODE SKU / NAMA PRODUK</label>
+                            <input type="text" id="traceSearchSku" class="form-control form-control-sm" placeholder="Cth: 312743 atau Superstar..." oninput="renderTraceabilityResults()">
+                        </div>
+                        <div>
+                            <label class="font-bold text-slate-500 block mb-1 text-[11px]">TANGGAL PRODUKSI (PRODATE)</label>
+                            <input type="text" id="traceSearchProdate" class="form-control form-control-sm" placeholder="Cth: 15/08/2026..." oninput="renderTraceabilityResults()">
+                        </div>
+                        <div>
+                            <label class="font-bold text-slate-500 block mb-1 text-[11px]">TUJUAN / EKSPEDISI / NO. DOC</label>
+                            <input type="text" id="traceSearchKeyword" class="form-control form-control-sm" placeholder="Cth: Canada / Seino / SO-001..." oninput="renderTraceabilityResults()">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                        <button onclick="renderTraceabilityResults()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-2xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass"></i> Jalankan Trace Produk
+                        </button>
+                        <button onclick="resetTraceabilityFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-xl transition">
+                            Reset Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                    <div class="card-header bg-slate-50 py-3 px-4 rounded-xl mb-3 border border-slate-200 flex justify-between items-center">
+                        <span class="font-bold text-slate-700 text-xs"><i class="fa-solid fa-list-check text-indigo-500 mr-1.5"></i> Hasil Rekam Jejak (Life Cycle) Produk ke Pengiriman Truk</span>
+                        <button onclick="printTraceabilityReport()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-print"></i> Cetak Berita Acara Trace
+                        </button>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="pastel-header-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>SKU & Nama Produk</th>
+                                    <th>Tanggal Produksi (Prodate)</th>
+                                    <th>Lokasi Rak Asal (Bin-Loc)</th>
+                                    <th>Jumlah Muat (Krt)</th>
+                                    <th>No. Dokumen (SO/DO)</th>
+                                    <th>No. Polisi & Ekspedisi</th>
+                                    <th>Tanggal Kirim Aktual</th>
+                                    <th>Tujuan</th>
+                                    <th>Petugas / Shift</th>
+                                </tr>
+                            </thead>
+                            <tbody id="traceabilityTableBody">
+                                <tr><td colspan="10" class="text-muted py-4">Silakan masukkan parameter pencarian di atas untuk memulai trace produk.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -785,9 +767,7 @@
                 <h3 id="modalJalurTitle" class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Picking List Truk</h3>
                 <button onclick="closeStockJalurModal()" class="text-slate-400 hover:text-slate-600 text-base"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto" id="modalJalurBody">
-                <!-- Konten detail picking list akan di-generate otomatis -->
-            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto" id="modalJalurBody"></div>
             <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
                 <button id="btnModalEditArsip" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                     <i class="fa-solid fa-pen-to-square"></i> Perbarui Lokasi Arsip
@@ -957,17 +937,30 @@
         }
 
         function switchReportTab(tab) {
-            ['harian', 'bulanan', 'tahunan'].forEach(t => {
+            ['harian', 'bulanan', 'tahunan', 'traceability'].forEach(t => {
                 let el = document.getElementById('reportContent-' + t);
                 let btn = document.getElementById('tabReport' + t.charAt(0).toUpperCase() + t.slice(1));
                 if(el) el.classList.add('hidden');
-                if(btn) btn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
+                if(btn) {
+                    if(t === 'traceability') {
+                        btn.className = 'px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-amber-700 text-xs font-semibold flex items-center gap-1.5';
+                    } else {
+                        btn.className = 'px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
+                    }
+                }
             });
             let targetEl = document.getElementById('reportContent-' + tab);
             let targetBtn = document.getElementById('tabReport' + tab.charAt(0).toUpperCase() + tab.slice(1));
             if(targetEl) targetEl.classList.remove('hidden');
-            if(targetBtn) targetBtn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs';
+            if(targetBtn) {
+                if(tab === 'traceability') {
+                    targetBtn.className = 'px-3.5 py-2 rounded-xl bg-amber-600 text-white text-xs font-semibold shadow-2xs flex items-center gap-1.5';
+                } else {
+                    targetBtn.className = 'px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs';
+                }
+            }
             if(tab === 'harian') renderReportData();
+            if(tab === 'traceability') renderTraceabilityResults();
         }
 
         function renderReportData() {
@@ -1450,7 +1443,7 @@
             });
         }
 
-        // --- FUNGSI UTAMA MENU TRACEABILITY PRODUCT (DIPISAH)[cite: 6] ---
+        // --- FUNGSI TRACEABILITY DI DALAM MENU REPORT ---
         function renderTraceabilityResults() {
             let tbody = document.getElementById('traceabilityTableBody');
             if(!tbody) return;
@@ -1703,7 +1696,7 @@
         }
 
         function switchMenu(menuName) {
-            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-rdc', 'section-ekspor', 'section-jalur', 'section-traceability', 'section-binloc', 'section-kpi', 'section-report'].forEach(id => {
+            ['section-kapasitas', 'section-master', 'section-realisasi', 'section-opname', 'section-rdc', 'section-ekspor', 'section-jalur', 'section-binloc', 'section-kpi', 'section-report'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
@@ -1718,7 +1711,6 @@
             if(menuName === 'realisasi') { renderRealisasiTable(); }
             if(menuName === 'ekspor') { renderEksporSummaryTable(); }
             if(menuName === 'jalur') { renderStockJalurTable(); }
-            if(menuName === 'traceability') { renderTraceabilityResults(); }
             if(menuName === 'report') { renderReportData(); }
             if(window.innerWidth < 768) toggleSidebar();
         }
