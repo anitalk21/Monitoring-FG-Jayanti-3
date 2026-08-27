@@ -29,9 +29,6 @@
         .bin-empty { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
         table th, table td { font-size: 11px !important; white-space: nowrap; }
 
-        .filter-btn { background-color: #ffffff; color: #475569; border: 1px solid #e2e8f0; transition: all 0.2s; }
-        .filter-btn.active { background-color: #1e293b !important; color: #ffffff !important; border-color: #1e293b !important; }
-
         @media print {
             body * { visibility: hidden; }
             #liveStockModalContent, #liveStockModalContent * { visibility: visible; }
@@ -503,18 +500,18 @@
             </div>
         </div>
 
-        <!-- SECTION STOCK JALUR -->
+        <!-- SECTION STOCK JALUR (DIBUAT LIST DAFTAR RINGKAS + POP-UP DETAIL) -->
         <div id="section-jalur" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-road text-amber-500"></i> Stock Jalur & Pengarsipan Dokumen
                     </h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Pantau barang aktif di jalur, rincian picking list truk, dan kelola lokasi arsip fisiknya.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Daftar pengiriman truk di jalur. Klik baris atau tombol detail untuk melihat rincian picking list.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="downloadStockJalurExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs px-3.5 py-2 rounded-lg font-bold transition flex items-center gap-1.5 shadow-2xs">
-                        <i class="fa-solid fa-file-excel"></i> Export ke Excel
+                        <i class="fa-solid fa-file-excel"></i> Export Data Lengkap ke Excel
                     </button>
                     <button onclick="switchMenu('kapasitas')" class="btn btn-sm btn-outline-secondary">Kembali</button>
                 </div>
@@ -522,8 +519,8 @@
 
             <!-- SEARCH & FILTER STOCK JALUR -->
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row gap-3">
-                <input type="text" id="jalurSearchInput" class="form-control form-control-sm flex-1" placeholder="Cari No. Pol / Ekspedisi / No. Dokumen / Tujuan / SKU..." oninput="renderStockJalurContent()">
-                <select id="jalurFilterArsip" class="form-select form-select-sm sm:w-60" onchange="renderStockJalurContent()">
+                <input type="text" id="jalurSearchInput" class="form-control form-control-sm flex-1" placeholder="Cari No. Pol / Ekspedisi / No. Dokumen / Tujuan..." oninput="renderStockJalurTable()">
+                <select id="jalurFilterArsip" class="form-select form-select-sm sm:w-60" onchange="renderStockJalurTable()">
                     <option value="">📁 Filter Status / Arsip: Semua</option>
                     <option value="Belum Ada Arsip">Belum Ada Arsip</option>
                     <option value="LEMARI">Di Lemari</option>
@@ -532,9 +529,28 @@
                 </select>
             </div>
 
-            <!-- CONTAINER LIST TRUCK & PICKING LIST DI STOCK JALUR -->
-            <div id="stockJalurContainer" class="space-y-4">
-                <!-- Konten digenerate via JavaScript -->
+            <!-- TABEL DAFTAR RINGKAS STOCK JALUR -->
+            <div class="card shadow-2xs border-0 bg-white p-4 rounded-2xl border border-slate-200">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered align-middle text-center table-hover">
+                        <thead class="pastel-header-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal Kirim</th>
+                                <th>No. Polisi & Ekspedisi</th>
+                                <th>No. Dokumen</th>
+                                <th>Tujuan & Jenis</th>
+                                <th>Total Qty</th>
+                                <th>Status Truk</th>
+                                <th>Lokasi Arsip Fisik</th>
+                                <th>Aksi / Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockJalurTableBody">
+                            <tr><td colspan="9" class="text-muted py-4">Belum ada data stock jalur.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -591,7 +607,7 @@
             </div>
         </div>
 
-        <!-- SECTION REPORT (HARIAN, BULANAN, TAHUNAN) -->
+        <!-- SECTION REPORT -->
         <div id="section-report" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -682,6 +698,25 @@
         </div>
 
     </main>
+
+    <!-- MODAL POP-UP DETAIL PICKING LIST STOCK JALUR -->
+    <div id="stockJalurModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 text-xs">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modalJalurTitle" class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Picking List Truk</h3>
+                <button onclick="closeStockJalurModal()" class="text-slate-400 hover:text-slate-600 text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto" id="modalJalurBody">
+                <!-- Konten detail picking list akan di-generate otomatis -->
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
+                <button id="btnModalEditArsip" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i> Perbarui Lokasi Arsip
+                </button>
+                <button onclick="closeStockJalurModal()" class="btn btn-sm btn-secondary px-4">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL LIVE STOCK SUMMARY -->
     <div id="liveStockModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
@@ -1232,11 +1267,11 @@
             });
         }
 
-        // --- FUNGSI BARU UNTUK MENU STOCK JALUR & PENGARSIPAN ---
-        function renderStockJalurContent() {
-            let container = document.getElementById('stockJalurContainer');
-            if(!container) return;
-            container.innerHTML = '';
+        // --- FUNGSI STOCK JALUR: TABEL RINGKAS + POP-UP DETAIL ---
+        function renderStockJalurTable() {
+            let tbody = document.getElementById('stockJalurTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
 
             antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
             let keyword = (document.getElementById('jalurSearchInput').value || '').toLowerCase();
@@ -1263,91 +1298,111 @@
             });
 
             if(activeTrucks.length === 0) {
-                container.innerHTML = '<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs text-center text-slate-400">Belum ada data stock jalur atau pencarian tidak ditemukan.</div>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-muted py-4">Belum ada data stock jalur atau pencarian tidak ditemukan.</td></tr>';
                 return;
             }
 
-            let html = '';
             activeTrucks.forEach((t, globalIdx) => {
                 let list = t.pickingList || [];
                 let totalQty = list.reduce((sum, i) => sum + i.jumlah, 0);
-                let tglKirim = t.tanggalKirim || new Date().toLocaleDateString('id-ID');
-                let petugasInfo = t.petugas ? `${t.petugas} (${t.shift || 'Shift 1'})` : 'Belum ditentukan';
+                let tglKirim = t.tanggalKirim || '-';
                 let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
 
                 let badgeArsipColor = 'bg-amber-50 text-amber-700 border-amber-200';
                 if(arsipFisik.includes('LEMARI')) badgeArsipColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
                 else if(arsipFisik.includes('KARTON') || arsipFisik.includes('DIRECT')) badgeArsipColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
 
-                let rowsItemHtml = '';
-                if(list.length === 0) {
-                    rowsItemHtml = '<tr><td colspan="7" class="text-muted py-3">Belum ada item barang dalam picking list truk ini.</td></tr>';
-                } else {
-                    list.forEach((item, i) => {
-                        rowsItemHtml += `<tr>
-                            <td>${i + 1}</td>
-                            <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku}</span></td>
-                            <td class="text-start fw-semibold">${item.nama}</td>
-                            <td>${item.prodate || '-'}</td>
-                            <td><span class="badge bg-slate-50 text-slate-600">${item.rak || '-'}</span></td>
-                            <td>${item.pallet} Plt + ${item.receh} krt</td>
-                            <td class="fw-bold text-indigo-600">${item.jumlah} krt</td>
-                        </tr>`;
-                    });
-                }
-
-                html += `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b border-slate-100">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id}</span>
-                                    <h4 class="font-bold text-slate-700 text-sm mb-0">🚚 ${t.noPol} (${t.ekspedisi}) &bull; Doc: <span class="text-indigo-600">${t.noDoc}</span></h4>
-                                </div>
-                                <p class="text-[11px] text-slate-500 mt-1">
-                                    Tujuan: <strong class="text-slate-700">${t.tujuan}</strong> (${t.jenis || 'Lokal'}) &bull; 
-                                    📅 Tgl Kirim: <span class="font-semibold">${tglKirim}</span> &bull; 
-                                    👤 Petugas: <span class="font-semibold">${petugasInfo}</span> &bull; 
-                                    Status: <span class="badge bg-slate-100 text-slate-700">${t.status} (Dock: ${t.dock || '-'})</span>
-                                </p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="text-end">
-                                    <span class="text-[10px] text-slate-400 block font-bold uppercase">Lokasi Arsip Fisik</span>
-                                    <span class="badge ${badgeArsipColor} border font-bold px-2.5 py-1 text-xs" id="arsipBadge-${globalIdx}">${arsipFisik}</span>
-                                </div>
-                                <button onclick="editLokasiArsip(${globalIdx})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow-2xs">
-                                    <i class="fa-solid fa-pen-to-square"></i> Edit Arsip
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${globalIdx + 1}</td>
+                        <td>${tglKirim}</td>
+                        <td class="fw-bold text-slate-700">${t.noPol} (${t.ekspedisi})</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.noDoc}</span></td>
+                        <td>${t.tujuan} (${t.jenis || 'Lokal'})</td>
+                        <td class="fw-bold text-emerald-600">${totalQty} krt</td>
+                        <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
+                        <td><span class="badge ${badgeArsipColor} border font-bold px-2.5 py-1 text-xs">${arsipFisik}</span></td>
+                        <td>
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="openStockJalurDetail(${globalIdx})" class="btn btn-sm btn-outline-primary px-2.5 py-1 text-xs fw-bold">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Detail
+                                </button>
+                                <button onclick="editLokasiArsip(${globalIdx})" class="btn btn-sm btn-outline-secondary px-2.5 py-1 text-xs">
+                                    <i class="fa-solid fa-pen"></i> Arsip
                                 </button>
                             </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle text-center mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>SKU</th>
-                                        <th class="text-start">Nama Produk</th>
-                                        <th>Prodate</th>
-                                        <th>Rak Asal</th>
-                                        <th>Pallet & Receh</th>
-                                        <th>Total Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rowsItemHtml}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="flex justify-between items-center pt-2 text-xs font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                            <span>Subtotal Muatan Truk Ini:</span>
-                            <span class="text-emerald-600">${totalQty} Karton Total</span>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 `;
             });
-            container.innerHTML = html;
+        }
+
+        function openStockJalurDetail(index) {
+            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            let t = antrianData[index];
+            if(!t) return;
+
+            document.getElementById('modalJalurTitle').innerHTML = `<i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Truk: ${t.noPol} (${t.ekspedisi})`;
+            
+            let list = t.pickingList || [];
+            let rowsHtml = '';
+            if(list.length === 0) {
+                rowsHtml = '<tr><td colspan="6" class="text-muted py-3">Belum ada item picking list untuk truk ini.</td></tr>';
+            } else {
+                list.forEach((item, i) => {
+                    rowsHtml += `<tr>
+                        <td>${i + 1}</td>
+                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku}</span></td>
+                        <td class="text-start fw-semibold">${item.nama}</td>
+                        <td>${item.prodate || '-'}</td>
+                        <td>${item.rak || '-'}</td>
+                        <td><span class="fw-bold text-indigo-600">${item.jumlah} krt</span> (${item.pallet} Plt + ${item.receh} krt)</td>
+                    </tr>`;
+                });
+            }
+
+            let tglKirim = t.tanggalKirim || '-';
+            let petugasInfo = t.petugas ? `${t.petugas} (${t.shift || 'Shift 1'})` : 'Belum ditentukan';
+            let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
+
+            let bodyHtml = `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div><strong>No. Dokumen:</strong> <span class="text-indigo-600 fw-bold">${t.noDoc}</span></div>
+                        <div><strong>Tanggal Kirim:</strong> ${tglKirim}</div>
+                        <div><strong>Tujuan:</strong> ${t.tujuan} (${t.jenis || 'Lokal'})</div>
+                        <div><strong>Petugas & Shift:</strong> ${petugasInfo}</div>
+                        <div><strong>Status Truk:</strong> ${t.status} (Dock: ${t.dock || '-'})</div>
+                        <div><strong>Lokasi Arsip Fisik:</strong> <span class="badge bg-amber-50 text-amber-700 border">${arsipFisik}</span></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>SKU</th>
+                                <th class="text-start">Nama Produk</th>
+                                <th>Prodate</th>
+                                <th>Rak Asal</th>
+                                <th>Jumlah Karton</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('modalJalurBody').innerHTML = bodyHtml;
+            document.getElementById('btnModalEditArsip').setAttribute('onclick', `editLokasiArsip(${index}); closeStockJalurModal();`);
+            document.getElementById('stockJalurModal').classList.remove('hidden');
+        }
+
+        function closeStockJalurModal() {
+            document.getElementById('stockJalurModal').classList.add('hidden');
         }
 
         function editLokasiArsip(index) {
@@ -1360,7 +1415,7 @@
             if (newArsip !== null) {
                 t.lokasiArsip = newArsip.trim() || 'Belum Ada Arsip';
                 localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(antrianData));
-                renderStockJalurContent();
+                renderStockJalurTable();
                 alert('Lokasi arsip berhasil diperbarui!');
             }
         }
@@ -1411,7 +1466,7 @@
             if(menuName === 'rdc') { renderRdcMonitoringTable(); }
             if(menuName === 'realisasi') { renderRealisasiTable(); }
             if(menuName === 'ekspor') { renderEksporSummaryTable(); }
-            if(menuName === 'jalur') { renderStockJalurContent(); }
+            if(menuName === 'jalur') { renderStockJalurTable(); }
             if(menuName === 'report') { renderReportData(); }
             if(window.innerWidth < 768) toggleSidebar();
         }
