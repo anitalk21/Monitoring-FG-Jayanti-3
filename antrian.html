@@ -225,9 +225,9 @@
 <div id="modalStatus" class="modal">
     <div class="modal-content" style="width: 550px;">
         <button type="button" onclick="closeModal('modalStatus')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
-        <h4 style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
+        <h4 id="modalStatusTitle" style="margin-top:0; color:#4f46e5;">Pindah Status & Verifikasi Goods Issue</h4>
         
-        <div class="form-group">
+        <div id="statusSelectionGroup" class="form-group">
             <label>Pilih Status Truk</label>
             <select id="selectStatus" onchange="checkStatusChange()">
                 <option value="Antrian">Antrian</option>
@@ -982,7 +982,7 @@
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
                         📄 Picking List (${plCount})
                     </button>
-                    <button class="btn" style="background:#f0fdf4; color:#15803d; border-color:#bbf7d0; font-size:11px;" onclick="openStatusModal(${idx})">Edit Arsip</button>
+                    <button class="btn" style="background:#f0fdf4; color:#15803d; border-color:#bbf7d0; font-size:11px;" onclick="openArsipModal(${idx})">📁 Edit Arsip</button>
                     <span style="background:#fef3c7; color:#b45309; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
                     <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
                 `;
@@ -1031,6 +1031,11 @@
     function openStatusModal(idx) {
         activeStatusTruckIdx = idx;
         let t = truckQueue[idx];
+        
+        // Pastikan elemen dropdown status muncul kembali (jika sebelumnya dipakai untuk edit arsip khusus truk keluar)
+        document.getElementById('statusSelectionGroup').style.display = 'block';
+        document.getElementById('modalStatusTitle').innerText = 'Pindah Status & Verifikasi Goods Issue';
+        
         document.getElementById('selectStatus').value = t.status;
         populateDockDropdown(t.dock);
         
@@ -1053,6 +1058,39 @@
         }
 
         checkStatusChange();
+        openModal('modalStatus');
+    }
+
+    // Fungsi khusus untuk modal edit arsip saja pada truk yang sudah keluar
+    function openArsipModal(idx) {
+        activeStatusTruckIdx = idx;
+        let t = truckQueue[idx];
+
+        // Sembunyikan pilihan status & bagian goods issue, tampilkan khusus arsip saja
+        document.getElementById('statusSelectionGroup').style.display = 'none';
+        document.getElementById('dockDiv').style.display = 'none';
+        document.getElementById('outboundSection').style.display = 'none';
+        document.getElementById('arsipSection').style.display = 'block';
+        document.getElementById('modalStatusTitle').innerText = '📁 Perbarui Lokasi Arsip Dokumen Truk Keluar';
+
+        let selectArsipEl = document.getElementById('selectArsip');
+        let inputArsipCustomEl = document.getElementById('inputArsipCustom');
+        if (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') {
+            let foundOption = Array.from(selectArsipEl.options).some(opt => opt.value === t.lokasiArsip);
+            if (foundOption) {
+                selectArsipEl.value = t.lokasiArsip;
+                inputArsipCustomEl.style.display = 'none';
+            } else {
+                selectArsipEl.value = 'LOKASI LAINNYA';
+                inputArsipCustomEl.style.display = 'block';
+                inputArsipCustomEl.value = t.lokasiArsip;
+            }
+        } else {
+            selectArsipEl.value = 'LEMARI - Map Arsip Aktif';
+            inputArsipCustomEl.style.display = 'none';
+            inputArsipCustomEl.value = '';
+        }
+
         openModal('modalStatus');
     }
 
@@ -1131,6 +1169,24 @@
 
     function saveStatus() {
         if(activeStatusTruckIdx === null) return;
+        let targetTruck = truckQueue[activeStatusTruckIdx];
+
+        // Jika modal dibuka khusus dari tombol "Edit Arsip" truk yang sudah Keluar
+        if (targetTruck.status === 'Keluar') {
+            let arsipSelectVal = document.getElementById('selectArsip').value;
+            let arsipCustomVal = document.getElementById('inputArsipCustom').value.trim();
+            if (arsipSelectVal === 'LOKASI LAINNYA' && arsipCustomVal) {
+                targetTruck.lokasiArsip = arsipCustomVal;
+            } else {
+                targetTruck.lokasiArsip = arsipSelectVal;
+            }
+            localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+            closeModal('modalStatus');
+            renderAll();
+            alert('Lokasi arsip berhasil diperbarui!');
+            return;
+        }
+
         let newSt = document.getElementById('selectStatus').value;
         let selectedDock = document.getElementById('selectDock').value;
 
@@ -1143,10 +1199,8 @@
             }
         }
 
-        let targetTruck = truckQueue[activeStatusTruckIdx];
         targetTruck.status = newSt;
 
-        // Simpan Lokasi Arsip jika status Selesai Muat atau Keluar
         if (newSt === 'Keluar' || newSt === 'Selesai Muat') {
             let arsipSelectVal = document.getElementById('selectArsip').value;
             let arsipCustomVal = document.getElementById('inputArsipCustom').value.trim();
