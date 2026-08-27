@@ -244,18 +244,33 @@
             <select id="selectDock"></select>
         </div>
 
-        <!-- TAMBAHAN FITUR PILIHAN LOKASI ARSIP SAAT MOBIL KELUAR -->
+        <!-- PILIHAN KATEGORI ARSIP DENGAN INPUT MANUAL -->
         <div id="arsipSection" class="form-group" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px; margin-top:10px;">
             <strong style="color:#15803d; display:block; margin-bottom:6px;">📁 Pengarsipan Dokumen Saat Mobil Keluar</strong>
-            <label style="font-size:11px; color:#166534; font-weight:bold;">Pilih / Ketik Lokasi Penyimpanan Arsip Fisik Dokumen:</label>
-            <select id="selectArsip" class="form-select form-select-sm" style="margin-top:4px;" onchange="handleArsipChange()">
-                <option value="LEMARI - Map Arsip Aktif">LEMARI — Map Arsip Aktif</option>
-                <option value="KARTON RACKING - Box 01">KARTON RACKING — Box 01</option>
-                <option value="KARTON RACKING - Box 02">KARTON RACKING — Box 02</option>
-                <option value="DIRECT KARTON - Area Ekspedisi">DIRECT KARTON — Area Ekspedisi</option>
-                <option value="LOKASI LAINNYA">Lainnya (Ketik Manual)</option>
+            <label style="font-size:11px; color:#166534; font-weight:bold;">Pilih Kategori Arsip Fisik Dokumen:</label>
+            <select id="selectArsipKategori" class="form-select form-select-sm" style="margin-top:4px;" onchange="handleArsipKategoriChange()">
+                <option value="Lemari">Lemari</option>
+                <option value="Karton">Karton</option>
+                <option value="Lainnya">Lainnya (Isi Manual)</option>
             </select>
-            <input type="text" id="inputArsipCustom" style="margin-top:6px; display:none;" placeholder="Ketik lokasi arsip fisik manual...">
+            
+            <!-- Input Ketik Manual Lemari -->
+            <div id="wrapperLemariInput" style="margin-top:8px;">
+                <label style="font-size:10px; color:#166534;">Ketik Lemari / Nomor Map Arsip:</label>
+                <input type="text" id="inputArsipLemari" placeholder="Contoh: Lemari 02 - Map Aktif B">
+            </div>
+
+            <!-- Input Ketik Manual Karton & Blok -->
+            <div id="wrapperKartonInput" style="margin-top:8px; display:none;">
+                <label style="font-size:10px; color:#166534;">Ketik Karton & Blok:</label>
+                <input type="text" id="inputArsipKarton" placeholder="Contoh: Karton Box 03 - Blok A">
+            </div>
+
+            <!-- Input Ketik Manual Lainnya -->
+            <div id="wrapperLainnyaInput" style="margin-top:8px; display:none;">
+                <label style="font-size:10px; color:#166534;">Ketik Lokasi Arsip Manual:</label>
+                <input type="text" id="inputArsipLainnya" placeholder="Ketik lokasi arsip fisik manual...">
+            </div>
         </div>
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
@@ -1032,66 +1047,69 @@
         activeStatusTruckIdx = idx;
         let t = truckQueue[idx];
         
-        // Pastikan elemen dropdown status muncul kembali (jika sebelumnya dipakai untuk edit arsip khusus truk keluar)
         document.getElementById('statusSelectionGroup').style.display = 'block';
         document.getElementById('modalStatusTitle').innerText = 'Pindah Status & Verifikasi Goods Issue';
         
         document.getElementById('selectStatus').value = t.status;
         populateDockDropdown(t.dock);
         
-        let selectArsipEl = document.getElementById('selectArsip');
-        let inputArsipCustomEl = document.getElementById('inputArsipCustom');
-        if (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') {
-            let foundOption = Array.from(selectArsipEl.options).some(opt => opt.value === t.lokasiArsip);
-            if (foundOption) {
-                selectArsipEl.value = t.lokasiArsip;
-                inputArsipCustomEl.style.display = 'none';
-            } else {
-                selectArsipEl.value = 'LOKASI LAINNYA';
-                inputArsipCustomEl.style.display = 'block';
-                inputArsipCustomEl.value = t.lokasiArsip;
-            }
-        } else {
-            selectArsipEl.value = 'LEMARI - Map Arsip Aktif';
-            inputArsipCustomEl.style.display = 'none';
-            inputArsipCustomEl.value = '';
-        }
-
+        parseExistingArsip(t.lokasiArsip);
         checkStatusChange();
         openModal('modalStatus');
     }
 
-    // Fungsi khusus untuk modal edit arsip saja pada truk yang sudah keluar
     function openArsipModal(idx) {
         activeStatusTruckIdx = idx;
         let t = truckQueue[idx];
 
-        // Sembunyikan pilihan status & bagian goods issue, tampilkan khusus arsip saja
         document.getElementById('statusSelectionGroup').style.display = 'none';
         document.getElementById('dockDiv').style.display = 'none';
         document.getElementById('outboundSection').style.display = 'none';
         document.getElementById('arsipSection').style.display = 'block';
         document.getElementById('modalStatusTitle').innerText = '📁 Perbarui Lokasi Arsip Dokumen Truk Keluar';
 
-        let selectArsipEl = document.getElementById('selectArsip');
-        let inputArsipCustomEl = document.getElementById('inputArsipCustom');
-        if (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') {
-            let foundOption = Array.from(selectArsipEl.options).some(opt => opt.value === t.lokasiArsip);
-            if (foundOption) {
-                selectArsipEl.value = t.lokasiArsip;
-                inputArsipCustomEl.style.display = 'none';
-            } else {
-                selectArsipEl.value = 'LOKASI LAINNYA';
-                inputArsipCustomEl.style.display = 'block';
-                inputArsipCustomEl.value = t.lokasiArsip;
-            }
-        } else {
-            selectArsipEl.value = 'LEMARI - Map Arsip Aktif';
-            inputArsipCustomEl.style.display = 'none';
-            inputArsipCustomEl.value = '';
-        }
-
+        parseExistingArsip(t.lokasiArsip);
         openModal('modalStatus');
+    }
+
+    function parseExistingArsip(arsipStr) {
+        let kategoriSel = document.getElementById('selectArsipKategori');
+        let lemariInput = document.getElementById('inputArsipLemari');
+        let kartonInput = document.getElementById('inputArsipKarton');
+        let lainnyaInput = document.getElementById('inputArsipLainnya');
+
+        lemariInput.value = '';
+        kartonInput.value = '';
+        lainnyaInput.value = '';
+
+        if (!arsipStr || arsipStr === 'Belum Ada Arsip') {
+            kategoriSel.value = 'Lemari';
+        } else if (arsipStr.startsWith('Lemari:')) {
+            kategoriSel.value = 'Lemari';
+            lemariInput.value = arsipStr.replace('Lemari: ', '');
+        } else if (arsipStr.startsWith('Karton:')) {
+            kategoriSel.value = 'Karton';
+            kartonInput.value = arsipStr.replace('Karton: ', '');
+        } else if (arsipStr.startsWith('Lainnya:')) {
+            kategoriSel.value = 'Lainnya';
+            lainnyaInput.value = arsipStr.replace('Lainnya: ', '');
+        } else {
+            // Default fallback jika format lama
+            kategoriSel.value = 'Lainnya';
+            lainnyaInput.value = arsipStr;
+        }
+        handleArsipKategoriChange();
+    }
+
+    function handleArsipKategoriChange() {
+        let kat = document.getElementById('selectArsipKategori').value;
+        let wLemari = document.getElementById('wrapperLemariInput');
+        let wKarton = document.getElementById('wrapperKartonInput');
+        let wLainnya = document.getElementById('wrapperLainnyaInput');
+
+        wLemari.style.display = kat === 'Lemari' ? 'block' : 'none';
+        wKarton.style.display = kat === 'Karton' ? 'block' : 'none';
+        wLainnya.style.display = kat === 'Lainnya' ? 'block' : 'none';
     }
 
     function populateDockDropdown(currentTruckDock) {
@@ -1155,31 +1173,21 @@
         }
     }
 
-    function handleArsipChange() {
-        let val = document.getElementById('selectArsip').value;
-        let customInput = document.getElementById('inputArsipCustom');
-        if(val === 'LOKASI LAINNYA') {
-            customInput.style.display = 'block';
-            customInput.focus();
-        } else {
-            customInput.style.display = 'none';
-            customInput.value = '';
-        }
-    }
-
     function saveStatus() {
         if(activeStatusTruckIdx === null) return;
         let targetTruck = truckQueue[activeStatusTruckIdx];
 
-        // Jika modal dibuka khusus dari tombol "Edit Arsip" truk yang sudah Keluar
+        // Format string penyimpanan arsip berdasarkan pilihan dropdown kategori
+        let kat = document.getElementById('selectArsipKategori').value;
+        let detailArsip = '';
+        if (kat === 'Lemari') detailArsip = document.getElementById('inputArsipLemari').value.trim();
+        else if (kat === 'Karton') detailArsip = document.getElementById('inputArsipKarton').value.trim();
+        else if (kat === 'Lainnya') detailArsip = document.getElementById('inputArsipLainnya').value.trim();
+
+        let finalArsipStr = detailArsip ? `${kat}: ${detailArsip}` : kat;
+
         if (targetTruck.status === 'Keluar') {
-            let arsipSelectVal = document.getElementById('selectArsip').value;
-            let arsipCustomVal = document.getElementById('inputArsipCustom').value.trim();
-            if (arsipSelectVal === 'LOKASI LAINNYA' && arsipCustomVal) {
-                targetTruck.lokasiArsip = arsipCustomVal;
-            } else {
-                targetTruck.lokasiArsip = arsipSelectVal;
-            }
+            targetTruck.lokasiArsip = finalArsipStr;
             localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
             closeModal('modalStatus');
             renderAll();
@@ -1202,13 +1210,7 @@
         targetTruck.status = newSt;
 
         if (newSt === 'Keluar' || newSt === 'Selesai Muat') {
-            let arsipSelectVal = document.getElementById('selectArsip').value;
-            let arsipCustomVal = document.getElementById('inputArsipCustom').value.trim();
-            if (arsipSelectVal === 'LOKASI LAINNYA' && arsipCustomVal) {
-                targetTruck.lokasiArsip = arsipCustomVal;
-            } else {
-                targetTruck.lokasiArsip = arsipSelectVal;
-            }
+            targetTruck.lokasiArsip = finalArsipStr;
         }
 
         if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && !targetTruck.frozenDurationMs) {
