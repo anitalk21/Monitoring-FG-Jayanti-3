@@ -500,7 +500,7 @@
             </div>
         </div>
 
-        <!-- SECTION STOCK JALUR (DIBUAT LIST DAFTAR RINGKAS + POP-UP DETAIL) -->
+        <!-- SECTION STOCK JALUR -->
         <div id="section-jalur" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -809,30 +809,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
-        let sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
-        let qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
-        let binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-        let antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
-        let eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+        // Safe LocalStorage Loaders dengan penanganan error agar tidak freeze
+        function safeGetStorage(key, fallback) {
+            try {
+                let item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : fallback;
+            } catch (e) {
+                console.error("Error reading localStorage key:", key, e);
+                return fallback;
+            }
+        }
+
+        let stockData = safeGetStorage('stockDataGDFG_RangePalletFull', {});
+        let sapStockData = safeGetStorage('binloc_sap_jayanti3', {});
+        let qcHistoryData = safeGetStorage('binloc_qc_jayanti3', []);
+        let binData = safeGetStorage('binloc_stok_jayanti3', []);
+        let antrianData = safeGetStorage('antrian_truk_jayanti3', []);
+        let eksporPlanningData = safeGetStorage('ekspor_planning_jayanti3', []);
 
         let currentBinWarehouse = 'INDUK';
         const indukBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
         const agingBlocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
 
         function updateClock() {
-            const now = new Date();
-            const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-            const clockEl = document.getElementById('realTimeClock');
-            if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-indigo-400 mr-1"></i> ${dateStr} ${timeStr}`;
+            try {
+                const now = new Date();
+                const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+                const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+                const clockEl = document.getElementById('realTimeClock');
+                if(clockEl) clockEl.innerHTML = `<i class="fa-regular fa-clock text-indigo-400 mr-1"></i> ${dateStr} ${timeStr}`;
+            } catch(e) {}
         }
         setInterval(updateClock, 1000);
         updateClock();
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarOverlay').classList.toggle('hidden');
+            let sidebar = document.getElementById('sidebar');
+            let overlay = document.getElementById('sidebarOverlay');
+            if(sidebar) sidebar.classList.toggle('-translate-x-full');
+            if(overlay) overlay.classList.toggle('hidden');
         }
 
         function switchEksporTab(tab) {
@@ -862,11 +877,15 @@
 
         function switchReportTab(tab) {
             ['harian', 'bulanan', 'tahunan'].forEach(t => {
-                document.getElementById('reportContent-' + t).classList.add('hidden');
-                document.getElementById('tabReport' + t.charAt(0).toUpperCase() + t.slice(1)).className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
+                let el = document.getElementById('reportContent-' + t);
+                let btn = document.getElementById('tabReport' + t.charAt(0).toUpperCase() + t.slice(1));
+                if(el) el.classList.add('hidden');
+                if(btn) btn.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
             });
-            document.getElementById('reportContent-' + tab).classList.remove('hidden');
-            document.getElementById('tabReport' + tab.charAt(0).toUpperCase() + tab.slice(1)).className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs';
+            let targetEl = document.getElementById('reportContent-' + tab);
+            let targetBtn = document.getElementById('tabReport' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if(targetEl) targetEl.classList.remove('hidden');
+            if(targetBtn) targetBtn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow-2xs';
             if(tab === 'harian') renderReportData();
         }
 
@@ -874,19 +893,20 @@
             let tbody = document.getElementById('reportHarianTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             if(binData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-muted py-4">Belum ada aktivitas hari ini.</td></tr>';
                 return;
             }
             binData.slice(-10).forEach(item => {
+                let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
                 tbody.innerHTML += `<tr>
                     <td>${item.tanggal || 'Hari Ini'}</td>
                     <td><span class="badge bg-indigo-50 text-indigo-700">${item.category || 'Penerimaan'}</span></td>
                     <td class="fw-bold">${item.pallet || '-'}</td>
-                    <td>${item.sku.split(' - ')[0]}</td>
-                    <td class="text-start">${item.sku}</td>
-                    <td class="fw-bold text-emerald-600">${item.konversi}</td>
+                    <td>${skuCode}</td>
+                    <td class="text-start">${item.sku || '-'}</td>
+                    <td class="fw-bold text-emerald-600">${item.konversi || '-'}</td>
                     <td>${item.buyer || 'Admin'}</td>
                 </tr>`;
             });
@@ -899,15 +919,15 @@
             let contentManual = document.getElementById('subContent-manual');
 
             if(sub === 'file') {
-                btnFile.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
-                btnManual.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
-                contentFile.classList.remove('hidden');
-                contentManual.classList.add('hidden');
+                if(btnFile) btnFile.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
+                if(btnManual) btnManual.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+                if(contentFile) contentFile.classList.remove('hidden');
+                if(contentManual) contentManual.classList.add('hidden');
             } else {
-                btnManual.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
-                btnFile.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
-                contentManual.classList.remove('hidden');
-                contentFile.classList.add('hidden');
+                if(btnManual) btnManual.className = 'px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5';
+                if(btnFile) btnFile.className = 'px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+                if(contentManual) contentManual.classList.remove('hidden');
+                if(contentFile) contentFile.classList.add('hidden');
             }
         }
 
@@ -1014,7 +1034,7 @@
             let nameInput = row.querySelector('.name-input');
             
             let enteredSku = skuInput.value.trim();
-            let dbStock = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+            let dbStock = safeGetStorage('stockDataGDFG_RangePalletFull', {});
 
             if (dbStock[enteredSku]) {
                 nameInput.value = dbStock[enteredSku].name;
@@ -1025,6 +1045,7 @@
 
         function addManualRow() {
             let tbody = document.getElementById('manualTableBody');
+            if(!tbody) return;
             let rowCount = tbody.rows.length + 1;
             let newRow = tbody.insertRow();
             newRow.innerHTML = `
@@ -1053,6 +1074,7 @@
 
         function clearManualRows() {
             let tbody = document.getElementById('manualTableBody');
+            if(!tbody) return;
             tbody.innerHTML = `
                 <tr>
                     <td class="fw-bold">1</td>
@@ -1075,6 +1097,7 @@
 
         function reorderManualRows() {
             let tbody = document.getElementById('manualTableBody');
+            if(!tbody) return;
             for (let i = 0; i < tbody.rows.length; i++) {
                 tbody.rows[i].cells[0].innerText = i + 1;
             }
@@ -1082,6 +1105,7 @@
 
         function saveManualEksporPlanning() {
             let tbody = document.getElementById('manualTableBody');
+            if(!tbody) return;
             let rows = tbody.rows;
             let savedCount = 0;
 
@@ -1127,9 +1151,9 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
-            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            eksporPlanningData = safeGetStorage('ekspor_planning_jayanti3', []);
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
 
             if(eksporPlanningData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="21" class="text-muted py-4">Belum ada data summary ekspor. Silakan masukkan planning terlebih dahulu.</td></tr>';
@@ -1174,7 +1198,7 @@
                 }
 
                 if (!p.kodifikasi || p.kodifikasi === '-') {
-                    let masterStockMap = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+                    let masterStockMap = safeGetStorage('stockDataGDFG_RangePalletFull', {});
                     if (p.sku && masterStockMap[p.sku.trim()]) {
                         p.kodifikasi = masterStockMap[p.sku.trim()].kodifikasi || masterStockMap[p.sku.trim()].code || '-';
                     }
@@ -1209,7 +1233,7 @@
         }
 
         function downloadEksporExcel() {
-            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+            eksporPlanningData = safeGetStorage('ekspor_planning_jayanti3', []);
             if(eksporPlanningData.length === 0) {
                 alert('Tidak ada data untuk diunduh.');
                 return;
@@ -1234,7 +1258,7 @@
             let tbody = document.getElementById('savedEksporPlanningBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            eksporPlanningData = JSON.parse(localStorage.getItem('ekspor_planning_jayanti3')) || [];
+            eksporPlanningData = safeGetStorage('ekspor_planning_jayanti3', []);
 
             if(eksporPlanningData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="14" class="text-muted py-4">Belum ada planning ekspor tersimpan.</td></tr>';
@@ -1248,7 +1272,7 @@
                         <td>${p.week || '-'}</td>
                         <td>${p.tglSi || '-'}</td>
                         <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.quotation || '-'}</span></td>
-                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo}</span></td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${p.noSo || '-'}</span></td>
                         <td>${p.sku || '-'}</td>
                         <td class="text-start fw-semibold">${p.name || '-'}</td>
                         <td class="fw-bold text-emerald-600">${p.qtySi || '0'}</td>
@@ -1267,24 +1291,33 @@
             });
         }
 
-        // --- FUNGSI STOCK JALUR: TABEL RINGKAS + POP-UP DETAIL ---
+        // --- FUNGSI STOCK JALUR ---
         function renderStockJalurTable() {
             let tbody = document.getElementById('stockJalurTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
-            let keyword = (document.getElementById('jalurSearchInput').value || '').toLowerCase();
-            let filterArsipVal = document.getElementById('jalurFilterArsip').value;
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
+            let searchInputEl = document.getElementById('jalurSearchInput');
+            let filterArsipEl = document.getElementById('jalurFilterArsip');
+
+            let keyword = searchInputEl ? searchInputEl.value.toLowerCase() : '';
+            let filterArsipVal = filterArsipEl ? filterArsipEl.value : '';
 
             let activeTrucks = antrianData.filter(t => {
+                let noPol = t.noPol || '';
+                let ekspedisi = t.ekspedisi || '';
+                let noDoc = t.noDoc || '';
+                let tujuan = t.tujuan || '';
+                let id = t.id || '';
+
                 let textMatch = (
-                    t.noPol.toLowerCase().includes(keyword) ||
-                    t.ekspedisi.toLowerCase().includes(keyword) ||
-                    t.noDoc.toLowerCase().includes(keyword) ||
-                    t.tujuan.toLowerCase().includes(keyword) ||
-                    t.id.toLowerCase().includes(keyword) ||
-                    (t.pickingList && t.pickingList.some(item => item.sku.toLowerCase().includes(keyword) || item.nama.toLowerCase().includes(keyword)))
+                    noPol.toLowerCase().includes(keyword) ||
+                    ekspedisi.toLowerCase().includes(keyword) ||
+                    noDoc.toLowerCase().includes(keyword) ||
+                    tujuan.toLowerCase().includes(keyword) ||
+                    id.toLowerCase().includes(keyword) ||
+                    (t.pickingList && t.pickingList.some(item => (item.sku && item.sku.toLowerCase().includes(keyword)) || (item.nama && item.nama.toLowerCase().includes(keyword))))
                 );
 
                 let arsipLoc = t.lokasiArsip || 'Belum Ada Arsip';
@@ -1304,7 +1337,7 @@
 
             activeTrucks.forEach((t, globalIdx) => {
                 let list = t.pickingList || [];
-                let totalQty = list.reduce((sum, i) => sum + i.jumlah, 0);
+                let totalQty = list.reduce((sum, i) => sum + (parseFloat(i.jumlah) || 0), 0);
                 let tglKirim = t.tanggalKirim || '-';
                 let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
 
@@ -1316,11 +1349,11 @@
                     <tr>
                         <td class="fw-bold">${globalIdx + 1}</td>
                         <td>${tglKirim}</td>
-                        <td class="fw-bold text-slate-700">${t.noPol} (${t.ekspedisi})</td>
-                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.noDoc}</span></td>
-                        <td>${t.tujuan} (${t.jenis || 'Lokal'})</td>
+                        <td class="fw-bold text-slate-700">${t.noPol || '-'} (${t.ekspedisi || '-'})</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.noDoc || '-'}</span></td>
+                        <td>${t.tujuan || '-'} (${t.jenis || 'Lokal'})</td>
                         <td class="fw-bold text-emerald-600">${totalQty} krt</td>
-                        <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
+                        <td><span class="badge bg-slate-100 text-slate-700">${t.status || 'Antrian'}</span></td>
                         <td><span class="badge ${badgeArsipColor} border font-bold px-2.5 py-1 text-xs">${arsipFisik}</span></td>
                         <td>
                             <div class="flex items-center justify-center gap-1.5">
@@ -1338,11 +1371,12 @@
         }
 
         function openStockJalurDetail(index) {
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             let t = antrianData[index];
             if(!t) return;
 
-            document.getElementById('modalJalurTitle').innerHTML = `<i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Truk: ${t.noPol} (${t.ekspedisi})`;
+            let titleEl = document.getElementById('modalJalurTitle');
+            if(titleEl) titleEl.innerHTML = `<i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Truk: ${t.noPol || '-'} (${t.ekspedisi || '-'})`;
             
             let list = t.pickingList || [];
             let rowsHtml = '';
@@ -1352,11 +1386,11 @@
                 list.forEach((item, i) => {
                     rowsHtml += `<tr>
                         <td>${i + 1}</td>
-                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku}</span></td>
-                        <td class="text-start fw-semibold">${item.nama}</td>
+                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku || '-'}</span></td>
+                        <td class="text-start fw-semibold">${item.nama || '-'}</td>
                         <td>${item.prodate || '-'}</td>
                         <td>${item.rak || '-'}</td>
-                        <td><span class="fw-bold text-indigo-600">${item.jumlah} krt</span> (${item.pallet} Plt + ${item.receh} krt)</td>
+                        <td><span class="fw-bold text-indigo-600">${item.jumlah || 0} krt</span> (${item.pallet || 0} Plt + ${item.receh || 0} krt)</td>
                     </tr>`;
                 });
             }
@@ -1368,11 +1402,11 @@
             let bodyHtml = `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 text-xs">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div><strong>No. Dokumen:</strong> <span class="text-indigo-600 fw-bold">${t.noDoc}</span></div>
+                        <div><strong>No. Dokumen:</strong> <span class="text-indigo-600 fw-bold">${t.noDoc || '-'}</span></div>
                         <div><strong>Tanggal Kirim:</strong> ${tglKirim}</div>
-                        <div><strong>Tujuan:</strong> ${t.tujuan} (${t.jenis || 'Lokal'})</div>
+                        <div><strong>Tujuan:</strong> ${t.tujuan || '-'} (${t.jenis || 'Lokal'})</div>
                         <div><strong>Petugas & Shift:</strong> ${petugasInfo}</div>
-                        <div><strong>Status Truk:</strong> ${t.status} (Dock: ${t.dock || '-'})</div>
+                        <div><strong>Status Truk:</strong> ${t.status || '-'} (Dock: ${t.dock || '-'})</div>
                         <div><strong>Lokasi Arsip Fisik:</strong> <span class="badge bg-amber-50 text-amber-700 border">${arsipFisik}</span></div>
                     </div>
                 </div>
@@ -1396,21 +1430,27 @@
                 </div>
             `;
 
-            document.getElementById('modalJalurBody').innerHTML = bodyHtml;
-            document.getElementById('btnModalEditArsip').setAttribute('onclick', `editLokasiArsip(${index}); closeStockJalurModal();`);
-            document.getElementById('stockJalurModal').classList.remove('hidden');
+            let modalBodyEl = document.getElementById('modalJalurBody');
+            let btnEditEl = document.getElementById('btnModalEditArsip');
+            let modalEl = document.getElementById('stockJalurModal');
+
+            if(modalBodyEl) modalBodyEl.innerHTML = bodyHtml;
+            if(btnEditEl) btnEditEl.setAttribute('onclick', `editLokasiArsip(${index}); closeStockJalurModal();`);
+            if(modalEl) modalEl.classList.remove('hidden');
         }
 
         function closeStockJalurModal() {
-            document.getElementById('stockJalurModal').classList.add('hidden');
+            let modalEl = document.getElementById('stockJalurModal');
+            if(modalEl) modalEl.classList.add('hidden');
         }
 
         function editLokasiArsip(index) {
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             let t = antrianData[index];
+            if(!t) return;
             let currentVal = t.lokasiArsip || '';
 
-            let newArsip = prompt(`Masukkan / Perbarui Lokasi Arsip Fisik untuk Truk ${t.noPol} (Doc: ${t.noDoc}):\n\nContoh Format:\n- LEMARI / Map Aktif\n- KARTON 01 / Map 03\n- DIRECT-KARTON 12`, currentVal);
+            let newArsip = prompt(`Masukkan / Perbarui Lokasi Arsip Fisik untuk Truk ${t.noPol || ''} (Doc: ${t.noDoc || ''}):\n\nContoh Format:\n- LEMARI / Map Aktif\n- KARTON 01 / Map 03\n- DIRECT-KARTON 12`, currentVal);
             
             if (newArsip !== null) {
                 t.lokasiArsip = newArsip.trim() || 'Belum Ada Arsip';
@@ -1421,7 +1461,7 @@
         }
 
         function downloadStockJalurExcel() {
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             if(antrianData.length === 0) {
                 alert('Tidak ada data stock jalur untuk diunduh.');
                 return;
@@ -1436,10 +1476,10 @@
 
                 if(t.pickingList && t.pickingList.length > 0) {
                     t.pickingList.forEach(item => {
-                        csvContent += `"${t.id}","${t.noPol}","${t.ekspedisi}","${t.noDoc}","${t.tujuan}","${t.jenis || ''}","${tglKirim}","${petugas}","${t.status}","${t.dock || '-'}","${arsip}","${item.sku}","${item.nama}","${item.prodate || '-'}","${item.rak || '-}","${item.jumlah}"\n`;
+                        csvContent += `"${t.id || ''}","${t.noPol || ''}","${t.ekspedisi || ''}","${t.noDoc || ''}","${t.tujuan || ''}","${t.jenis || ''}","${tglKirim}","${petugas}","${t.status || ''}","${t.dock || '-'}","${arsip}","${item.sku || ''}","${item.nama || ''}","${item.prodate || '-'}","${item.rak || '-'}","${item.jumlah || 0}"\n`;
                     });
                 } else {
-                    csvContent += `"${t.id}","${t.noPol}","${t.ekspedisi}","${t.noDoc}","${t.tujuan}","${t.jenis || ''}","${tglKirim}","${petugas}","${t.status}","${t.dock || '-'}","${arsip}","-","-","-","-","0"\n`;
+                    csvContent += `"${t.id || ''}","${t.noPol || ''}","${t.ekspedisi || ''}","${t.noDoc || ''}","${t.tujuan || ''}","${t.jenis || ''}","${tglKirim}","${petugas}","${t.status || ''}","${t.dock || '-'}","${arsip}","-","-","-","-","0"\n`;
                 }
             });
 
@@ -1457,9 +1497,10 @@
                 const el = document.getElementById(id);
                 if(el) { el.classList.add('hidden'); el.classList.remove('active'); }
             });
-            if(document.getElementById('section-' + menuName)) {
-                document.getElementById('section-' + menuName).classList.add('active');
-                document.getElementById('section-' + menuName).classList.remove('hidden');
+            let targetSec = document.getElementById('section-' + menuName);
+            if(targetSec) {
+                targetSec.classList.add('active');
+                targetSec.classList.remove('hidden');
             }
             if(menuName === 'binloc') { renderBinMap(); renderCurrentStockTable(); renderMovementHistoryTable(); }
             if(menuName === 'opname') { renderQcHistoryTable(); renderReconciliationTable(); renderOpnameHistory(); }
@@ -1483,9 +1524,9 @@
         }
 
         function updateDashboardCapacity() {
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
-            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
+            qcHistoryData = safeGetStorage('binloc_qc_jayanti3', []);
 
             let totalIndukPlt = 0;
             let totalAgingPlt = 0;
@@ -1501,24 +1542,32 @@
                 }
             });
 
-            document.getElementById('cardIndukVal').innerText = totalIndukPlt.toFixed(1) + ' Plt';
-            document.getElementById('cardAgingVal').innerText = totalAgingPlt.toFixed(1) + ' Plt';
-            document.getElementById('cardGabunganVal').innerText = (totalIndukPlt + totalAgingPlt).toFixed(1) + ' Plt';
+            let elInduk = document.getElementById('cardIndukVal');
+            let elAging = document.getElementById('cardAgingVal');
+            let elGabungan = document.getElementById('cardGabunganVal');
+            let elHold = document.getElementById('summaryHoldCount');
+            let elRealisasi = document.getElementById('summaryRealisasiTruk');
+            let elAntrian = document.getElementById('summaryAntrianTruk');
+
+            if(elInduk) elInduk.innerText = totalIndukPlt.toFixed(1) + ' Plt';
+            if(elAging) elAging.innerText = totalAgingPlt.toFixed(1) + ' Plt';
+            if(elGabungan) elGabungan.innerText = (totalIndukPlt + totalAgingPlt).toFixed(1) + ' Plt';
 
             let totalHoldPlt = qcHistoryData.reduce((sum, h) => sum + (parseFloat(h.pallets) || 0), 0);
-            document.getElementById('summaryHoldCount').innerText = totalHoldPlt.toFixed(2) + ' Plt';
+            if(elHold) elHold.innerText = totalHoldPlt.toFixed(2) + ' Plt';
 
             let totalProses = antrianData.filter(t => t.status === 'Proses Muat' || t.status === 'Selesai Muat').length;
             let totalAntrian = antrianData.filter(t => t.status === 'Antrian' || t.status === 'Menunggu Dokumen').length;
             
-            document.getElementById('summaryRealisasiTruk').innerText = totalProses + ' Truk';
-            document.getElementById('summaryAntrianTruk').innerText = totalAntrian + ' Truk';
+            if(elRealisasi) elRealisasi.innerText = totalProses + ' Truk';
+            if(elAntrian) elAntrian.innerText = totalAntrian + ' Truk';
         }
 
         function openLiveStockModal() {
             let tbody = document.getElementById('liveStockTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             
             let activeStock = binData.filter(item => {
                 return item && 
@@ -1540,23 +1589,27 @@
                         <td class="text-start fw-semibold">${skuName}</td>
                         <td class="fw-bold text-indigo-600">${item.karton} krt</td>
                         <td>${item.konversi || '-'}</td>
-                        <td><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">${item.lokasi} (${item.pallet || '-'})</span></td>
+                        <td><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">${item.lokasi || '-'} (${item.pallet || '-'})</span></td>
                         <td>${item.prodate || item.tanggal || '-'}</td>
                     </tr>`;
                 });
             }
-            document.getElementById('liveStockModal').classList.remove('hidden');
+            let modalEl = document.getElementById('liveStockModal');
+            if(modalEl) modalEl.classList.remove('hidden');
         }
 
-        function closeLiveStockModal() { document.getElementById('liveStockModal').classList.add('hidden'); }
+        function closeLiveStockModal() {
+            let modalEl = document.getElementById('liveStockModal');
+            if(modalEl) modalEl.classList.add('hidden');
+        }
         function printLiveStockPDF() { window.print(); }
 
         function exportLiveStockExcel() {
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             let activeStock = binData.filter(item => item && item.sku && !item.sku.includes('undefined') && item.category !== 'Ekspor' && parseInt(item.karton || 0) > 0);
             let csvContent = "data:text/csv;charset=utf-8,SKU,Nama Produk,Total Karton,Konversi Pallet,Lokasi Rak,Prodate\n";
             activeStock.forEach(item => {
-                csvContent += `"${item.sku}","${item.karton}","${item.konversi}","${item.lokasi}","${item.prodate || '-'}"\n`;
+                csvContent += `"${item.sku}","${item.karton || 0}","${item.konversi || ''}","${item.lokasi || ''}","${item.prodate || '-'}"\n`;
             });
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
@@ -1569,38 +1622,43 @@
 
         function openQcModalSummary() {
             let tbody = document.getElementById('qcModalTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            qcHistoryData = safeGetStorage('binloc_qc_jayanti3', []);
             if(qcHistoryData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ada barang dalam status hold.</td></tr>';
             } else {
                 qcHistoryData.forEach(h => {
-                    tbody.innerHTML += `<tr><td>${h.sku}</td><td class="text-start">${h.name}</td><td>${h.palletNo}</td><td class="fw-bold text-rose-600">${h.pallets} Plt</td><td class="text-start">${h.reason}</td></tr>`;
+                    tbody.innerHTML += `<tr><td>${h.sku || '-'}</td><td class="text-start">${h.name || '-'}</td><td>${h.palletNo || '-'}</td><td class="fw-bold text-rose-600">${h.pallets || 0} Plt</td><td class="text-start">${h.reason || '-'}</td></tr>`;
                 });
             }
-            document.getElementById('qcModalSummary').classList.remove('hidden');
+            let modalEl = document.getElementById('qcModalSummary');
+            if(modalEl) modalEl.classList.remove('hidden');
         }
-        function closeQcModalSummary() { document.getElementById('qcModalSummary').classList.add('hidden'); }
+        function closeQcModalSummary() {
+            let modalEl = document.getElementById('qcModalSummary');
+            if(modalEl) modalEl.classList.add('hidden');
+        }
 
         function renderRealisasiTable() {
             let tbody = document.getElementById('realisasiTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             if(antrianData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="10" class="text-muted">Belum ada data realisasi truk.</td></tr>';
                 return;
             }
             antrianData.forEach(t => {
-                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + (parseFloat(i.jumlah) || 0), 0);
                 tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id}</span></td>
-                    <td class="fw-bold">${t.noPol}</td>
-                    <td>${t.ekspedisi}</td>
-                    <td>${t.noDoc}</td>
-                    <td>${t.jenis} &rarr; ${t.tujuan}</td>
+                    <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${t.id || '-'}</span></td>
+                    <td class="fw-bold">${t.noPol || '-'}</td>
+                    <td>${t.ekspedisi || '-'}</td>
+                    <td>${t.noDoc || '-'}</td>
+                    <td>${t.jenis || '-'} &rarr; ${t.tujuan || '-'}</td>
                     <td class="fw-bold text-emerald-600">${totalQty} krt</td>
-                    <td><span class="badge bg-slate-100 text-slate-700">${t.status}</span></td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${t.status || '-'}</span></td>
                     <td><span class="text-indigo-600 font-bold">${t.timeIn || '-'}</span></td>
                     <td><span class="text-rose-600 font-bold">${t.timeOut || '-'}</span></td>
                     <td>-</td>
@@ -1609,7 +1667,9 @@
         }
 
         function processPasteData() {
-            const text = document.getElementById('pasteArea').value.trim();
+            const textarea = document.getElementById('pasteArea');
+            if(!textarea) return;
+            const text = textarea.value.trim();
             if(!text) { alert('Data kosong!'); return; }
             let lines = text.split('\n');
             let count = 0;
@@ -1623,13 +1683,13 @@
                 }
             });
             localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
-            document.getElementById('pasteArea').value = '';
+            textarea.value = '';
             alert(`Berhasil menyimpan ${count} Master SKU!`);
             renderMasterSkuTable();
         }
 
         function renderMasterSkuTable() {
-            stockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
+            stockData = safeGetStorage('stockDataGDFG_RangePalletFull', {});
             let tbody = document.getElementById('masterSkuTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
@@ -1643,23 +1703,27 @@
         }
 
         function renderRdcMonitoringTable() {
-            antrianData = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             let tbody = document.getElementById('rdcMonitoringBody');
             if(!tbody) return;
             tbody.innerHTML = '';
             let rdcTrucks = antrianData.filter(t => t.jenis && t.jenis.toUpperCase().includes('RDC'));
             if(rdcTrucks.length === 0) { tbody.innerHTML = '<tr><td colspan="16" class="text-muted">Belum ada data truk RDC.</td></tr>'; return; }
             rdcTrucks.forEach(t => {
-                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+                let totalQty = (t.pickingList || []).reduce((sum, i) => sum + (parseFloat(i.jumlah) || 0), 0);
                 let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
                 let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
-                tbody.innerHTML += `<tr><td>-</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.noDoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${totalQty} Krt</td><td class="fw-bold">${t.noPol}</td><td>${t.ekspedisi}</td><td>${t.timeIn || '-'}</td><td>-</td><td>-</td><td>${t.timeOut || '-'}</td><td>-</td><td>Aman</td><td>${t.status}</td></tr>`;
+                tbody.innerHTML += `<tr><td>-</td><td>Plant 1115</td><td class="fw-bold">${t.tujuan || '-'}</td><td>${t.noDoc || '-'}</td><td>${skuItem}</td><td class="text-start">${namaBarangItem}</td><td>${totalQty} Krt</td><td class="fw-bold">${t.noPol || '-'}</td><td>${t.ekspedisi || '-'}</td><td>${t.timeIn || '-'}</td><td>-</td><td>-</td><td>${t.timeOut || '-'}</td><td>-</td><td>Aman</td><td>${t.status || '-'}</td></tr>`;
             });
         }
 
         function switchBinSubTab(tabId) {
-            ['stok', 'movement', 'peta'].forEach(id => { document.getElementById(`binContent-${id}`).classList.add('hidden'); });
-            document.getElementById(`binContent-${tabId}`).classList.remove('hidden');
+            ['stok', 'movement', 'peta'].forEach(id => {
+                let el = document.getElementById(`binContent-${id}`);
+                if(el) el.classList.add('hidden');
+            });
+            let targetEl = document.getElementById(`binContent-${tabId}`);
+            if(targetEl) targetEl.classList.remove('hidden');
         }
 
         function switchBinWarehouse(wh) { currentBinWarehouse = wh; renderBinMap(); }
@@ -1668,10 +1732,10 @@
             let tbody = document.getElementById('qcHistoryBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
+            qcHistoryData = safeGetStorage('binloc_qc_jayanti3', []);
             if(qcHistoryData.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada data QC.</td></tr>'; return; }
             qcHistoryData.forEach(h => {
-                tbody.innerHTML += `<tr><td><span class="badge bg-rose-100 text-rose-600">${h.status}</span></td><td>${h.sku}</td><td class="text-start">${h.name}</td><td>${h.palletNo}</td><td>${h.pallets} Plt</td><td class="text-start">${h.reason}</td></tr>`;
+                tbody.innerHTML += `<tr><td><span class="badge bg-rose-100 text-rose-600">${h.status || '-'}</span></td><td>${h.sku || '-'}</td><td class="text-start">${h.name || '-'}</td><td>${h.palletNo || '-'}</td><td>${h.pallets || 0} Plt</td><td class="text-start">${h.reason || '-'}</td></tr>`;
             });
         }
 
@@ -1679,7 +1743,7 @@
             let tbody = document.getElementById('reconciliationBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
+            sapStockData = safeGetStorage('binloc_sap_jayanti3', {});
             let keys = Object.keys(sapStockData);
             if(keys.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada data SAP.</td></tr>'; return; }
             keys.forEach(sku => {
@@ -1692,11 +1756,12 @@
             let tbody = document.getElementById('opnameHistoryBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             let opnameItems = binData.filter(i => i.category === 'Stock Opname');
             if(opnameItems.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Belum ada data riwayat opname.</td></tr>'; return; }
             opnameItems.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.tanggal}</td><td>Plant ${item.shift}</td><td>${item.buyer}</td><td>${item.sku.split(' - ')[0]}</td><td class="text-start">${item.sku}</td><td>${item.lokasi}</td><td class="fw-bold text-indigo-600">${item.konversi}</td></tr>`;
+                let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
+                tbody.innerHTML += `<tr><td>${item.tanggal || '-'}</td><td>Plant ${item.shift || '-'}</td><td>${item.buyer || '-'}</td><td>${skuCode}</td><td class="text-start">${item.sku || '-'}</td><td>${item.lokasi || '-'}</td><td class="fw-bold text-indigo-600">${item.konversi || '-'}</td></tr>`;
             });
         }
 
@@ -1704,10 +1769,11 @@
             let tbody = document.getElementById('currentStockTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             if(binData.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Belum ada stok.</td></tr>'; return; }
             binData.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.sku.split(' - ')[0]}</td><td class="text-start">${item.sku}</td><td>${item.lokasi}</td><td class="fw-bold text-emerald-600">${item.konversi}</td></tr>`;
+                let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
+                tbody.innerHTML += `<tr><td>${skuCode}</td><td class="text-start">${item.sku || '-'}</td><td>${item.lokasi || '-'}</td><td class="fw-bold text-emerald-600">${item.konversi || '-'}</td></tr>`;
             });
         }
 
@@ -1715,10 +1781,11 @@
             let tbody = document.getElementById('movementHistoryTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             if(binData.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Belum ada movement.</td></tr>'; return; }
             binData.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.tanggal}</td><td>${item.buyer}</td><td>Plant 1115</td><td>${item.sku.split(' - ')[0]}</td><td class="text-start">${item.sku}</td><td>${item.lokasi}</td><td>${item.konversi}</td></tr>`;
+                let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
+                tbody.innerHTML += `<tr><td>${item.tanggal || '-'}</td><td>${item.buyer || '-'}</td><td>Plant 1115</td><td>${skuCode}</td><td class="text-start">${item.sku || '-'}</td><td>${item.lokasi || '-'}</td><td>${item.konversi || '-'}</td></tr>`;
             });
         }
 
@@ -1726,7 +1793,7 @@
             const container = document.getElementById('binMapContainer');
             if(!container) return;
             container.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             let blocks = currentBinWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
             let targetGudang = currentBinWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
 
@@ -1746,7 +1813,8 @@
         }
 
         function openBinModal(blockName) {
-            document.getElementById('modalTitle').innerText = 'Denah Lorong - ' + blockName;
+            let titleEl = document.getElementById('modalTitle');
+            if(titleEl) titleEl.innerText = 'Denah Lorong - ' + blockName;
             let gridHtml = '';
             for(let i = 1; i <= 17; i++) {
                 let rNum = i < 10 ? '0' + i : i;
@@ -1756,31 +1824,45 @@
                     <div class="text-[9px] text-slate-400">Lorong</div>
                 </button>`;
             }
-            document.getElementById('modalRowGrid').innerHTML = gridHtml;
-            document.getElementById('modalSkuTableBody').innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas.</td></tr>`;
-            document.getElementById('binModal').classList.remove('hidden');
+            let gridEl = document.getElementById('modalRowGrid');
+            let skuTbody = document.getElementById('modalSkuTableBody');
+            let binModalEl = document.getElementById('binModal');
+
+            if(gridEl) gridEl.innerHTML = gridHtml;
+            if(skuTbody) skuTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas.</td></tr>`;
+            if(binModalEl) binModalEl.classList.remove('hidden');
         }
 
         function selectLorong(rowCode, rNum) {
             let tbody = document.getElementById('modalSkuTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+            binData = safeGetStorage('binloc_stok_jayanti3', []);
             let filtered = binData.filter(i => i.lokasi && (i.lokasi.includes(rowCode) || i.lokasi.includes('Row ' + rNum) || i.lokasi.includes(rNum)));
             if(filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Rak Kosong di lorong ${rowCode}.</td></tr>`;
                 return;
             }
             filtered.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.sku.split(' - ')[0]}</td><td class="text-start">${item.sku}</td><td class="fw-bold text-indigo-600">${item.konversi}</td></tr>`;
+                let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
+                tbody.innerHTML += `<tr><td>${skuCode}</td><td class="text-start">${item.sku || '-'}</td><td class="fw-bold text-indigo-600">${item.konversi || '-'}</td></tr>`;
             });
         }
 
-        function closeBinModal() { document.getElementById('binModal').classList.add('hidden'); }
+        function closeBinModal() {
+            let modalEl = document.getElementById('binModal');
+            if(modalEl) modalEl.classList.add('hidden');
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
-            renderMasterSkuTable();
-            updateDashboardCapacity();
-            switchEksporTab('summary');
+            try {
+                renderMasterSkuTable();
+                updateDashboardCapacity();
+                switchEksporTab('summary');
+                renderStockJalurTable();
+            } catch (err) {
+                console.error("Initialization error:", err);
+            }
         });
     </script>
 </body>
