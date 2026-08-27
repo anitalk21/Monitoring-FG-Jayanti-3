@@ -100,7 +100,7 @@
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-road w-4 text-center"></i></div>
                 <span>Stock Jalur</span>
             </a>
-            <!-- MENU BARU: TRACEABILITY PRODUCT -->
+            <!-- MENU DIPISAH: TRACEABILITY PRODUCT -->
             <a href="#" onclick="switchMenu('traceability')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-traceability">
                 <div class="bg-amber-50 p-2 rounded-lg text-amber-600"><i class="fa-solid fa-magnifying-glass-chart w-4 text-center"></i></div>
                 <span>Traceability Product</span>
@@ -559,7 +559,7 @@
             </div>
         </div>
 
-        <!-- SECTION BARU: TRACEABILITY PRODUCT (DIPISAH & BERBASIS PRODUK/PRODATE) -->
+        <!-- SECTION TRACEABILITY PRODUCT (DIPISAH & BERBASIS PRODUK/PRODATE)[cite: 6] -->
         <div id="section-traceability" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div class="flex items-center gap-3">
@@ -1450,7 +1450,7 @@
             });
         }
 
-        // --- FUNGSI UTAMA MENU TRACEABILITY PRODUCT ---
+        // --- FUNGSI UTAMA MENU TRACEABILITY PRODUCT (DIPISAH)[cite: 6] ---
         function renderTraceabilityResults() {
             let tbody = document.getElementById('traceabilityTableBody');
             if(!tbody) return;
