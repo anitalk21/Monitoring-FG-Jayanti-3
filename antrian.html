@@ -85,7 +85,7 @@
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
             <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
             <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
-            <div class="form-group"><label>No. Doc (SPE / SPM) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
+            <div class="form-group"><label>No. Doc (SPE / SPM / SO / QT) *</label><input type="text" id="mNoDoc" required placeholder="Contoh: SPE-2026-001"></div>
             
             <div class="form-group">
                 <label>Jenis *</label>
@@ -235,13 +235,27 @@
                 <option value="Proses Muat">Proses Muat</option>
                 <option value="Selesai Muat">Selesai Muat (Verifikasi Goods Issue & Menunggu Surat Jalan di Parkiran)</option>
                 <option value="Treatment">Treatment (Bau/Kotor/Basah)</option>
-                <option value="Keluar">Keluar Gudang (Permanen)</option>
+                <option value="Keluar">Keluar Gudang (Permanen & Arsip Dokumen)</option>
             </select>
         </div>
 
         <div id="dockDiv" class="form-group" style="display:none;">
             <label>Pilih Loading Dock yang Aktif (1 s/d 32)</label>
             <select id="selectDock"></select>
+        </div>
+
+        <!-- TAMBAHAN FITUR PILIHAN LOKASI ARSIP SAAT MOBIL KELUAR -->
+        <div id="arsipSection" class="form-group" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px; margin-top:10px;">
+            <strong style="color:#15803d; display:block; margin-bottom:6px;">📁 Pengarsipan Dokumen Saat Mobil Keluar</strong>
+            <label style="font-size:11px; color:#166534; font-weight:bold;">Pilih / Ketik Lokasi Penyimpanan Arsip Fisik Dokumen:</label>
+            <select id="selectArsip" class="form-select form-select-sm" style="margin-top:4px;" onchange="handleArsipChange()">
+                <option value="LEMARI - Map Arsip Aktif">LEMARI — Map Arsip Aktif</option>
+                <option value="KARTON RACKING - Box 01">KARTON RACKING — Box 01</option>
+                <option value="KARTON RACKING - Box 02">KARTON RACKING — Box 02</option>
+                <option value="DIRECT KARTON - Area Ekspedisi">DIRECT KARTON — Area Ekspedisi</option>
+                <option value="LOKASI LAINNYA">Lainnya (Ketik Manual)</option>
+            </select>
+            <input type="text" id="inputArsipCustom" style="margin-top:6px; display:none;" placeholder="Ketik lokasi arsip fisik manual...">
         </div>
 
         <div id="outboundSection" class="form-group" style="display:none; border-top:1px dashed #cbd5e1; padding-top:10px; margin-top:10px;">
@@ -455,6 +469,7 @@
         else if(jenisVal === 'EKSPOR' && containerVal) jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
 
         let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let currentDateStr = String(new Date().getDate()).padStart(2, '0') + '/' + String(new Date().getMonth() + 1).padStart(2, '0') + '/' + new Date().getFullYear();
 
         let newTruck = {
             id: 'TRK-' + Math.floor(Math.random() * 9000 + 1000),
@@ -468,6 +483,7 @@
             status: 'Antrian',
             dock: '-',
             timeIn: currentTimeStr,
+            tanggalKirim: currentDateStr,
             timeStartLoading: '-', 
             rawTime: new Date().getTime(),
             timeOut: '-',
@@ -475,6 +491,7 @@
             frozenDurationMs: null,
             petugas: '',
             shift: 'Shift 1 (Pagi)',
+            lokasiArsip: 'Belum Ada Arsip',
             pickingList: []
         };
 
@@ -762,7 +779,7 @@
                 <p><strong>No. Polisi:</strong> ${assignedTruck.noPol}</p>
                 <p><strong>Ekspedisi:</strong> ${assignedTruck.ekspedisi}</p>
                 <p><strong>Sopir:</strong> ${assignedTruck.sopir}</p>
-                <p><strong>No. Doc (SPE/SPM):</strong> ${assignedTruck.noDoc}</p>
+                <p><strong>No. Doc (SPE/SPM/SO/QT):</strong> ${assignedTruck.noDoc}</p>
                 <p><strong>Jenis / Tujuan:</strong> ${assignedTruck.jenis} &rarr; ${assignedTruck.tujuan}</p>
                 <p><strong>Total Muatan:</strong> ${totalQty} karton</p>
                 <p><strong>Waktu Masuk:</strong> ${assignedTruck.timeIn} ${pInfo}</p>
@@ -907,6 +924,7 @@
             let displayStartLoading = t.timeStartLoading || '-';
             let displayTimeOut = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
             let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.shift})` : '';
+            let arsipBadge = (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') ? ` | 📁 Arsip: <b>${t.lokasiArsip}</b>` : '';
 
             let stayDurationInfo = '';
             if (t.status === 'Keluar' && t.rawTime && t.rawTimeOut) {
@@ -964,6 +982,7 @@
                     <button class="btn" style="background:${plCount > 0 ? '#f0fdf4' : '#fffbeb'}; color:${plCount > 0 ? '#15803d' : '#b45309'}; border-color:${plCount > 0 ? '#bbf7d0' : '#fde68a'}; font-size:11px;" onclick="openPickingListModal(${idx})">
                         📄 Picking List (${plCount})
                     </button>
+                    <button class="btn" style="background:#f0fdf4; color:#15803d; border-color:#bbf7d0; font-size:11px;" onclick="openStatusModal(${idx})">Edit Arsip</button>
                     <span style="background:#fef3c7; color:#b45309; padding:4px 8px; border-radius:6px; font-weight:bold; font-size:10px;">🔒 Locked</span>
                     <button class="btn btn-danger" style="font-size:11px;" onclick="deleteTruck(${idx})">Hapus</button>
                 `;
@@ -984,7 +1003,7 @@
                         ${t.noPol} &bull; ${t.ekspedisi} &bull; <span style="color:#0284c7;">Doc: ${t.noDoc}</span>
                     </div>
                     <div style="margin-top:4px; color:#64748b;">
-                        Sopir: <strong>${t.sopir}</strong> | Jenis: ${t.jenis} &rarr; <strong>Tujuan: ${t.tujuan}</strong> | Total Qty: <b>${totalQty} krt</b> ${petugasBadge}
+                        Sopir: <strong>${t.sopir}</strong> | Jenis: ${t.jenis} &rarr; <strong>Tujuan: ${t.tujuan}</strong> | Total Qty: <b>${totalQty} krt</b> ${petugasBadge} ${arsipBadge}
                     </div>
                     <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                         <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
@@ -1010,13 +1029,29 @@
 
     let activeStatusTruckIdx = null;
     function openStatusModal(idx) {
-        if(truckQueue[idx].status === 'Keluar') {
-            alert('Truk sudah Keluar dan statusnya dikunci!');
-            return;
-        }
         activeStatusTruckIdx = idx;
-        document.getElementById('selectStatus').value = truckQueue[idx].status;
-        populateDockDropdown(truckQueue[idx].dock);
+        let t = truckQueue[idx];
+        document.getElementById('selectStatus').value = t.status;
+        populateDockDropdown(t.dock);
+        
+        let selectArsipEl = document.getElementById('selectArsip');
+        let inputArsipCustomEl = document.getElementById('inputArsipCustom');
+        if (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') {
+            let foundOption = Array.from(selectArsipEl.options).some(opt => opt.value === t.lokasiArsip);
+            if (foundOption) {
+                selectArsipEl.value = t.lokasiArsip;
+                inputArsipCustomEl.style.display = 'none';
+            } else {
+                selectArsipEl.value = 'LOKASI LAINNYA';
+                inputArsipCustomEl.style.display = 'block';
+                inputArsipCustomEl.value = t.lokasiArsip;
+            }
+        } else {
+            selectArsipEl.value = 'LEMARI - Map Arsip Aktif';
+            inputArsipCustomEl.style.display = 'none';
+            inputArsipCustomEl.value = '';
+        }
+
         checkStatusChange();
         openModal('modalStatus');
     }
@@ -1058,7 +1093,10 @@
         let st = document.getElementById('selectStatus').value;
         document.getElementById('dockDiv').style.display = st === 'Proses Muat' ? 'block' : 'none';
         let outboundDiv = document.getElementById('outboundSection');
+        let arsipDiv = document.getElementById('arsipSection');
+        
         outboundDiv.style.display = st === 'Selesai Muat' ? 'block' : 'none';
+        arsipDiv.style.display = (st === 'Keluar' || st === 'Selesai Muat') ? 'block' : 'none';
 
         if(st === 'Selesai Muat' && activeStatusTruckIdx !== null) {
             let t = truckQueue[activeStatusTruckIdx];
@@ -1079,6 +1117,18 @@
         }
     }
 
+    function handleArsipChange() {
+        let val = document.getElementById('selectArsip').value;
+        let customInput = document.getElementById('inputArsipCustom');
+        if(val === 'LOKASI LAINNYA') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+            customInput.value = '';
+        }
+    }
+
     function saveStatus() {
         if(activeStatusTruckIdx === null) return;
         let newSt = document.getElementById('selectStatus').value;
@@ -1095,6 +1145,17 @@
 
         let targetTruck = truckQueue[activeStatusTruckIdx];
         targetTruck.status = newSt;
+
+        // Simpan Lokasi Arsip jika status Selesai Muat atau Keluar
+        if (newSt === 'Keluar' || newSt === 'Selesai Muat') {
+            let arsipSelectVal = document.getElementById('selectArsip').value;
+            let arsipCustomVal = document.getElementById('inputArsipCustom').value.trim();
+            if (arsipSelectVal === 'LOKASI LAINNYA' && arsipCustomVal) {
+                targetTruck.lokasiArsip = arsipCustomVal;
+            } else {
+                targetTruck.lokasiArsip = arsipSelectVal;
+            }
+        }
 
         if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && !targetTruck.frozenDurationMs) {
             let startRaw = targetTruck.rawTime || new Date().getTime();
