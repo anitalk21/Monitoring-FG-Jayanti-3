@@ -98,7 +98,7 @@
             </a>
             <a href="#" onclick="switchMenu('jalur')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-jalur">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-road w-4 text-center"></i></div>
-                <span>Stock Jalur</span>
+                <span>Stock Jalur & Traceability</span>
             </a>
             <a href="#" onclick="switchMenu('binloc')" class="menu-btn flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition" id="menu-binloc">
                 <div class="bg-slate-100 p-2 rounded-lg text-slate-400"><i class="fa-solid fa-location-dot w-4 text-center"></i></div>
@@ -500,14 +500,14 @@
             </div>
         </div>
 
-        <!-- SECTION STOCK JALUR -->
+        <!-- SECTION STOCK JALUR & TRACEABILITY -->
         <div id="section-jalur" class="app-page space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-road text-amber-500"></i> Stock Jalur & Pengarsipan Dokumen
+                        <i class="fa-solid fa-road text-amber-500"></i> Stock Jalur & Traceability Produk (Audit Random)
                     </h3>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Daftar pengiriman truk di jalur. Klik baris atau tombol detail untuk melihat rincian picking list.</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Lacak rekam jejak produk (Prodate & Rak Asal) berdasarkan pengiriman truk.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="downloadStockJalurExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs px-3.5 py-2 rounded-lg font-bold transition flex items-center gap-1.5 shadow-2xs">
@@ -519,7 +519,7 @@
 
             <!-- SEARCH & FILTER STOCK JALUR -->
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row gap-3">
-                <input type="text" id="jalurSearchInput" class="form-control form-control-sm flex-1" placeholder="Cari No. Pol / Ekspedisi / No. Dokumen / Tujuan..." oninput="renderStockJalurTable()">
+                <input type="text" id="jalurSearchInput" class="form-control form-control-sm flex-1" placeholder="Cari No. Pol / Ekspedisi / No. Dok / SKU / Tanggal Produksi (Prodate)..." oninput="renderStockJalurTable()">
                 <select id="jalurFilterArsip" class="form-select form-select-sm sm:w-60" onchange="renderStockJalurTable()">
                     <option value="">📁 Filter Status / Arsip: Semua</option>
                     <option value="Belum Ada Arsip">Belum Ada Arsip</option>
@@ -543,7 +543,7 @@
                                 <th>Total Qty</th>
                                 <th>Status Truk</th>
                                 <th>Lokasi Arsip Fisik</th>
-                                <th>Aksi / Detail</th>
+                                <th>Trace / Detail</th>
                             </tr>
                         </thead>
                         <tbody id="stockJalurTableBody">
@@ -699,20 +699,25 @@
 
     </main>
 
-    <!-- MODAL POP-UP DETAIL PICKING LIST STOCK JALUR -->
+    <!-- MODAL POP-UP DETAIL PICKING LIST & TRACEABILITY STOCK JALUR -->
     <div id="stockJalurModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden border border-slate-200 text-xs">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 id="modalJalurTitle" class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Picking List Truk</h3>
+                <h3 id="modalJalurTitle" class="font-bold text-slate-700 text-sm"><i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Traceability & Picking List Truk</h3>
                 <button onclick="closeStockJalurModal()" class="text-slate-400 hover:text-slate-600 text-base"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto" id="modalJalurBody">
-                <!-- Konten detail picking list akan di-generate otomatis -->
+                <!-- Konten rincian & trace di-generate otomatis -->
             </div>
             <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
-                <button id="btnModalEditArsip" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-pen-to-square"></i> Perbarui Lokasi Arsip
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="btnModalEditArsip" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square"></i> Perbarui Lokasi Arsip
+                    </button>
+                    <button onclick="printTraceabilityAuditSheet()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-print"></i> Cetak Lembar Audit Traceability
+                    </button>
+                </div>
                 <button onclick="closeStockJalurModal()" class="btn btn-sm btn-secondary px-4">Tutup</button>
             </div>
         </div>
@@ -756,6 +761,9 @@
             </div>
         </div>
     </div>
+
+    <!-- AREA CETAK KHUSUS TRACEABILITY AUDIT -->
+    <div id="printTraceArea" class="hidden"></div>
 
     <!-- MODAL RINCIAN BARANG DI-HOLD (QC) -->
     <div id="qcModalSummary" class="fixed inset-0 bg-slate-900/30 backdrop-blur-2xs z-50 hidden flex items-center justify-center p-4">
@@ -1290,7 +1298,7 @@
             });
         }
 
-        // --- FUNGSI STOCK JALUR (DENGAN TANGGAL KIRIM TERSINKRONISASI) ---
+        // --- FUNGSI STOCK JALUR & TRACEABILITY (DENGAN PENCARIAN PRODATE) ---
         function renderStockJalurTable() {
             let tbody = document.getElementById('stockJalurTableBody');
             if(!tbody) return;
@@ -1316,7 +1324,12 @@
                     noDoc.toLowerCase().includes(keyword) ||
                     tujuan.toLowerCase().includes(keyword) ||
                     id.toLowerCase().includes(keyword) ||
-                    (t.pickingList && t.pickingList.some(item => (item.sku && item.sku.toLowerCase().includes(keyword)) || (item.nama && item.nama.toLowerCase().includes(keyword))))
+                    (t.pickingList && t.pickingList.some(item => 
+                        (item.sku && item.sku.toLowerCase().includes(keyword)) || 
+                        (item.nama && item.nama.toLowerCase().includes(keyword)) ||
+                        (item.prodate && item.prodate.toLowerCase().includes(keyword)) ||
+                        (item.rak && item.rak.toLowerCase().includes(keyword))
+                    ))
                 );
 
                 let arsipLoc = t.lokasiArsip || 'Belum Ada Arsip';
@@ -1338,7 +1351,6 @@
                 let list = t.pickingList || [];
                 let totalQty = list.reduce((sum, i) => sum + (parseFloat(i.jumlah) || 0), 0);
                 
-                // Memastikan Tanggal Kirim terisi otomatis dari data aktual pendaftaran truk
                 let tglKirim = t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-');
                 let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
 
@@ -1359,7 +1371,7 @@
                         <td>
                             <div class="flex items-center justify-center gap-1.5">
                                 <button onclick="openStockJalurDetail(${globalIdx})" class="btn btn-sm btn-outline-primary px-2.5 py-1 text-xs fw-bold">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Detail
+                                    <i class="fa-solid fa-magnifying-glass"></i> Trace
                                 </button>
                                 <button onclick="editLokasiArsip(${globalIdx})" class="btn btn-sm btn-outline-secondary px-2.5 py-1 text-xs">
                                     <i class="fa-solid fa-pen"></i> Arsip
@@ -1371,26 +1383,28 @@
             });
         }
 
+        let activeTraceTruckIndex = null;
         function openStockJalurDetail(index) {
+            activeTraceTruckIndex = index;
             antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             let t = antrianData[index];
             if(!t) return;
 
             let titleEl = document.getElementById('modalJalurTitle');
-            if(titleEl) titleEl.innerHTML = `<i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Rincian Truk: ${t.noPol || '-'} (${t.ekspedisi || '-'})`;
+            if(titleEl) titleEl.innerHTML = `<i class="fa-solid fa-truck-ramp-box text-indigo-500 mr-2"></i> Traceability Produk Truk: ${t.noPol || '-'} (${t.ekspedisi || '-'})`;
             
             let list = t.pickingList || [];
             let rowsHtml = '';
             if(list.length === 0) {
-                rowsHtml = '<tr><td colspan="6" class="text-muted py-3">Belum ada item picking list untuk truk ini.</td></tr>';
+                rowsHtml = '<tr><td colspan="6" class="text-muted py-3">Belum ada item picking list / data trace untuk truk ini.</td></tr>';
             } else {
                 list.forEach((item, i) => {
                     rowsHtml += `<tr>
                         <td>${i + 1}</td>
                         <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${item.sku || '-'}</span></td>
                         <td class="text-start fw-semibold">${item.nama || '-'}</td>
-                        <td>${item.prodate || '-'}</td>
-                        <td>${item.rak || '-'}</td>
+                        <td><span class="badge bg-indigo-50 text-indigo-700 fw-bold">${item.prodate || '-'}</span></td>
+                        <td><span class="badge bg-amber-50 text-amber-700">${item.rak || '-'}</span></td>
                         <td><span class="fw-bold text-indigo-600">${item.jumlah || 0} krt</span> (${item.pallet || 0} Plt + ${item.receh || 0} krt)</td>
                     </tr>`;
                 });
@@ -1404,7 +1418,7 @@
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 text-xs">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div><strong>No. Dokumen:</strong> <span class="text-indigo-600 fw-bold">${t.noDoc || '-'}</span></div>
-                        <div><strong>Tanggal Kirim:</strong> ${tglKirim}</div>
+                        <div><strong>Tanggal Kirim Aktual:</strong> ${tglKirim}</div>
                         <div><strong>Tujuan:</strong> ${t.tujuan || '-'} (${t.jenis || 'Lokal'})</div>
                         <div><strong>Petugas & Shift:</strong> ${petugasInfo}</div>
                         <div><strong>Status Truk:</strong> ${t.status || '-'} (Dock: ${t.dock || '-'})</div>
@@ -1413,14 +1427,15 @@
                 </div>
 
                 <div class="table-responsive">
+                    <h6 class="font-bold text-slate-700 text-xs mt-2 mb-1">Rincian Sample & Tanggal Produksi (Prodate Trace)</h6>
                     <table class="table table-bordered align-middle text-center">
-                        <thead class="table-light">
+                        <thead class="pastel-header-purple">
                             <tr>
                                 <th>No</th>
                                 <th>SKU</th>
                                 <th class="text-start">Nama Produk</th>
-                                <th>Prodate</th>
-                                <th>Rak Asal</th>
+                                <th>Tanggal Produksi (Prodate)</th>
+                                <th>Rak Asal (Bin-Loc)</th>
                                 <th>Jumlah Karton</th>
                             </tr>
                         </thead>
@@ -1443,6 +1458,94 @@
         function closeStockJalurModal() {
             let modalEl = document.getElementById('stockJalurModal');
             if(modalEl) modalEl.classList.add('hidden');
+        }
+
+        function printTraceabilityAuditSheet() {
+            if (activeTraceTruckIndex === null) return;
+            antrianData = safeGetStorage('antrian_truk_jayanti3', []);
+            let t = antrianData[activeTraceTruckIndex];
+            if (!t) return;
+
+            let list = t.pickingList || [];
+            let rowsHtml = '';
+            list.forEach((item, i) => {
+                rowsHtml += `<tr>
+                    <td style="border:1px solid #000; padding:5px; text-align:center;">${i + 1}</td>
+                    <td style="border:1px solid #000; padding:5px; text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                    <td style="border:1px solid #000; padding:5px; text-align:center;"><b>${item.prodate || '-'}</b></td>
+                    <td style="border:1px solid #000; padding:5px; text-align:center;">${item.rak || '-'}</td>
+                    <td style="border:1px solid #000; padding:5px; text-align:center;"><b>${item.jumlah} krt</b> (${item.pallet} Plt + ${item.receh} krt)</td>
+                </tr>`;
+            });
+
+            let printArea = document.getElementById('printTraceArea');
+            printArea.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; font-size: 11px; color: #000;">
+                    <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; display:flex; justify-content:space-between;">
+                        <div>
+                            <h3 style="margin:0; font-size:14px;">PT. MAYORA INDAH TBK - JAYANTI 3</h3>
+                            <span style="font-size:10px;">WAREHOUSE FINISHED GOODS &bull; AUDIT TRAIL & TRACEABILITY SHEET</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; border: 1px solid #000; padding: 10px;">
+                        <table style="width:100%; font-size:11px; border-collapse:collapse;">
+                            <tr>
+                                <td style="padding:3px; width:50%;"><strong>No. Dokumen (SO/DO):</strong> ${t.noDoc || '-'}</td>
+                                <td style="padding:3px; width:50%;"><strong>Ekspedisi / Plat Truk:</strong> ${t.ekspedisi || '-'} / ${t.noPol || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px;"><strong>Tujuan Pengiriman:</strong> ${t.tujuan || '-'}</td>
+                                <td style="padding:3px;"><strong>Tanggal Kirim Aktual:</strong> ${t.tanggalKirim || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:3px;"><strong>Petugas / Shift:</strong> ${t.petugas || '-'} (${t.shift || '-'})</td>
+                                <td style="padding:3px;"><strong>Status Arsip:</strong> ${t.lokasiArsip || 'Belum Ada Arsip'}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h4 style="font-size:12px; margin-bottom:5px; text-decoration:underline;">HASIL TRACEABILITY SAMPEL PRODUK (RANDOM AUDIT)</h4>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:20px;">
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th style="border:1px solid #000; padding:6px; width:30px;">No</th>
+                                <th style="border:1px solid #000; padding:6px;">SKU & Nama Produk</th>
+                                <th style="border:1px solid #000; padding:6px; width:110px;">Tanggal Produksi (Prodate)</th>
+                                <th style="border:1px solid #000; padding:6px; width:110px;">Rak Asal (Bin-Loc)</th>
+                                <th style="border:1px solid #000; padding:6px; width:100px;">Jumlah Muat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+
+                    <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:11px; text-align:center;">
+                        <div style="width:30%;">
+                            <span>Disetujui Oleh (Admin WH)</span><br><br><br>
+                            <strong>(${t.petugas || 'Admin'})</strong>
+                        </div>
+                        <div style="width:30%;">
+                            <span>Diserahkan Oleh (Checker)</span><br><br><br>
+                            <strong>(___________________)</strong>
+                        </div>
+                        <div style="width:30%;">
+                            <span>Diperiksa Oleh (Auditor)</span><br><br><br>
+                            <strong>(___________________)</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            let originalBody = document.body.innerHTML;
+            document.body.innerHTML = printArea.innerHTML;
+            window.print();
+            document.body.innerHTML = originalBody;
+            location.reload();
         }
 
         function editLokasiArsip(index) {
@@ -1487,7 +1590,7 @@
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Laporan_Stock_Jalur_Dan_Arsip_Mayora.csv");
+            link.setAttribute("download", "Laporan_Stock_Jalur_Dan_Traceability_Mayora.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1703,7 +1806,6 @@
             });
         }
 
-        // --- RDC MONITORING TABLE ---
         function renderRdcMonitoringTable() {
             antrianData = safeGetStorage('antrian_truk_jayanti3', []);
             let tbody = document.getElementById('rdcMonitoringBody');
