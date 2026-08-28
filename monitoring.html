@@ -2215,7 +2215,19 @@
             if(targetEl) targetEl.classList.remove('hidden');
         }
 
-        function switchBinWarehouse(wh) { currentBinWarehouse = wh; renderBinMap(); }
+        function switchBinWarehouse(wh) { 
+            currentBinWarehouse = wh; 
+            let btnInduk = document.getElementById('btnBinInduk');
+            let btnAging = document.getElementById('btnBinAging');
+            if (wh === 'INDUK') {
+                if(btnInduk) { btnInduk.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold'; }
+                if(btnAging) { btnAging.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold'; }
+            } else {
+                if(btnAging) { btnAging.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold'; }
+                if(btnInduk) { btnInduk.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold'; }
+            }
+            renderBinMap(); 
+        }
 
         function renderQcHistoryTable() {
             let tbody = document.getElementById('qcHistoryBody');
@@ -2284,7 +2296,7 @@
             container.innerHTML = '';
             binData = safeGetStorage('binloc_stok_jayanti3', []);
             let blocks = currentBinWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
-            let targetGudang = currentBinWarehouse === 'INDUK' ? 'GUDANG INDUK' : 'GUDANG AGING';
+            let targetGudangKeyword = currentBinWarehouse === 'INDUK' ? 'INDUK' : 'AGING';
 
             blocks.forEach(b => {
                 let totalPlt = 0;
@@ -2295,11 +2307,16 @@
                     let isBlockMatch = itemLokasi.includes(`BLOK ${b}`) || 
                                        itemLokasi.startsWith(`${b}-`) || 
                                        itemLokasi.startsWith(`${b} `) ||
-                                       itemLokasi === b;
+                                       itemLokasi === b ||
+                                       itemLokasi.includes(`L-${b}`) ||
+                                       itemLokasi.includes(`BLOK L - ${b}`);
 
                     let isWarehouseMatch = true;
                     if (itemGudang) {
-                        isWarehouseMatch = itemGudang.includes(targetGudang);
+                        isWarehouseMatch = itemGudang.includes(targetGudangKeyword);
+                    } else {
+                        if (currentBinWarehouse === 'AGING' && itemLokasi.includes('INDUK')) isWarehouseMatch = false;
+                        if (currentBinWarehouse === 'INDUK' && itemLokasi.includes('AGING')) isWarehouseMatch = false;
                     }
 
                     if (isBlockMatch && isWarehouseMatch) {
@@ -2348,17 +2365,25 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             binData = safeGetStorage('binloc_stok_jayanti3', []);
-            let targetGudang = currentBinWarehouse === 'INDUK' ? 'GUDANG INDUK' : 'GUDANG AGING';
+            let targetGudangKeyword = currentBinWarehouse === 'INDUK' ? 'INDUK' : 'AGING';
             
             let filtered = binData.filter(i => {
                 let loc = (i.lokasi || '').toUpperCase();
                 let itemGudang = (i.gudang || '').toUpperCase();
                 
-                let matchLoc = loc.includes(`${blockLetter}-${rNum}`) || loc.includes(`${blockLetter} ${rNum}`) || loc.includes(`${blockLetter}${rNum}`);
+                let matchLoc = loc.includes(`${blockLetter}-${rNum}`) || 
+                               loc.includes(`${blockLetter} ${rNum}`) || 
+                               loc.includes(`${blockLetter}${rNum}`) ||
+                               loc.includes(`LORONG ${rNum}`) ||
+                               loc.includes(`L-${rNum}`) ||
+                               loc.includes(`L-${blockLetter}-${rNum}`);
                 
                 let matchWarehouse = true;
                 if (itemGudang) {
-                    matchWarehouse = itemGudang.includes(targetGudang);
+                    matchWarehouse = itemGudang.includes(targetGudangKeyword);
+                } else {
+                    if (currentBinWarehouse === 'AGING' && loc.includes('INDUK')) matchWarehouse = false;
+                    if (currentBinWarehouse === 'INDUK' && loc.includes('AGING')) matchWarehouse = false;
                 }
 
                 return matchLoc && matchWarehouse;
