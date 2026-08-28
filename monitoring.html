@@ -2305,17 +2305,29 @@
             let targetGudang = currentBinWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
 
             blocks.forEach(b => {
-                let blockNameCode = `Blok ${b}`;
                 let totalPlt = 0;
                 binData.forEach(item => {
-                    if(item.gudang && item.gudang.includes(targetGudang) && item.lokasi && item.lokasi.includes(blockNameCode)) {
-                        if(item.konversi) totalPlt += parseFloat(item.konversi.split(' ')[0]) || 0;
+                    let itemLokasi = (item.lokasi || '').toUpperCase();
+                    let itemGudang = (item.gudang || '').toUpperCase();
+                    
+                    let isBlockMatch = itemLokasi.includes(`BLOK ${b}`) || 
+                                       itemLokasi.startsWith(`${b}-`) || 
+                                       itemLokasi.startsWith(`${b} `) ||
+                                       itemLokasi === b;
+
+                    if (isBlockMatch) {
+                        let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : (parseFloat(item.karton) / 70 || 0);
+                        totalPlt += pltValue;
                     }
                 });
-                container.innerHTML += `<div onclick="openBinModal('Blok ${b} FG')" class="p-3 rounded-xl border cursor-pointer transition transform hover:scale-105 shadow-2xs bin-empty">
-                    <div class="font-bold text-sm">Blok ${b} FG</div>
-                    <div class="text-[10px] mt-1 font-semibold">${totalPlt.toFixed(1)} Plt</div>
-                </div>`;
+
+                let bgClass = totalPlt > 0 ? 'bg-indigo-50/70 border-indigo-200 text-indigo-900' : 'bin-empty';
+
+                container.innerHTML += `
+                    <div onclick="openBinModal('Blok ${b} FG')" class="p-3 rounded-xl border cursor-pointer transition transform hover:scale-105 shadow-2xs ${bgClass}">
+                        <div class="font-bold text-sm">Blok ${b} FG</div>
+                        <div class="text-[10px] mt-1 font-semibold">${totalPlt.toFixed(1)} Plt</div>
+                    </div>`;
             });
         }
 
@@ -2323,36 +2335,51 @@
             let titleEl = document.getElementById('modalTitle');
             if(titleEl) titleEl.innerText = 'Denah Lorong - ' + blockName;
             let gridHtml = '';
+            
+            let cleanBlockLetter = blockName.replace('Blok ', '').replace(' FG', '').trim();
+
             for(let i = 1; i <= 17; i++) {
                 let rNum = i < 10 ? '0' + i : i;
-                let rowCode = blockName.replace('Blok ', '').replace(' FG', '') + rNum;
-                gridHtml += `<button onclick="selectLorong('${rowCode}', '${rNum}')" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl text-center transition">
-                    <div class="font-bold text-xs text-slate-700">${rowCode}</div>
-                    <div class="text-[9px] text-slate-400">Lorong</div>
-                </button>`;
+                let rowCode = `${cleanBlockLetter}-${rNum}`;
+                gridHtml += `
+                    <button onclick="selectLorong('${cleanBlockLetter}', '${rNum}')" class="p-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl text-center transition">
+                        <div class="font-bold text-xs text-slate-700">${blockName.replace(' FG','')} - ${rNum}</div>
+                        <div class="text-[9px] text-slate-400">Lorong ${rNum}</div>
+                    </button>`;
             }
             let gridEl = document.getElementById('modalRowGrid');
             let skuTbody = document.getElementById('modalSkuTableBody');
             let binModalEl = document.getElementById('binModal');
 
             if(gridEl) gridEl.innerHTML = gridHtml;
-            if(skuTbody) skuTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas.</td></tr>`;
-            if(binModalEl) binModalEl.classList.remove('hidden');
+            if(skuTbody) skuTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas untuk melihat rincian SKU.</td></tr>`;
+            if(binModalEl) binModalEl.classList.not.includes ? binModalEl.classList.remove('hidden') : binModalEl.classList.remove('hidden');
         }
 
-        function selectLorong(rowCode, rNum) {
+        function selectLorong(blockLetter, rNum) {
             let tbody = document.getElementById('modalSkuTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
             binData = safeGetStorage('binloc_stok_jayanti3', []);
-            let filtered = binData.filter(i => i.lokasi && (i.lokasi.includes(rowCode) || i.lokasi.includes('Row ' + rNum) || i.lokasi.includes(rNum)));
+            
+            let filtered = binData.filter(i => {
+                let loc = (i.lokasi || '').toUpperCase();
+                return loc.includes(`${blockLetter}-${rNum}`) || loc.includes(`${blockLetter} ${rNum}`) || loc.includes(`${blockLetter}${rNum}`);
+            });
+
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Rak Kosong di lorong ${rowCode}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Tidak ada stok tercatat di Lorong ${blockLetter}-${rNum}.</td></tr>`;
                 return;
             }
+
             filtered.forEach(item => {
                 let skuCode = item.sku ? item.sku.split(' - ')[0] : '-';
-                tbody.innerHTML += `<tr><td>${skuCode}</td><td class="text-start">${item.sku || '-'}</td><td class="fw-bold text-indigo-600">${item.konversi || '-'}</td></tr>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${skuCode}</span></td>
+                        <td class="text-start">${item.sku || '-'}</td>
+                        <td class="fw-bold text-indigo-600">${item.konversi || item.karton + ' Krt'}</td>
+                    </tr>`;
             });
         }
 
