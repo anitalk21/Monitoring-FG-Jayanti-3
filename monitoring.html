@@ -794,7 +794,7 @@
                             <button onclick="exportReportExcel('traceability')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-excel"></i> Export Excel Traceability
                             </button>
-                            <button onclick="printTraceabilityReport()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3.5 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
+                            <button onclick="printTraceabilityReport()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-print"></i> Cetak Berita Acara Trace
                             </button>
                         </div>
@@ -2284,7 +2284,7 @@
             container.innerHTML = '';
             binData = safeGetStorage('binloc_stok_jayanti3', []);
             let blocks = currentBinWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
-            let targetGudang = currentBinWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
+            let targetGudang = currentBinWarehouse === 'INDUK' ? 'GUDANG INDUK' : 'GUDANG AGING';
 
             blocks.forEach(b => {
                 let totalPlt = 0;
@@ -2297,7 +2297,12 @@
                                        itemLokasi.startsWith(`${b} `) ||
                                        itemLokasi === b;
 
-                    if (isBlockMatch) {
+                    let isWarehouseMatch = true;
+                    if (itemGudang) {
+                        isWarehouseMatch = itemGudang.includes(targetGudang);
+                    }
+
+                    if (isBlockMatch && isWarehouseMatch) {
                         let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : (parseFloat(item.karton) / 70 || 0);
                         totalPlt += pltValue;
                     }
@@ -2315,7 +2320,7 @@
 
         function openBinModal(blockName) {
             let titleEl = document.getElementById('modalTitle');
-            if(titleEl) titleEl.innerText = 'Denah Lorong - ' + blockName;
+            if(titleEl) titleEl.innerText = 'Denah Lorong - ' + blockName + ` (${currentBinWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging'})`;
             let gridHtml = '';
             
             let cleanBlockLetter = blockName.replace('Blok ', '').replace(' FG', '').trim();
@@ -2343,14 +2348,24 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             binData = safeGetStorage('binloc_stok_jayanti3', []);
+            let targetGudang = currentBinWarehouse === 'INDUK' ? 'GUDANG INDUK' : 'GUDANG AGING';
             
             let filtered = binData.filter(i => {
                 let loc = (i.lokasi || '').toUpperCase();
-                return loc.includes(`${blockLetter}-${rNum}`) || loc.includes(`${blockLetter} ${rNum}`) || loc.includes(`${blockLetter}${rNum}`);
+                let itemGudang = (i.gudang || '').toUpperCase();
+                
+                let matchLoc = loc.includes(`${blockLetter}-${rNum}`) || loc.includes(`${blockLetter} ${rNum}`) || loc.includes(`${blockLetter}${rNum}`);
+                
+                let matchWarehouse = true;
+                if (itemGudang) {
+                    matchWarehouse = itemGudang.includes(targetGudang);
+                }
+
+                return matchLoc && matchWarehouse;
             });
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Tidak ada stok tercatat di Lorong ${blockLetter}-${rNum}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" class="text-muted">Tidak ada stok tercatat di Lorong ${blockLetter}-${rNum} (${currentBinWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging'}).</td></tr>`;
                 return;
             }
 
