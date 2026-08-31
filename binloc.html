@@ -31,8 +31,6 @@
         .card-menu-title { font-size: 13px !important; font-weight: 700 !important; line-height: 1.2; }
         .card-menu-desc { font-size: 11px !important; color: #64748b !important; margin-top: 2px; }
     </style>
-    <!-- Supabase JS SDK CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -1153,7 +1151,7 @@
             }
         }
 
-      async function processSapPaste() {
+        function processSapPaste() {
             const text = document.getElementById('sapPasteArea').value.trim();
             if(!text) { alert('Data SAP masih kosong!'); return; }
             let count = 0;
@@ -1166,18 +1164,9 @@
                 }
             });
             document.getElementById('sapPasteArea').value = '';
-// Simpan data SAP ke Supabase
-    const { error } = await _supabase
-        .from('binloc_sap_jayanti3')
-        .upsert([{ id: 1, stock_data: sapStockData }]);
-
-    if (error) {
-        console.error('Gagal menyimpan SAP ke Supabase:', error);
-        alert('Gagal menyimpan data SAP ke database!');
-    } else {
-        alert('Berhasil memproses ' + count + ' data stok SAP dan tersimpan ke Supabase!');
-        renderReconciliationTable();
-    }
+            localStorage.setItem('binloc_sap_jayanti3', JSON.stringify(sapStockData));
+            alert('Berhasil memproses ' + count + ' data stok SAP!');
+            renderReconciliationTable();
         }
 
         function switchSection(sectionId) {
@@ -1248,7 +1237,7 @@
             }
         }
 
-    async function saveQcAction(e) {
+        function saveQcAction(e) {
             e.preventDefault();
             let filterDateVal = document.getElementById('qcFilterDate').value;
             let parts = filterDateVal.split('-');
@@ -1283,21 +1272,13 @@
                 reason: reason 
             };
             qcHistoryData.unshift(qcItem);
-         // Simpan data QC ke Supabase
-    const { data, error } = await _supabase
-        .from('binloc_qc_jayanti3')
-        .insert([qcItem]);
-
-    if (error) {
-        console.error('Gagal menyimpan QC ke Supabase:', error);
-        alert('Gagal menyimpan data QC ke database!');
-    } else {
-        alert('Palet berhasil dikarantina (HOLD) dan tersimpan ke Supabase!');
-        e.target.reset();
-        document.getElementById('qcFilterDate').value = todayIsoStr;
-        autoFillQcByDate();
-        renderActiveHoldTable();
-    }
+            localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
+            alert('Palet berhasil dikarantina (HOLD)!');
+            e.target.reset();
+            document.getElementById('qcFilterDate').value = todayIsoStr;
+            autoFillQcByDate();
+            renderActiveHoldTable();
+        }
 
         function updateQcStatus(id, newStatus) {
             let idx = qcHistoryData.findIndex(item => item.id === id);
@@ -1656,7 +1637,7 @@
             });
         }
 
-        async function saveBulkOpname(e) {
+        function saveBulkOpname(e) {
             e.preventDefault();
             let rows = document.getElementById('multiOpnameBody').children;
             if(rows.length === 0) { alert('Tabel opname kosong!'); return; }
@@ -1689,19 +1670,12 @@
                 };
                 binData.unshift(newItem);
             }
-// Simpan data langsung ke Supabase
-    const { data, error } = await _supabase
-        .from('binloc_stok_jayanti3')
-        .insert([newItem]);
 
-    if (error) {
-        console.error('Gagal menyimpan ke Supabase:', error);
-        alert('Gagal menyimpan ke database!');
-    } else {
-        alert('Hasil Stock Opname berhasil disimpan ke Supabase!');
-        clearOpnameRows();
-        renderReconciliationTable();
-    }
+            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
+            alert('Hasil Stock Opname berhasil disimpan!');
+            clearOpnameRows();
+            renderReconciliationTable();
+        }
 
         function renderReconciliationTable() {
             let tbody = document.getElementById('reconciliationBody');
@@ -2019,12 +1993,6 @@
                 </div>`;
             });
         }
-        
-// Konfigurasi Koneksi Supabase
-    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
-    const { createClient } = supabase;
-    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     </script>
 </body>
 </html>
