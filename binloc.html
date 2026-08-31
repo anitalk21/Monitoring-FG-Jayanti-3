@@ -32,7 +32,7 @@
         .card-menu-desc { font-size: 11px !important; color: #64748b !important; margin-top: 2px; }
     </style>
     <!-- Supabase JS SDK CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -765,6 +765,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Konfigurasi Koneksi Supabase
+        const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
         function updateClock() {
             const now = new Date();
             const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -1153,7 +1159,7 @@
             }
         }
 
-        function processSapPaste() {
+        async function processSapPaste() {
             const text = document.getElementById('sapPasteArea').value.trim();
             if(!text) { alert('Data SAP masih kosong!'); return; }
             let count = 0;
@@ -1166,9 +1172,18 @@
                 }
             });
             document.getElementById('sapPasteArea').value = '';
-            localStorage.setItem('binloc_sap_jayanti3', JSON.stringify(sapStockData));
-            alert('Berhasil memproses ' + count + ' data stok SAP!');
-            renderReconciliationTable();
+            
+            const { error } = await _supabase
+                .from('binloc_sap_jayanti3')
+                .upsert([{ id: 1, stock_data: sapStockData }]);
+
+            if (error) {
+                console.error('Gagal menyimpan SAP ke Supabase:', error);
+                alert('Gagal menyimpan data SAP ke database!');
+            } else {
+                alert('Berhasil memproses ' + count + ' data stok SAP dan tersimpan ke Supabase!');
+                renderReconciliationTable();
+            }
         }
 
         function switchSection(sectionId) {
@@ -1239,7 +1254,7 @@
             }
         }
 
-        function saveQcAction(e) {
+        async function saveQcAction(e) {
             e.preventDefault();
             let filterDateVal = document.getElementById('qcFilterDate').value;
             let parts = filterDateVal.split('-');
@@ -1262,49 +1277,77 @@
             let qcItem = { 
                 id: 'QC-' + Date.now(),
                 status: 'HOLD', 
-                plantLine: plantLine, 
+                plantline: plantLine, 
                 prodate: formattedProdate, 
                 shift: shift, 
-                skuCode: skuCode,
-                namaProduk: namaProduk,
+                skucode: skuCode,
+                namaproduk: namaProduk,
                 sku: skuInputFull, 
-                palletRange: palletRange, 
-                holdManual: holdManual,
+                palletrange: palletRange, 
+                holdmanual: holdManual,
                 pallets: palletsStr, 
                 reason: reason 
             };
-            qcHistoryData.unshift(qcItem);
-            localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
-            alert('Palet berhasil dikarantina (HOLD)!');
-            e.target.reset();
-            document.getElementById('qcFilterDate').value = todayIsoStr;
-            autoFillQcByDate();
-            renderActiveHoldTable();
+
+            const { error } = await _supabase
+                .from('binloc_qc_jayanti3')
+                .insert([qcItem]);
+
+            if (error) {
+                console.error('Gagal menyimpan QC ke Supabase:', error);
+                alert('Gagal menyimpan data QC ke database!');
+            } else {
+                qcHistoryData.unshift(qcItem);
+                alert('Palet berhasil dikarantina (HOLD) dan tersimpan ke Supabase!');
+                e.target.reset();
+                document.getElementById('qcFilterDate').value = todayIsoStr;
+                autoFillQcByDate();
+                renderActiveHoldTable();
+            }
         }
 
-        function updateQcStatus(id, newStatus) {
+        async function updateQcStatus(id, newStatus) {
             let idx = qcHistoryData.findIndex(item => item.id === id);
             if(idx !== -1) {
+                let updatedReason = qcHistoryData[idx].reason;
                 if(newStatus === 'SCRAPPED') {
                     let scrapReason = prompt('Masukkan alasan pemusnahan / scrap:', 'Kontaminasi berat');
                     if(!scrapReason) return;
                     qcHistoryData[idx].status = 'SCRAPPED';
-                    qcHistoryData[idx].reason += ` | [DIMUSNAHKAN: ${scrapReason}]`;
+                    updatedReason += ` | [DIMUSNAHKAN: ${scrapReason}]`;
+                    qcHistoryData[idx].reason = updatedReason;
                 } else {
                     qcHistoryData[idx].status = newStatus;
                 }
-                localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
-                renderActiveHoldTable();
-                alert('Status berhasil diubah menjadi: ' + newStatus);
+
+                const { error } = await _supabase
+                    .from('binloc_qc_jayanti3')
+                    .update({ status: qcHistoryData[idx].status, reason: updatedReason })
+                    .eq('id', id);
+
+                if (error) {
+                    alert('Gagal memperbarui status ke database!');
+                } else {
+                    renderActiveHoldTable();
+                    alert('Status berhasil diubah menjadi: ' + newStatus);
+                }
             }
         }
 
-        function deleteQcItem(id) {
+        async function deleteQcItem(id) {
             if(confirm('Apakah Anda yakin ingin menghapus data karantina ini?')) {
-                qcHistoryData = qcHistoryData.filter(item => item.id !== id);
-                localStorage.setItem('binloc_qc_jayanti3', JSON.stringify(qcHistoryData));
-                renderActiveHoldTable();
-                alert('Data karantina berhasil dihapus.');
+                const { error } = await _supabase
+                    .from('binloc_qc_jayanti3')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert('Gagal menghapus data dari database!');
+                } else {
+                    qcHistoryData = qcHistoryData.filter(item => item.id !== id);
+                    renderActiveHoldTable();
+                    alert('Data karantina berhasil dihapus.');
+                }
             }
         }
 
@@ -1320,17 +1363,20 @@
             }
 
             activeHolds.forEach(item => {
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let pLine = item.plantline || item.plantLine || '-';
+                let pRange = item.palletrange || item.palletRange || '-';
+                let hManual = item.holdmanual || item.holdManual || '-';
 
                 tbody.innerHTML += `<tr>
-                    <td><span class="badge bg-slate-100 text-slate-700">${item.plantLine || '-'}</span></td>
+                    <td><span class="badge bg-slate-100 text-slate-700">${pLine}</span></td>
                     <td>${item.prodate}</td>
                     <td>${item.shift}</td>
                     <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
                     <td class="text-start fw-semibold">${name}</td>
-                    <td class="text-slate-500 text-[11px]">${item.palletRange || '-'}</td>
-                    <td class="fw-bold text-rose-600">${item.holdManual || '-'}</td>
+                    <td class="text-slate-500 text-[11px]">${pRange}</td>
+                    <td class="fw-bold text-rose-600">${hManual}</td>
                     <td class="text-start">${item.reason}</td>
                     <td><span class="badge bg-rose-100 text-rose-700 fw-bold px-2 py-1">HOLD</span><br><small class="text-indigo-600 fw-bold">${item.pallets}</small></td>
                     <td>
@@ -1344,7 +1390,7 @@
             });
         }
 
-        function submitPenerimaan(e) {
+        async function submitPenerimaan(e) {
             e.preventDefault();
             let category = document.getElementById('pCategory').value;
             let gudang = document.getElementById('pGudang').value;
@@ -1386,8 +1432,6 @@
             let rowTrs = document.getElementById('penerimaanRowsBody').children;
             if(rowTrs.length === 0) { alert('Harap tambahkan minimal 1 baris lokasi rak!'); return; }
 
-            let currentArsip = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-
             for(let tr of rowTrs) {
                 let idx = tr.id.split('_')[1];
                 let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1395,8 +1439,6 @@
                 let krtVal = parseFloat(document.getElementById('pCarton_' + idx).value) || 0;
                 let pltVal = (krtVal / stdKrt).toFixed(2);
                 let lokasiTarget = `${blockVal} - ${rowVal}`;
-
-                let existingIndex = binData.findIndex(i => i.skuCode === skuCode && i.lokasi === lokasiTarget && i.gudang === gudang);
 
                 let newItem = {
                     category: category,
@@ -1406,13 +1448,13 @@
                     tanggal: formattedDateStr,
                     timestamp: new Date(dateInputVal).getTime() || new Date().getTime(),
                     shift: shift,
-                    skuCode: skuCode,
-                    namaProduk: namaProduk,
+                    skucode: skuCode,
+                    namaproduk: namaProduk,
                     sku: skuInputFull,
                     kodefikasi: kodefikasiVal,
                     qt: qt,
                     prodate: prodateFormatted,
-                    expDate: expDateFormatted,
+                    expdate: expDateFormatted,
                     buyer: buyer,
                     lokasi: lokasiTarget,
                     pallet: palletRange,
@@ -1420,30 +1462,22 @@
                     konversi: `${pltVal} Pallet (${krtVal} krt)`
                 };
 
-                if (existingIndex !== -1) {
-                    let existingItem = binData[existingIndex];
-                    let oldKrt = parseFloat(existingItem.karton) || 0;
-                    let totalKrt = oldKrt + krtVal;
-                    let totalPlt = (totalKrt / stdKrt).toFixed(2);
+                const { error } = await _supabase
+                    .from('binloc_stok_jayanti3')
+                    .insert([newItem]);
 
-                    existingItem.karton = totalKrt;
-                    existingItem.konversi = `${totalPlt} Pallet (${totalKrt} krt)`;
-                    existingItem.tanggal = formattedDateStr;
+                if (error) {
+                    console.error('Gagal simpan ke Supabase:', error);
                 } else {
                     binData.unshift(newItem);
                 }
-
-                // Masukkan item baru secara unik ke arsip riwayat tanpa looping seluruh binData
-                currentArsip.unshift(newItem);
             }
 
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(currentArsip));
-
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = todayIsoStr;
-            alert('Penerimaan barang berhasil disimpan!');
+            alert('Penerimaan barang berhasil disimpan ke database!');
         }
 
         function deleteReportItem(index) {
@@ -1493,8 +1527,8 @@
             let filtered = dataSource.filter(item => {
                 if(item.category === 'Stock Opname') return false;
 
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
                 let textMatch = !searchVal || code.toLowerCase().includes(searchVal) || name.toLowerCase().includes(searchVal) || item.pallet.toLowerCase().includes(searchVal) || item.lokasi.toLowerCase().includes(searchVal);
 
                 let catMatch = !catVal || item.category === catVal;
@@ -1533,8 +1567,8 @@
             dataList.forEach((item, index) => {
                 if(item.category === 'Stock Opname') return;
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
                 let kod = item.kodefikasi || '-';
                 let qtDisplay = item.qt && item.qt !== '-' ? `<span class="badge bg-indigo-50 text-indigo-700 fw-bold">${item.qt}</span>` : '-';
 
@@ -1570,8 +1604,8 @@
 
             binData.forEach((item, index) => {
                 if(item.category !== 'Stock Opname') return;
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
 
                 tbody.innerHTML += `<tr>
                     <td>${item.tanggal}</td>
@@ -1603,8 +1637,8 @@
 
             const nowTime = new Date().getTime();
             agingItems.forEach(item => {
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
                 let checkStr = (code + " " + name).toUpperCase();
 
                 let isBengBeng = checkStr.includes('BENG');
@@ -1639,7 +1673,7 @@
             });
         }
 
-        function saveBulkOpname(e) {
+        async function saveBulkOpname(e) {
             e.preventDefault();
             let rows = document.getElementById('multiOpnameBody').children;
             if(rows.length === 0) { alert('Tabel opname kosong!'); return; }
@@ -1662,19 +1696,21 @@
                     tanggal: document.getElementById('opGlobalDate').value,
                     timestamp: new Date(document.getElementById('opGlobalDate').value).getTime() || new Date().getTime(),
                     shift: document.getElementById('opPlantCode').value,
-                    skuCode: skuCode,
-                    namaProduk: namaProduk,
-                    sku: skuInputFull, qt: '-', prodate: '-', expDate: '-', buyer: document.getElementById('opStockKeeper').value,
+                    skucode: skuCode,
+                    namaproduk: namaProduk,
+                    sku: skuInputFull, qt: '-', prodate: '-', expdate: '-', buyer: document.getElementById('opStockKeeper').value,
                     lokasi: block + ' - ' + row,
                     pallet: 'OPNAME-AUDIT',
                     karton: carton,
                     konversi: pallets + ' Pallet'
                 };
+
+                await _supabase.from('binloc_stok_jayanti3').insert([newItem]);
                 binData.unshift(newItem);
             }
 
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            alert('Hasil Stock Opname berhasil disimpan!');
+            alert('Hasil Stock Opname berhasil disimpan ke database!');
             clearOpnameRows();
             renderReconciliationTable();
         }
@@ -1691,7 +1727,7 @@
             }
             keys.forEach(skuCode => {
                 let sapQty = parseFloat(sapStockData[skuCode]) || 0;
-                let foundItems = binData.filter(i => (i.skuCode === skuCode) || (i.sku && i.sku.includes(skuCode)));
+                let foundItems = binData.filter(i => (i.skucode === skuCode || i.skuCode === skuCode) || (i.sku && i.sku.includes(skuCode)));
                 let totalFisikPlt = 0;
                 let sampleName = 'SKU ' + skuCode;
 
@@ -1700,7 +1736,8 @@
                         let num = parseFloat(item.konversi.split(' ')[0]) || 0;
                         totalFisikPlt += num;
                     }
-                    if(item.namaProduk) sampleName = item.namaProduk;
+                    if(item.namaproduk) sampleName = item.namaproduk;
+                    else if(item.namaProduk) sampleName = item.namaProduk;
                     else if(item.sku && item.sku.includes('|')) sampleName = item.sku.split('|')[1].trim();
                 });
 
@@ -1729,14 +1766,14 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>';
                 return;
             }
-            let filtered = binData.filter(i => (i.skuCode && i.skuCode.toLowerCase().includes(keyword)) || (i.namaProduk && i.namaProduk.toLowerCase().includes(keyword)) || i.sku.toLowerCase().includes(keyword) || i.lokasi.toLowerCase().includes(keyword) || i.pallet.toLowerCase().includes(keyword));
+            let filtered = binData.filter(i => ((i.skucode || i.skuCode) && (i.skucode || i.skuCode).toLowerCase().includes(keyword)) || ((i.namaproduk || i.namaProduk) && (i.namaproduk || i.namaProduk).toLowerCase().includes(keyword)) || i.sku.toLowerCase().includes(keyword) || i.lokasi.toLowerCase().includes(keyword) || i.pallet.toLowerCase().includes(keyword));
             if(filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Tidak ditemukan barang yang sesuai.</td></tr>';
                 return;
             }
             filtered.forEach(item => {
-                let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
-                let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
 
                 tbody.innerHTML += `<tr>
                     <td><span class="badge bg-slate-100 text-slate-700 fw-bold">${code}</span></td>
@@ -1778,8 +1815,8 @@
             } else {
                 itemsInBlock.forEach((item, idx) => {
                     let globalIndex = binData.findIndex(i => i === item);
-                    let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
-                    let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+                    let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
+                    let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
 
                     tbody.innerHTML += `<tr>
                         <td class="fw-bold text-indigo-700">${item.lokasi}</td>
@@ -1802,8 +1839,8 @@
             if(!item) return;
 
             document.getElementById('relocItemIndex').value = index;
-            let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
-            let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+            let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+            let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
             document.getElementById('relocSkuDisplay').value = `${code} | ${name}`;
             document.getElementById('relocAsal').value = item.lokasi;
             document.getElementById('relocPetugas').value = '';
@@ -1884,14 +1921,14 @@
             item.lokasi = lokasiTujuanBaru;
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
 
-            let code = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
-            let name = item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
+            let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+            let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
 
             let logItem = {
                 waktu: new Date().toLocaleString('id-ID'),
                 petugas: petugas,
-                skuCode: code,
-                namaProduk: name,
+                skucode: code,
+                namaproduk: name,
                 sku: `${code} | ${name}`,
                 pallet: item.pallet,
                 asal: lokasiAsalLama,
@@ -1930,8 +1967,8 @@
             }
 
             relokasiLogData.forEach((log, index) => {
-                let code = log.skuCode || (log.sku ? log.sku.split('|')[0].trim() : '-');
-                let name = log.namaProduk || (log.sku && log.sku.includes('|') ? log.sku.split('|')[1].trim() : log.sku);
+                let code = log.skucode || log.skuCode || (log.sku ? log.sku.split('|')[0].trim() : '-');
+                let name = log.namaproduk || log.namaProduk || (log.sku && log.sku.includes('|') ? log.sku.split('|')[1].trim() : log.sku);
 
                 tbody.innerHTML += `<tr>
                     <td>${log.waktu}</td>
@@ -1995,11 +2032,6 @@
                 </div>`;
             });
         }
-        // Konfigurasi Koneksi Supabase
-    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
-    const { createClient } = supabase;
-    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     </script>
 </body>
 </html>
