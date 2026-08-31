@@ -39,6 +39,8 @@
         }
         #printArea { display: none; }
     </style>
+    <!-- Supabase JS SDK CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1283,6 +1285,13 @@
     window.onload = function() {
         renderAll();
     };
+    
+// Konfigurasi Koneksi Supabase
+    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 </script>
 </body>
 </html>
