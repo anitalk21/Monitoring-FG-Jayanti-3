@@ -31,6 +31,8 @@
         .card-menu-title { font-size: 13px !important; font-weight: 700 !important; line-height: 1.2; }
         .card-menu-desc { font-size: 11px !important; color: #64748b !important; margin-top: 2px; }
     </style>
+    <!-- Supabase JS SDK CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -1993,6 +1995,11 @@
                 </div>`;
             });
         }
+        // Konfigurasi Koneksi Supabase
+    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     </script>
 </body>
 </html>
