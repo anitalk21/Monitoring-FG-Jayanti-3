@@ -40,7 +40,7 @@
         #printArea { display: none; }
     </style>
     <!-- Supabase JS SDK CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -50,7 +50,7 @@
         <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
-        <button class="btn-nav" onclick="renderAll()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
+        <button class="btn-nav" onclick="loadDataFromCloud()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
         <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
         <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
         <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
@@ -302,6 +302,12 @@
 </div>
 
 <script>
+    // Konfigurasi Koneksi Supabase
+    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
+    const { createClient } = supabase;
+    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
     function updateClock() {
         const now = new Date();
         const dateStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
@@ -325,9 +331,31 @@
         document.getElementById('groupContainer').style.display = jenis === 'EKSPOR' ? 'block' : 'none';
     }
 
-    let truckQueue = JSON.parse(localStorage.getItem('antrian_truk_jayanti3')) || [];
+    let truckQueue = [];
     let masterStock = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
     let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+
+    // Fungsi memuat data antrian secara online dari Supabase (getItem online)
+    async function loadDataFromCloud() {
+        try {
+            let { data, error } = await _supabase
+                .from('antrian_truk_jayanti3')
+                .select('*');
+            
+            if (error) {
+                console.error('Gagal mengambil data antrian dari cloud:', error);
+            } else if (data) {
+                // Urutkan atau simpan ke array lokal
+                truckQueue = data;
+                renderAll();
+            }
+        } catch (e) {
+            console.error('Error loadDataFromCloud:', e);
+        }
+    }
+
+    // Panggil saat halaman pertama kali dibuka
+    loadDataFromCloud();
 
     function getCartonPerPallet(skuCode) {
         if(masterStock[skuCode] && masterStock[skuCode].cartonPerPallet) {
@@ -475,7 +503,8 @@
         }
     });
 
-    function submitAntrian(e) {
+    // Fungsi simpan item antrian baru ke Supabase (setItem online)
+    async function submitAntrian(e) {
         e.preventDefault();
         let jenisVal = document.getElementById('mJenis').value;
         let tipeVal = document.getElementById('mTipeLokal').value;
@@ -513,13 +542,23 @@
         };
 
         truckQueue.unshift(newTruck);
-        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
-        alert('Truk berhasil didaftarkan oleh Time Keeper!');
-        closeModal('modalManual');
-        e.target.reset();
-        document.getElementById('groupTipePengiriman').style.display = 'none';
-        document.getElementById('groupContainer').style.display = 'none';
-        renderAll();
+
+        // Upsert/Insert ke Supabase
+        let { error } = await _supabase
+            .from('antrian_truk_jayanti3')
+            .upsert([newTruck]);
+
+        if (error) {
+            console.error('Gagal menyimpan antrian ke Supabase:', error);
+            alert('Gagal menyimpan data ke database cloud!');
+        } else {
+            alert('Truk berhasil didaftarkan dan tersimpan online!');
+            closeModal('modalManual');
+            e.target.reset();
+            document.getElementById('groupTipePengiriman').style.display = 'none';
+            document.getElementById('groupContainer').style.display = 'none';
+            loadDataFromCloud();
+        }
     }
 
     let activePlTruckIdx = null;
@@ -567,14 +606,18 @@
         });
     }
 
-    function savePetugasShift() {
+    async function savePetugasShift() {
         if(activePlTruckIdx === null) return;
         truckQueue[activePlTruckIdx].petugas = document.getElementById('plPetugas').value;
         truckQueue[activePlTruckIdx].shift = document.getElementById('plShift').value;
-        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+        
+        // Simpan perubahan ke Supabase
+        await _supabase
+            .from('antrian_truk_jayanti3')
+            .upsert([truckQueue[activePlTruckIdx]]);
     }
 
-    function addItemToTruckPickingList() {
+    async function addItemToTruckPickingList() {
         if (activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
         if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
@@ -633,7 +676,10 @@
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
         }
 
-        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+        // Update truk di Supabase
+        await _supabase
+            .from('antrian_truk_jayanti3')
+            .upsert([truckQueue[activePlTruckIdx]]);
         
         document.getElementById('itemSku').value = '';
         document.getElementById('itemBatchSelect').innerHTML = '<option value="">— Pilih SKU Terlebih Dahulu —</option>';
@@ -644,7 +690,7 @@
         renderPlTable();
     }
 
-    function removePlItem(idx) {
+    async function removePlItem(idx) {
         if(activePlTruckIdx === null) return;
         let t = truckQueue[activePlTruckIdx];
         if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
@@ -677,7 +723,12 @@
         }
 
         t.pickingList.splice(idx, 1);
-        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+        
+        // Update ke Supabase
+        await _supabase
+            .from('antrian_truk_jayanti3')
+            .upsert([t]);
+
         renderPlTable();
     }
 
@@ -1096,7 +1147,6 @@
             kategoriSel.value = 'Lainnya';
             lainnyaInput.value = arsipStr.replace('Lainnya: ', '');
         } else {
-            // Default fallback jika format lama
             kategoriSel.value = 'Lainnya';
             lainnyaInput.value = arsipStr;
         }
@@ -1175,11 +1225,10 @@
         }
     }
 
-    function saveStatus() {
+    async function saveStatus() {
         if(activeStatusTruckIdx === null) return;
         let targetTruck = truckQueue[activeStatusTruckIdx];
 
-        // Format string penyimpanan arsip berdasarkan pilihan dropdown kategori
         let kat = document.getElementById('selectArsipKategori').value;
         let detailArsip = '';
         if (kat === 'Lemari') detailArsip = document.getElementById('inputArsipLemari').value.trim();
@@ -1190,9 +1239,9 @@
 
         if (targetTruck.status === 'Keluar') {
             targetTruck.lokasiArsip = finalArsipStr;
-            localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+            await _supabase.from('antrian_truk_jayanti3').upsert([targetTruck]);
             closeModal('modalStatus');
-            renderAll();
+            loadDataFromCloud();
             alert('Lokasi arsip berhasil diperbarui!');
             return;
         }
@@ -1236,14 +1285,15 @@
             targetTruck.dock = '-';
         }
 
-        localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
+        // Simpan perubahan ke Supabase
+        await _supabase.from('antrian_truk_jayanti3').upsert([targetTruck]);
         closeModal('modalStatus');
-        renderAll();
+        loadDataFromCloud();
     }
 
-    function deleteTruck(idx) {
-        if(confirm('Yakin ingin menghapus data truk ' + truckQueue[idx].noPol + ' dari sistem?')) {
-            let t = truckQueue[idx];
+    async function deleteTruck(idx) {
+        let t = truckQueue[idx];
+        if(confirm('Yakin ingin menghapus data truk ' + t.noPol + ' dari sistem?')) {
             if(t && t.pickingList && t.pickingList.length > 0) {
                 let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
                 t.pickingList.forEach(removedItem => {
@@ -1268,30 +1318,25 @@
                 localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
             }
 
-            truckQueue.splice(idx, 1);
-            localStorage.setItem('antrian_truk_jayanti3', JSON.stringify(truckQueue));
-            renderAll();
+            // Hapus dari Supabase berdasarkan id antrian
+            await _supabase
+                .from('antrian_truk_jayanti3')
+                .delete()
+                .eq('id', t.id);
+
+            loadDataFromCloud();
         }
     }
 
-    function resetData() {
+    async function resetData() {
         if(confirm('Yakin ingin mereset seluruh data antrian truk?')) {
+            for (let t of truckQueue) {
+                await _supabase.from('antrian_truk_jayanti3').delete().eq('id', t.id);
+            }
             truckQueue = [];
-            localStorage.removeItem('antrian_truk_jayanti3');
-            renderAll();
+            loadDataFromCloud();
         }
     }
-
-    window.onload = function() {
-        renderAll();
-    };
-    
-// Konfigurasi Koneksi Supabase
-    const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
-    const { createClient } = supabase;
-    const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 </script>
 </body>
 </html>
