@@ -47,7 +47,7 @@
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div>
-                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Monitoring Finished Goods (Online Cloud)</h1>
+                <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Monitoring Finished Goods</h1>
                 <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 </div>
                 <div>
                     <h2 class="font-bold text-slate-700 text-sm tracking-wide">WAREHOUSE FG</h2>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">SUPABASE ONLINE</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">JAYANTI 3</p>
                 </div>
             </div>
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -130,13 +130,13 @@
         <div id="section-kapasitas" class="app-page active space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-700">Kapasitas GDFG (Supabase Cloud)</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Last Update: <span id="lastUpdateDate">14/08/2026</span> &bull; Status: <span class="text-emerald-500 font-medium">Online Terkini</span></p>
+                    <h2 class="text-xl font-bold text-slate-700">Kapasitas GDFG</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Last Update: <span id="lastUpdateDate">14/08/2026</span> &bull; Status: <span class="text-emerald-500 font-medium">Terkini</span></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="openLiveStockModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs px-3.5 py-2 rounded-lg font-bold transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked"></i> Live Stock Summary</button>
                     <button onclick="switchMenu('master')" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs flex items-center gap-1.5"><i class="fa-solid fa-file-pen text-indigo-400"></i> Master SKU</button>
-                    <button onclick="fetchAllDataFromSupabase()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i> Refresh Cloud</button>
+                    <button onclick="fetchAllDataFromSupabase()" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs px-3 py-2 rounded-lg font-medium transition shadow-2xs"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
                 </div>
             </div>
 
@@ -184,12 +184,12 @@
         <!-- SECTION MASTER SKU -->
         <div id="section-master" class="app-page space-y-6">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-                <h4 class="font-bold mb-0 text-slate-700 text-sm">Database Master SKU Produk (Supabase)</h4>
+                <h4 class="font-bold mb-0 text-slate-700 text-sm">Database Master SKU Produk</h4>
                 <button onclick="switchMenu('kapasitas')" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
             </div>
             <div class="card shadow-2xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
                 <textarea class="form-control font-monospace text-nowrap mb-4 text-xs" id="pasteArea" rows="6" placeholder="312743    SUPERSTAR TRIPLE CHOCOLATE    1    PALLET    60    CAR"></textarea>
-                <button type="button" class="btn btn-pastel-primary px-4 fw-bold text-xs" onclick="processPasteData()">Simpan Data Master Database ke Cloud</button>
+                <button type="button" class="btn btn-pastel-primary px-4 fw-bold text-xs" onclick="processPasteData()">Simpan Data Master Database</button>
             </div>
             <div class="card shadow-2xs border-0 bg-white p-6 rounded-2xl border border-slate-200">
                 <div class="card-header pastel-header-purple py-2.5 px-4 rounded-xl mb-3 border-0">Daftar Master SKU Finished Goods</div>
@@ -198,7 +198,7 @@
                         <thead class="pastel-header-purple">
                             <tr><th>No</th><th>SKU ID</th><th class="text-start">Nama Produk</th><th>Standar Karton / Pallet</th></tr>
                         </thead>
-                        <tbody id="masterSkuTableBody"><tr><td colspan="4" class="text-muted">Memuat Master SKU dari cloud...</td></tr></tbody>
+                        <tbody id="masterSkuTableBody"><tr><td colspan="4" class="text-muted">Memuat Master SKU...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -289,7 +289,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
                     <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-ship text-indigo-500"></i> Monitoring Ekspor (Cloud Supabase)
+                        <i class="fa-solid fa-ship text-indigo-500"></i> Monitoring Ekspor
                     </h3>
                     <p class="text-[11px] text-slate-400 mt-0.5">Kelola planning, capaian, dan pantau pengiriman ekspor secara real-time.</p>
                 </div>
@@ -370,7 +370,7 @@
                                 </tr>
                             </thead>
                             <tbody id="eksporSummaryTableBody">
-                                <tr><td colspan="21" class="text-muted py-4">Memuat summary ekspor dari cloud...</td></tr>
+                                <tr><td colspan="21" class="text-muted py-4">Memuat summary ekspor...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -385,11 +385,11 @@
                             <div class="bg-amber-50 text-amber-600 p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-file-excel"></i></div>
                             <div>
                                 <h4 class="font-bold text-slate-700 text-xs mb-0">Input & Upload Master Planning Ekspor</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel &bull; <span class="font-bold text-slate-600">Disimpan online ke Supabase</span></p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sesuai format Excel</p>
                             </div>
                         </div>
                         <button onclick="saveManualEksporPlanning()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-2xs transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan ke Cloud Supabase
+                            <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Simpan Data Planning
                         </button>
                     </div>
 
@@ -415,7 +415,7 @@
                     <div id="subContent-manual" class="space-y-4 hidden">
                         <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100 text-xs">
                             <div class="text-slate-500 font-medium">
-                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik <b>Kode SKU</b>, maka <b>Nama Produk</b> akan terisi otomatis dari Database Master SKU Cloud.
+                                <i class="fa-solid fa-info-circle text-indigo-500 mr-1"></i> Ketik <b>Kode SKU</b>, maka <b>Nama Produk</b> akan terisi otomatis dari Database Master SKU.
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="addManualRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow-2xs">
@@ -477,7 +477,7 @@
             <div id="eksporContent-planning" class="space-y-4 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                     <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-slate-700 text-sm">Daftar Planning Ekspor Tersimpan (Supabase)</h3>
+                        <h3 class="font-bold text-slate-700 text-sm">Daftar Planning Ekspor Tersimpan</h3>
                         <div class="flex items-center gap-2">
                             <button onclick="clearAllEksporPlanning()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-trash-can"></i> Hapus Semua Data Planning
@@ -565,7 +565,7 @@
 
             <div id="binContent-stok" class="hidden space-y-4">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-                    <h3 class="font-bold text-slate-700 text-sm mb-3">Ringkasan Stok Aktual per Rak (Supabase)</h3>
+                    <h3 class="font-bold text-slate-700 text-sm mb-3">Ringkasan Stok Aktual per Rak</h3>
                     <table class="table table-bordered align-middle text-center">
                         <thead class="pastel-header-purple"><tr><th>SKU</th><th class="text-start">Nama Produk</th><th>Lokasi Rak</th><th>Total Stok (Pallet)</th></tr></thead>
                         <tbody id="currentStockTableBody"><tr><td colspan="4" class="text-muted">Memuat stok...</td></tr></tbody>
@@ -978,21 +978,17 @@
         // --- FUNGSI UTAMA SINKRONISASI SUPABASE ---
         async function fetchAllDataFromSupabase() {
             try {
-                // 1. Ambil Master SKU dari localStorage atau buat fallback kosong (atau jika tabel khusus master ada)
                 let localMaster = localStorage.getItem('stockDataGDFG_RangePalletFull');
                 if (localMaster) {
                     stockData = JSON.parse(localMaster);
                 }
 
-                // 2. Ambil data Bin-Loc Stoks dari Supabase
                 let { data: binRes, error: binErr } = await _supabase.from('binloc_stok_jayanti3').select('*');
                 if (!binErr && binRes) binData = binRes;
 
-                // 3. Ambil data Antrian Truk dari Supabase
                 let { data: antRes, error: antErr } = await _supabase.from('antrian_truk_jayanti3').select('*');
                 if (!antErr && antRes) antrianData = antRes;
 
-                // 4. Ambil data Planning Ekspor dari Supabase (atau fallback local)
                 let { data: expRes, error: expErr } = await _supabase.from('ekspor_planning_jayanti3').select('*');
                 if (!expErr && expRes && expRes.length > 0) {
                     eksporPlanningData = expRes;
@@ -1346,13 +1342,12 @@
                     }
 
                     if (importedRows.length > 0) {
-                        // Simpan ke Supabase secara online
                         let { error } = await _supabase.from('ekspor_planning_jayanti3').upsert(importedRows);
                         if (error) {
                             console.error("Gagal insert ke Supabase:", error);
-                            alert("Gagal menyimpan ke database Supabase!");
+                            alert("Gagal menyimpan ke database!");
                         } else {
-                            alert(`Berhasil mengimpor dan menyimpan ${importedRows.length} data planning ekspor ke Supabase!`);
+                            alert(`Berhasil mengimpor dan menyimpan ${importedRows.length} data planning ekspor!`);
                             fetchAllDataFromSupabase();
                             switchEksporTab('planning');
                         }
@@ -1378,14 +1373,14 @@
         }
 
         async function clearAllEksporPlanning() {
-            if(confirm('Yakin ingin menghapus SEMUA data planning ekspor yang tersimpan di cloud?')) {
+            if(confirm('Yakin ingin menghapus SEMUA data planning ekspor yang tersimpan?')) {
                 for(let p of eksporPlanningData) {
                     if(p.noSo) {
                         await _supabase.from('ekspor_planning_jayanti3').delete().eq('noSo', p.noSo);
                     }
                 }
                 fetchAllDataFromSupabase();
-                alert('Semua data planning berhasil dihapus dari cloud.');
+                alert('Semua data planning berhasil dihapus.');
             }
         }
 
@@ -1499,9 +1494,9 @@
                 let { error } = await _supabase.from('ekspor_planning_jayanti3').upsert(savedRows);
                 if (error) {
                     console.error("Gagal simpan ke Supabase:", error);
-                    alert("Gagal menyimpan ke database Supabase!");
+                    alert("Gagal menyimpan ke database!");
                 } else {
-                    alert(`Berhasil menyimpan ${savedRows.length} planning ekspor ke cloud!`);
+                    alert(`Berhasil menyimpan ${savedRows.length} planning ekspor!`);
                     fetchAllDataFromSupabase();
                     switchEksporTab('planning');
                 }
@@ -1612,7 +1607,7 @@
             tbody.innerHTML = '';
 
             if(eksporPlanningData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="14" class="text-muted py-4">Belum ada planning ekspor tersimpan di cloud.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="14" class="text-muted py-4">Belum ada planning ekspor tersimpan.</td></tr>';
                 return;
             }
 
@@ -1931,7 +1926,7 @@
                 t.lokasiArsip = newArsip.trim() || 'Belum Ada Arsip';
                 await _supabase.from('antrian_truk_jayanti3').upsert([t]);
                 fetchAllDataFromSupabase();
-                alert('Lokasi arsip berhasil diperbarui ke cloud!');
+                alert('Lokasi arsip berhasil diperbarui!');
             }
         }
 
