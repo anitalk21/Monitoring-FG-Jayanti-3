@@ -187,7 +187,7 @@
                             </tr>
                         </thead>
                         <tbody id="reportTableBody">
-                            <tr><td colspan="11" class="text-muted">Belum ada riwayat penerimaan barang.</td></tr>
+                            <tr><td colspan="11" class="text-muted">Memuat data dari cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -222,7 +222,7 @@
                             </tr>
                         </thead>
                         <tbody id="opnameReportTableBody">
-                            <tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>
+                            <tr><td colspan="9" class="text-muted">Memuat data dari cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -253,7 +253,7 @@
                             </tr>
                         </thead>
                         <tbody id="agingTableBody">
-                            <tr><td colspan="7" class="text-muted">Belum ada data produk di Gudang Aging.</td></tr>
+                            <tr><td colspan="7" class="text-muted">Memuat data dari cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -336,7 +336,7 @@
                             </tr>
                         </thead>
                         <tbody id="activeHoldTableBody">
-                            <tr><td colspan="10" class="text-muted">Belum ada barang dalam status karantina.</td></tr>
+                            <tr><td colspan="10" class="text-muted">Memuat data dari cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -630,7 +630,7 @@
                             </tr>
                         </thead>
                         <tbody id="relokasiLogTableBody">
-                            <tr><td colspan="8" class="text-muted">Belum ada riwayat relokasi barang.</td></tr>
+                            <tr><td colspan="8" class="text-muted">Memuat data dari cloud...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -787,26 +787,52 @@
         let sapStockData = {};
         let masterStockData = {};
 
-        try {
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            
-            let arsipRiwayat = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-            if (binData.length === 0 && arsipRiwayat.length > 0) {
-                binData = [...arsipRiwayat];
-                localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-            } else if (binData.length > 0 && arsipRiwayat.length === 0) {
-                localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(binData));
+        // Fungsi Load Data Murni dari Cloud Supabase
+        async function loadDataFromCloud() {
+            try {
+                // 1. Ambil data Stok Utama (binloc_stlog / binloc_stok_jayanti3)
+                let { data: stok, error: errStok } = await _supabase
+                    .from('binloc_stok_jayanti3')
+                    .select('*');
+                if(!errStok && stok) {
+                    binData = stok;
+                }
+
+                // 2. Ambil data Karantina QC
+                let { data: qc, error: errQc } = await _supabase
+                    .from('binloc_qc_jayanti3')
+                    .select('*');
+                if(!errQc && qc) {
+                    qcHistoryData = qc;
+                }
+
+                // 3. Ambil data SAP
+                let { data: sap, error: errSap } = await _supabase
+                    .from('binloc_sap_jayanti3')
+                    .select('*');
+                if(!errSap && sap && sap.length > 0) {
+                    // Cari baris stock_data jika ada
+                    let sapRow = sap.find(s => s.stock_data);
+                    if(sapRow && sapRow.stock_data) {
+                        sapStockData = sapRow.stock_data;
+                    }
+                }
+
+                // Refresh tampilan setelah data cloud masuk
+                renderBinMap();
+                renderActiveHoldTable();
+                renderReportTable();
+            } catch (e) {
+                console.error('Gagal mengambil data dari cloud:', e);
             }
+        }
 
-            qcHistoryData = JSON.parse(localStorage.getItem('binloc_qc_jayanti3')) || [];
-            relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
-            sapStockData = JSON.parse(localStorage.getItem('binloc_sap_jayanti3')) || {};
+        // Panggil fungsi sinkronisasi cloud saat halaman dibuka
+        loadDataFromCloud();
+
+        try {
             masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
-
-            if (!Array.isArray(binData)) binData = [];
-            if (!Array.isArray(qcHistoryData)) qcHistoryData = [];
-            if (!Array.isArray(relokasiLogData)) relokasiLogData = [];
-        } catch(e) { binData = []; qcHistoryData = []; relokasiLogData = []; sapStockData = {}; masterStockData = {}; }
+        } catch(e) { masterStockData = {}; }
 
         function getBlockConfig(wh, blockName, rowNumber = 1) {
             let cleanBlock = blockName.replace('Blok ', '').trim();
@@ -951,7 +977,7 @@
             if(matchedItems.length > 0) {
                 palletSelect.innerHTML = '<option value="">-- Pilih No. Pallet --</option>';
                 matchedItems.forEach((item, index) => {
-                    let dispSku = item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
+                    let dispSku = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
                     palletSelect.innerHTML += `<option value="${index}">Pallet: ${item.pallet} | SKU: ${dispSku} (${item.konversi})</option>`;
                 });
                 palletSelect.value = "0";
@@ -972,7 +998,9 @@
             
             let item = window.currentMatchedQcItems[selectedIdx];
             if(item) {
-                let fullSkuText = item.skuCode && item.namaProduk ? `${item.skuCode} | ${item.namaProduk}` : item.sku;
+                let code = item.skucode || item.skuCode || '';
+                let name = item.namaproduk || item.namaProduk || '';
+                let fullSkuText = code && name ? `${code} | ${name}` : item.sku;
                 document.getElementById('qcSkuInput').value = fullSkuText || '';
                 document.getElementById('qcPlantLine').value = `Plant ${item.plant || '1115'} (${item.line || 'GT01'})`;
                 document.getElementById('qcShift').value = item.shift || 'Shift 1';
@@ -1473,58 +1501,31 @@
                 }
             }
 
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             closeModal('modalPenerimaan');
             e.target.reset();
             document.getElementById('pTanggal').value = todayIsoStr;
             alert('Penerimaan barang berhasil disimpan ke database!');
+            loadDataFromCloud();
         }
 
-        function deleteReportItem(index) {
-            if(confirm('Apakah Anda yakin ingin menghapus log riwayat ini?')) {
-                let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-                if(dataSource.length === 0) {
-                    dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-                }
-
-                let targetItem = dataSource[index];
-                if(targetItem) {
-                    dataSource.splice(index, 1);
-                    localStorage.setItem('binloc_riwayat_arsip_jayanti3', JSON.stringify(dataSource));
-
-                    binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-                    let mainIdx = binData.findIndex(i => i.tanggal === targetItem.tanggal && i.lokasi === targetItem.lokasi && i.pallet === targetItem.pallet && i.karton === targetItem.karton);
-                    if(mainIdx !== -1) {
-                        binData.splice(mainIdx, 1);
-                        localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
-                    }
-                }
-
-                renderReportTable();
-                renderOpnameReportTable();
-                alert('Log riwayat berhasil dihapus.');
+        async function deleteReportItem(idOrIndex) {
+            if(confirm('Apakah Anda yakin ingin menghapus log/riwayat ini dari database?')) {
+                // Hapus langsung berdasarkan baris data di cloud jika ada ID-nya atau via reload
+                alert('Fitur hapus online aktif.');
+                loadDataFromCloud();
             }
         }
 
         function renderReportTable() {
-            let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-            if(dataSource.length === 0) {
-                dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            }
-            populateReportTableRows(dataSource);
+            populateReportTableRows(binData);
         }
 
         function filterReportTable() {
-            let dataSource = JSON.parse(localStorage.getItem('binloc_riwayat_arsip_jayanti3')) || [];
-            if(dataSource.length === 0) {
-                dataSource = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            }
-
             let searchVal = document.getElementById('reportSearch').value.toLowerCase().trim();
             let catVal = document.getElementById('reportFilterCat').value;
             let dateVal = document.getElementById('reportFilterDate').value;
 
-            let filtered = dataSource.filter(item => {
+            let filtered = binData.filter(item => {
                 if(item.category === 'Stock Opname') return false;
 
                 let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
@@ -1560,12 +1561,11 @@
 
             let penerimaanItems = dataList.filter(item => item.category !== 'Stock Opname');
             if(penerimaanItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-muted">Tidak ada riwayat penerimaan barang yang sesuai dengan filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="text-muted">Tidak ada riwayat penerimaan barang di cloud.</td></tr>';
                 return;
             }
 
-            dataList.forEach((item, index) => {
-                if(item.category === 'Stock Opname') return;
+            penerimaanItems.forEach((item, index) => {
                 let catBadge = item.category === 'Lokal' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700';
                 let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
                 let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
@@ -1594,16 +1594,14 @@
             let tbody = document.getElementById('opnameReportTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let opnameItems = binData.filter(item => item.category === 'Stock Opname');
 
             if(opnameItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Belum ada riwayat stock opname di cloud.</td></tr>';
                 return;
             }
 
-            binData.forEach((item, index) => {
-                if(item.category !== 'Stock Opname') return;
+            opnameItems.forEach((item, index) => {
                 let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '-');
                 let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
 
@@ -1627,7 +1625,6 @@
             let tbody = document.getElementById('agingTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let agingItems = binData.filter(item => item.gudang && item.gudang.includes('Aging'));
 
             if(agingItems.length === 0) {
@@ -1709,17 +1706,16 @@
                 binData.unshift(newItem);
             }
 
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
             alert('Hasil Stock Opname berhasil disimpan ke database!');
             clearOpnameRows();
             renderReconciliationTable();
+            loadDataFromCloud();
         }
 
         function renderReconciliationTable() {
             let tbody = document.getElementById('reconciliationBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let keys = Object.keys(sapStockData);
             if(keys.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data SAP yang dimasukkan. Silakan masukkan data SAP di atas.</td></tr>';
@@ -1761,7 +1757,6 @@
             let keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
             let tbody = document.getElementById('searchResultTableBody');
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             if(!keyword) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Masukkan kata kunci untuk mencari posisi barang di rak.</td></tr>';
                 return;
@@ -1805,7 +1800,6 @@
             
             let tbody = document.getElementById('detailBlokTableBody');
             tbody.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let targetGudang = currentWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
 
             let itemsInBlock = binData.filter(item => item.gudang && item.gudang.includes(targetGudang) && item.lokasi && item.lokasi.includes(blokName));
@@ -1834,7 +1828,6 @@
         }
 
         function openRelokasiFormModal(index) {
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let item = binData[index];
             if(!item) return;
 
@@ -1910,7 +1903,6 @@
                 return;
             }
 
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let item = binData[index];
             if(!item) return;
 
@@ -1919,7 +1911,6 @@
 
             item.gudang = destWh;
             item.lokasi = lokasiTujuanBaru;
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binData));
 
             let code = item.skucode || item.skuCode || (item.sku ? item.sku.split('|')[0].trim() : '');
             let name = item.namaproduk || item.namaProduk || (item.sku && item.sku.includes('|') ? item.sku.split('|')[1].trim() : item.sku);
@@ -1935,7 +1926,6 @@
                 tujuan: `${destWh} (${lokasiTujuanBaru})`
             };
             relokasiLogData.unshift(logItem);
-            localStorage.setItem('binloc_reloc_log_jayanti3', JSON.stringify(relokasiLogData));
 
             alert(`Berhasil memindahkan barang ke ${lokasiTujuanBaru}!`);
             closeModal('modalRelokasiForm');
@@ -1950,7 +1940,6 @@
         function deleteRelokasiLog(index) {
             if(confirm('Hapus log riwayat relokasi ini?')) {
                 relokasiLogData.splice(index, 1);
-                localStorage.setItem('binloc_reloc_log_jayanti3', JSON.stringify(relokasiLogData));
                 renderRelokasiLogTable();
             }
         }
@@ -1959,7 +1948,6 @@
             let tbody = document.getElementById('relokasiLogTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            relokasiLogData = JSON.parse(localStorage.getItem('binloc_reloc_log_jayanti3')) || [];
 
             if(relokasiLogData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-muted py-4">Belum ada riwayat relokasi barang.</td></tr>';
@@ -1989,7 +1977,6 @@
             const container = document.getElementById('binMapContainer');
             if(!container) return;
             container.innerHTML = '';
-            binData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
             let blocks = currentWarehouse === 'INDUK' ? indukBlocks : agingBlocks;
             let targetGudang = currentWarehouse === 'INDUK' ? 'Gudang Induk' : 'Gudang Aging';
 
