@@ -394,6 +394,7 @@
 
                     <div class="flex items-center gap-2 text-xs font-semibold">
                         <button onclick="switchInputSub('file')" id="subInputFile" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-upload text-indigo-500"></i> Upload Excel / CSV</button>
+                        <!-- TOMBOL INPUT MANUAL YANG DI-UPDATE DENGAN ONCLICK -->
                         <button onclick="switchInputSub('manual')" id="subInputManual" class="px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-slate-400"></i> Input Manual (Format Excel)</button>
                     </div>
 
@@ -975,6 +976,26 @@
             let overlay = document.getElementById('sidebarOverlay');
             if(sidebar) sidebar.classList.toggle('-translate-x-full');
             if(overlay) overlay.classList.toggle('hidden');
+        }
+
+        // FUNGSI UNTUK MENGAKTIFKAN TOMBOL SUB-INPUT (UPLOAD VS MANUAL)
+        function switchInputSub(type) {
+            let fileContent = document.getElementById('subContent-file');
+            let manualContent = document.getElementById('subContent-manual');
+            let btnFile = document.getElementById('subInputFile');
+            let btnManual = document.getElementById('subInputManual');
+
+            if (type === 'file') {
+                fileContent.classList.remove('hidden');
+                manualContent.classList.add('hidden');
+                btnFile.className = "px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5";
+                btnManual.className = "px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5";
+            } else {
+                fileContent.classList.add('hidden');
+                manualContent.classList.remove('hidden');
+                btnManual.className = "px-4 py-2 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5";
+                btnFile.className = "px-4 py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5";
+            }
         }
 
         function switchEksporTab(tab) {
