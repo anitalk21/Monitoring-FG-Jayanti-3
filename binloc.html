@@ -829,16 +829,15 @@
                 if (!errSku && skuMaster) {
                     masterStockData = {};
                     skuMaster.forEach(item => {
-                        let skuKey = item.sku;
-                        let namaVal = item.nama_produk;
-                        let cartonVal = item.carton_per_pallet;
+                        let skuKey = item.sku || item.skuCode || item.code || item.SKU;
+                        let namaVal = item.nama_barang || item.nama || item.name || item.namaproduk || item.namaProduk || '-';
                         
                         if (skuKey) {
                             masterStockData[skuKey] = {
                                 sku: skuKey,
-                                name: namaVal || '-',
-                                cartonPerPallet: parseFloat(cartonVal) || 70,
-                                kodefikasi: item.kodefikasi || '-'
+                                name: namaVal,
+                                cartonPerPallet: item.cartonPerPallet || item.carton_per_pallet || item.standard_carton || 70,
+                                kodefikasi: item.kodefikasi || item.code || '-'
                             };
                         }
                     });
