@@ -67,6 +67,21 @@
         </div>
     </div>
 </header>
+    <!-- Kotak Running Text Status Kendaraan -->
+<div style="background: #1e293b; color: #f8fafc; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; overflow: hidden; display: flex; align-items: center; border: 1px solid #334155;">
+    <span style="background: #3b82f6; color: white; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px; margin-right: 10px; white-space: nowrap;">
+        <i class="fa-solid fa-bullhorn"></i> INFO LIVE
+    </span>
+    <marquee behavior="scroll" direction="left" scrollamount="5" style="font-size: 13px; font-weight: 500;">
+        <span id="rtAntrian" style="margin-right: 25px;">📥 Antrian: <b>0</b></span>
+        <span id="rtDokumen" style="margin-right: 25px;">📄 Nunggu Dokumen: <b>0</b></span>
+        <span id="rtProses" style="margin-right: 25px;">⏳ Proses Muat: <b>0</b></span>
+        <span id="rtSelesai" style="margin-right: 25px;">✅ Selesai Muat: <b>0</b></span>
+        <span id="rtTreatment" style="margin-right: 25px;">⚠️ Treatment: <b>0</b></span>
+        <span id="rtDock" style="margin-right: 25px;">🅿️ Loading Dock: <b>0</b></span>
+        <span id="rtKeluar" style="margin-right: 25px;">🚪 Keluar: <b>0</b></span>
+    </marquee>
+</div>
     <div class="container">
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
@@ -364,6 +379,33 @@ function prosesLogout() {
     setInterval(updateClock, 1000);
     updateClock();
 
+    // Fungsi untuk memperbarui angka pada Running Text secara otomatis
+function updateRunningTextSummary() {
+    // Ambil teks dari tombol filter/status yang ada di aplikasi antrian
+    const getCountByClassOrText = (className) => {
+        let el = document.querySelector(className);
+        return el ? el.innerText.replace(/[^0-9]/g, '') || '0' : '0';
+    };
+
+    // Menghubungkan angka dengan ID running text di atas
+    let elAntri = document.getElementById('rtAntrian');
+    let elProses = document.getElementById('rtProses');
+    let elSelesai = document.getElementById('rtSelesai');
+
+    // Jika elemen badge hitungan utama ada, ambil angkanya
+    if (elAntri) {
+        // Mengambil data dari badge status antrian bawaan aplikasi kamu
+        let countAntri = document.querySelector('.badge-antrian, [onclick*="antrian"]');
+        if (countAntri) elAntri.querySelector('b').innerText = countAntri.innerText.replace(/[^0-9]/g, '') || '0';
+    }
+}
+
+// Jalankan fungsi setelah halaman selesai dimuat dan update berkala
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(updateRunningTextSummary, 1500); // Beri jeda agar data cloud selesai ditarik
+    setInterval(updateRunningTextSummary, 5000); // Perbarui otomatis tiap 5 detik
+});
+    
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { 
         document.getElementById(id).style.display = 'none';
