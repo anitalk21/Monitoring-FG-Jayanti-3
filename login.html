@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Warehouse Jayanti 3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; }</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 max-w-sm w-full space-y-6">
+        <div class="text-center space-y-2">
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl mx-auto flex items-center justify-center text-xl border border-indigo-100 shadow-2xs">
+                <i class="fa-solid fa-warehouse"></i>
+            </div>
+            <h2 class="font-bold text-slate-700 text-base">Warehouse Login</h2>
+            <p class="text-[11px] text-slate-400">PT. Mayora Indah Tbk, Jayanti 3</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="font-bold text-slate-600 block mb-1">Username</label>
+                <input type="text" id="loginUser" class="form-control form-control-sm" placeholder="Masukkan username...">
+            </div>
+            <div>
+                <label class="font-bold text-slate-600 block mb-1">Password</label>
+                <input type="password" id="loginPass" class="form-control form-control-sm" placeholder="Masukkan password...">
+            </div>
+            <button onclick="prosesLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow-2xs">
+                Masuk Sistem
+            </button>
+        </div>
+        <div id="loginError" class="text-rose-600 text-center font-semibold hidden text-xs"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function prosesLogin() {
+            let u = document.getElementById('loginUser').value.trim();
+            let p = document.getElementById('loginPass').value.trim();
+            let errEl = document.getElementById('loginError');
+
+            if(!u || !p) {
+                errEl.innerText = "Username dan password wajib diisi!";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            let { data, error } = await _supabase
+                .from('users_jayanti3')
+                .select('*')
+                .eq('username', u)
+                .eq('password', p)
+                .single();
+
+            if (error || !data) {
+                errEl.innerText = "Username atau password salah!";
+                errEl.classList.remove('hidden');
+            } else {
+                // Simpan data user ke sesi browser
+                localStorage.setItem('loggedUser', JSON.stringify(data));
+                
+                // Atur arah tujuan berdasarkan role
+                if (data.role === 'manpower') {
+                    window.location.href = 'antrian.html'; // Portal lapangan
+                } else if (data.role === 'admin') {
+                    window.location.href = 'monitoring.html'; // Portal monitoring admin
+                } else if (data.role === 'superadmin') {
+                    window.location.href = 'index.html'; // Portal utama (Bebas akses semua)
+                }
+            }
+        }
+    </script>
+</body>
+</html>
