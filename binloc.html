@@ -836,8 +836,9 @@
                     });
                 }
 
+                // Menggunakan tabel "stok_lokal" sesuai database Supabase kamu
                 let { data: stok, error: errStok } = await _supabase
-                    .from('binloc_stok_jayanti3')
+                    .from('stok_lokal')
                     .select('*');
                 if(!errStok && stok) {
                     binData = stok;
@@ -1529,8 +1530,9 @@
                     konversi: `${pltVal} Pallet (${krtVal} krt)`
                 };
 
+                // Menyimpan langsung ke tabel "stok_lokal" di Supabase
                 const { error } = await _supabase
-                    .from('binloc_stok_jayanti3')
+                    .from('stok_lokal')
                     .insert([newItem]);
 
                 if (error) {
@@ -1745,7 +1747,7 @@
                     konversi: pallets + ' Pallet'
                 };
 
-                const { error } = await _supabase.from('binloc_stok_jayanti3').insert([newItem]);
+                const { error } = await _supabase.from('stok_lokal').insert([newItem]);
                 if (error) {
                     alert('Gagal simpan opname! Error: ' + error.message);
                     return;
