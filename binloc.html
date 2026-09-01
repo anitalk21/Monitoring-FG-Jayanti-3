@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3b82f6">
+    <meta name="theme-color" content="#3b82f6">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Bin-Loc & Operasional Gudang - PT. Mayora Indah Tbk</title>
@@ -56,14 +56,14 @@
                 <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
             </a>
             <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-    <div class="text-right">
-        <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
-        <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
-    </div>
-    <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
-        <i class="fa-solid fa-power-off"></i> Keluar
-    </button>
-</div>
+                <div class="text-right">
+                    <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
+                    <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
+                </div>
+                <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
+                    <i class="fa-solid fa-power-off"></i> Keluar
+                </button>
+            </div>
         </div>
     </header>
 
@@ -777,34 +777,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Cek sesi login
-let sessionUser = localStorage.getItem('loggedUser');
-if (!sessionUser) {
-    window.location.href = 'login.html'; // Kalau belum login, tendang ke halaman login
-} 
-// Karena manpower, admin, dan superadmin semuanya boleh akses binloc, 
-// kita tidak perlu membatasi rolenya di sini. Siapa pun yang sudah login berhak masuk.
-        // Tampilkan identitas user yang sedang login saat halaman dimuat
-window.addEventListener('DOMContentLoaded', () => {
-    let sessionUser = localStorage.getItem('loggedUser');
-    if (sessionUser) {
-        let userObj = JSON.parse(sessionUser);
-        
-        // Ubah teks HTML sesuai nama dan role user yang aktif
-        let namaEl = document.getElementById('userNamaDisplay');
-        let roleEl = document.getElementById('userRoleDisplay');
-        
-        if (namaEl) namaEl.innerText = userObj.nama_lengkap || userObj.username;
-        if (roleEl) roleEl.innerText = userObj.role;
-    }
-});
+        let sessionUser = localStorage.getItem('loggedUser');
+        if (!sessionUser) {
+            window.location.href = 'login.html'; 
+        } 
 
-// Fungsi untuk Logout (Hapus sesi & kembalikan ke halaman login)
-function prosesLogout() {
-    if (confirm('Yakin ingin keluar dari sistem?')) {
-        localStorage.removeItem('loggedUser'); // Hapus data sesi
-        window.location.href = 'login.html'; // Lempar balik ke login
-    }
-}
+        window.addEventListener('DOMContentLoaded', () => {
+            let sessionUser = localStorage.getItem('loggedUser');
+            if (sessionUser) {
+                let userObj = JSON.parse(sessionUser);
+                let namaEl = document.getElementById('userNamaDisplay');
+                let roleEl = document.getElementById('userRoleDisplay');
+                if (namaEl) namaEl.innerText = userObj.nama_lengkap || userObj.username;
+                if (roleEl) roleEl.innerText = userObj.role;
+            }
+        });
+
+        function prosesLogout() {
+            if (confirm('Yakin ingin keluar dari sistem?')) {
+                localStorage.removeItem('loggedUser');
+                window.location.href = 'login.html';
+            }
+        }
+
         // Konfigurasi Koneksi Supabase
         const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
@@ -825,12 +820,32 @@ function prosesLogout() {
         let qcHistoryData = [];
         let relokasiLogData = [];
         let sapStockData = {};
-        let masterStockData = {};
+        let masterStockData = {}; // Sekarang diambil langsung dari database Supabase
 
-        // Fungsi Load Data Murni dari Cloud Supabase
+        // Fungsi Load Data Murni dari Cloud Supabase (Termasuk Master SKU)
         async function loadDataFromCloud() {
             try {
-                // 1. Ambil data Stok Utama (binloc_stlog / binloc_stok_jayanti3)
+                // 1. Ambil data Master SKU langsung dari Supabase
+                let { data: skuMaster, error: errSku } = await _supabase
+                    .from('master_sku')
+                    .select('*');
+                
+                if (!errSku && skuMaster) {
+                    masterStockData = {};
+                    skuMaster.forEach(item => {
+                        let skuKey = item.sku || item.skuCode || item.code;
+                        if (skuKey) {
+                            masterStockData[skuKey] = {
+                                sku: skuKey,
+                                name: item.name || item.nama || item.namaproduk,
+                                cartonPerPallet: item.cartonPerPallet || item.carton_per_pallet || 70,
+                                kodefikasi: item.kodefikasi || item.code || '-'
+                            };
+                        }
+                    });
+                }
+
+                // 2. Ambil data Stok Utama (binloc_stok_jayanti3)
                 let { data: stok, error: errStok } = await _supabase
                     .from('binloc_stok_jayanti3')
                     .select('*');
@@ -838,7 +853,7 @@ function prosesLogout() {
                     binData = stok;
                 }
 
-                // 2. Ambil data Karantina QC
+                // 3. Ambil data Karantina QC
                 let { data: qc, error: errQc } = await _supabase
                     .from('binloc_qc_jayanti3')
                     .select('*');
@@ -846,19 +861,17 @@ function prosesLogout() {
                     qcHistoryData = qc;
                 }
 
-                // 3. Ambil data SAP
+                // 4. Ambil data SAP
                 let { data: sap, error: errSap } = await _supabase
                     .from('binloc_sap_jayanti3')
                     .select('*');
                 if(!errSap && sap && sap.length > 0) {
-                    // Cari baris stock_data jika ada
                     let sapRow = sap.find(s => s.stock_data);
                     if(sapRow && sapRow.stock_data) {
                         sapStockData = sapRow.stock_data;
                     }
                 }
 
-                // Refresh tampilan setelah data cloud masuk
                 renderBinMap();
                 renderActiveHoldTable();
                 renderReportTable();
@@ -867,12 +880,7 @@ function prosesLogout() {
             }
         }
 
-        // Panggil fungsi sinkronisasi cloud saat halaman dibuka
         loadDataFromCloud();
-
-        try {
-            masterStockData = JSON.parse(localStorage.getItem('stockDataGDFG_RangePalletFull')) || {};
-        } catch(e) { masterStockData = {}; }
 
         function getBlockConfig(wh, blockName, rowNumber = 1) {
             let cleanBlock = blockName.replace('Blok ', '').trim();
@@ -1550,7 +1558,6 @@ function prosesLogout() {
 
         async function deleteReportItem(idOrIndex) {
             if(confirm('Apakah Anda yakin ingin menghapus log/riwayat ini dari database?')) {
-                // Hapus langsung berdasarkan baris data di cloud jika ada ID-nya atau via reload
                 alert('Fitur hapus online aktif.');
                 loadDataFromCloud();
             }
