@@ -44,40 +44,33 @@
 </head>
 <body>
 
-<header class="bg-white border-b border-slate-200 px-6 py-3.5 flex justify-between items-center shadow-2xs relative">
-    <div class="flex items-center space-x-3">
-        <div>
-            <h1 id="topHeaderTitle" class="font-bold text-slate-700 text-base md:text-lg tracking-wide">Dashboard Antrian (Time Keeper & Admin)</h1>
-            <span class="text-xs text-slate-400 font-medium">PT. Mayora Indah Tbk, Jayanti 3</span>
-        </div>
+<header style="background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 style="font-weight: bold; font-size: 16px; color: #334155; margin: 0;">Dashboard Antrian (Time Keeper & Admin)</h1>
+        <span style="font-size: 12px; color: #64748b;">PT. Mayora Indah Tbk, Jayanti 3</span>
     </div>
     
-    <div class="flex items-center gap-2">
-        <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-            <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span id="realTimeClock" style="font-size: 12px; color: #475569; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            Memuat waktu...
         </span>
         
-        <!-- Tombol navigasi lainnya -->
-        <a href="monitoring.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 transition font-medium">
-            <i class="fa-solid fa-chart-line text-indigo-400 mr-1"></i><span>Monitoring</span>
-        </a>
-        <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 transition font-medium">
-            <i class="fa-solid fa-house text-indigo-400 mr-1"></i><span>Portal</span>
-        </a>
+        <a href="monitoring.html" style="background: #f8fafc; color: #475569; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-decoration: none; font-weight: 500;">Monitoring</a>
+        <a href="index.html" style="background: #f8fafc; color: #475569; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-decoration: none; font-weight: 500;">Portal</a>
 
-        <!-- Kotak Identitas Profil & Tombol Logout yang Elegan -->
-        <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-            <div class="text-right">
-                <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
-                <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
+        <!-- Kotak Profil & Logout -->
+        <div style="display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+            <div style="text-align: right;">
+                <p id="userNamaDisplay" style="font-weight: bold; color: #334155; font-size: 12px; margin: 0;">Memuat...</p>
+                <p id="userRoleDisplay" style="font-size: 10px; color: #64748b; margin: 0; text-transform: capitalize;">-</p>
             </div>
-            <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
-                <i class="fa-solid fa-power-off"></i> Keluar
+            <button onclick="prosesLogout()" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Keluar Akun">
+                Keluar
             </button>
         </div>
     </div>
 </header>
-<div class="container">
+    <div class="container">
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="searchInput" class="form-control" placeholder="Cari nomor / nama / no.pol / tujuan / no.doc..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" oninput="renderAll()">
         <button class="btn" onclick="resetData()" style="font-size: 11px; background: #fee2e2; color: #991b1b; border-color: #fecaca;">Reset Semua Data</button>
