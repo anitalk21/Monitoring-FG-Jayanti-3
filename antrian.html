@@ -302,6 +302,20 @@
 </div>
 
 <script>
+    // Cek sesi login
+let sessionUser = localStorage.getItem('loggedUser');
+if (!sessionUser) {
+    window.location.href = 'login.html'; 
+} else {
+    let userObj = JSON.parse(sessionUser);
+    
+    // Jika role-nya manpower, tidak boleh masuk ke monitoring admin
+    if (userObj.role === 'manpower' && window.location.pathname.includes('monitoring.html')) {
+        alert('Akses ditolak! Anda login sebagai Manpower Lapangan.');
+        window.location.href = 'antrian.html';
+    }
+    // Catatan: Jika role-nya 'superadmin', dibebaskan masuk ke mana saja tanpa batasan!
+}
     // Konfigurasi Koneksi Supabase
     const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
