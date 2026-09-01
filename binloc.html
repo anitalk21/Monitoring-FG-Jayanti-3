@@ -765,6 +765,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Cek sesi login
+let sessionUser = localStorage.getItem('loggedUser');
+if (!sessionUser) {
+    window.location.href = 'login.html'; // Kalau belum login, tendang ke halaman login
+} 
+// Karena manpower, admin, dan superadmin semuanya boleh akses binloc, 
+// kita tidak perlu membatasi rolenya di sini. Siapa pun yang sudah login berhak masuk.
         // Konfigurasi Koneksi Supabase
         const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
