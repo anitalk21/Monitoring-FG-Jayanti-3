@@ -776,7 +776,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Cek sesi login
         let sessionUser = localStorage.getItem('loggedUser');
         if (!sessionUser) {
             window.location.href = 'login.html'; 
@@ -800,7 +799,6 @@
             }
         }
 
-        // Konfigurasi Koneksi Supabase
         const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
         const { createClient } = supabase;
@@ -820,12 +818,10 @@
         let qcHistoryData = [];
         let relokasiLogData = [];
         let sapStockData = {};
-        let masterStockData = {}; // Sekarang diambil langsung dari database Supabase
+        let masterStockData = {};
 
-        // Fungsi Load Data Murni dari Cloud Supabase (Termasuk Master SKU)
         async function loadDataFromCloud() {
             try {
-                // 1. Ambil data Master SKU langsung dari Supabase
                 let { data: skuMaster, error: errSku } = await _supabase
                     .from('master_sku')
                     .select('*');
@@ -833,19 +829,20 @@
                 if (!errSku && skuMaster) {
                     masterStockData = {};
                     skuMaster.forEach(item => {
-                        let skuKey = item.sku || item.skuCode || item.code;
+                        let skuKey = item.sku || item.skuCode || item.code || item.SKU;
+                        let namaVal = item.nama_barang || item.nama || item.name || item.namaproduk || item.namaProduk || '-';
+                        
                         if (skuKey) {
                             masterStockData[skuKey] = {
                                 sku: skuKey,
-                                name: item.name || item.nama || item.namaproduk,
-                                cartonPerPallet: item.cartonPerPallet || item.carton_per_pallet || 70,
+                                name: namaVal,
+                                cartonPerPallet: item.cartonPerPallet || item.carton_per_pallet || item.standard_carton || 70,
                                 kodefikasi: item.kodefikasi || item.code || '-'
                             };
                         }
                     });
                 }
 
-                // 2. Ambil data Stok Utama (binloc_stok_jayanti3)
                 let { data: stok, error: errStok } = await _supabase
                     .from('binloc_stok_jayanti3')
                     .select('*');
@@ -853,7 +850,6 @@
                     binData = stok;
                 }
 
-                // 3. Ambil data Karantina QC
                 let { data: qc, error: errQc } = await _supabase
                     .from('binloc_qc_jayanti3')
                     .select('*');
@@ -861,7 +857,6 @@
                     qcHistoryData = qc;
                 }
 
-                // 4. Ambil data SAP
                 let { data: sap, error: errSap } = await _supabase
                     .from('binloc_sap_jayanti3')
                     .select('*');
