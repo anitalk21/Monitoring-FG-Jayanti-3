@@ -44,28 +44,17 @@
 </head>
 <body>
 
-<header style="background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center;">
-    <div>
-        <h1 style="font-weight: bold; font-size: 16px; color: #334155; margin: 0;">Dashboard Antrian (Time Keeper & Admin)</h1>
-        <span style="font-size: 12px; color: #64748b;">PT. Mayora Indah Tbk, Jayanti 3</span>
+<header class="nav-bar">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian (Time Keeper & Admin)</span>
+        <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
-    
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <!-- Jam Realtime -->
-        <span id="realTimeClock" style="font-size: 12px; color: #475569; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-            <i class="fa-regular fa-clock" style="color: #6366f1; margin-right: 4px;"></i> Memuat waktu...
-        </span>
-        
-        <!-- Tombol Monitoring dengan Ikon Grafik -->
-        <a href="monitoring.html" style="background: #f8fafc; color: #475569; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 5px;">
-            <i class="fa-solid fa-chart-line" style="color: #6366f1;"></i> Monitoring
-        </a>
-
-        <!-- Tombol Portal dengan Ikon Rumah -->
-        <a href="index.html" style="background: #f8fafc; color: #475569; font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 5px;">
-            <i class="fa-solid fa-house" style="color: #6366f1;"></i> Portal
-        </a>
-
+    <div class="nav-actions">
+        <button class="btn-nav" onclick="loadDataFromCloud()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
+        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
+        <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
+        <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Keluar</a>
+    </div>
         <!-- Kotak Profil & Logout -->
         <div style="display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 5px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
             <div style="text-align: right;">
