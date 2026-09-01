@@ -55,7 +55,11 @@
             <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
                 <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...
             </span>
-            <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                      <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
+            </a>
+        </div>
+    <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
     <div class="text-right">
         <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
         <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
@@ -64,10 +68,6 @@
         <i class="fa-solid fa-power-off"></i> Keluar
     </button>
 </div>
-            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
-            </a>
-        </div>
     </header>
 
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/25 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
