@@ -1025,9 +1025,22 @@ function prosesLogout() {
         // --- FUNGSI UTAMA SINKRONISASI SUPABASE ---
         async function fetchAllDataFromSupabase() {
             try {
-                let localMaster = localStorage.getItem('stockDataGDFG_RangePalletFull');
-                if (localMaster) {
-                    stockData = JSON.parse(localMaster);
+                // Ambil Master SKU langsung dari tabel Supabase 'master_sku'
+                let { data: masterRes, error: masterErr } = await _supabase.from('master_sku').select('*');
+                if (!masterErr && masterRes) {
+                    stockData = {};
+                    masterRes.forEach(item => {
+                        if(item.sku) {
+                            stockData[item.sku] = {
+                                sku: item.sku,
+                                name: item.nama_produk || '',
+                                cartonPerPallet: parseFloat(item.carton_per_pallet) || 70
+                            };
+                        }
+                    });
+                } else {
+                    let localMaster = localStorage.getItem('stockDataGDFG_RangePalletFull');
+                    if (localMaster) stockData = JSON.parse(localMaster);
                 }
 
                 let { data: binRes, error: binErr } = await _supabase.from('binloc_stok_jayanti3').select('*');
@@ -2174,32 +2187,64 @@ function prosesLogout() {
             });
         }
 
-        function processPasteData() {
+        // --- SKRIP CERDAS (SMART PARSER) MASTER SKU ---
+        async function processPasteData() {
             const textarea = document.getElementById('pasteArea');
             if(!textarea) return;
             const text = textarea.value.trim();
             if(!text) { alert('Data kosong!'); return; }
+
             let lines = text.split('\n');
+            let newRowsToInsert = [];
             let count = 0;
-            lines.forEach(line => {
+
+            for(let line of lines) {
                 let cols = line.split('\t');
+                if(cols.length < 2) {
+                    cols = line.trim().split(/\s{2,}/);
+                }
+
                 if(cols.length >= 2) {
                     let skuId = cols[0].trim();
                     let skuName = cols[1].trim();
-                    let cartonPlt = cols[4] ? parseFloat(cols[4].trim()) || 70 : 70;
-                    if(skuId) { stockData[skuId] = { sku: skuId, name: skuName, cartonPerPallet: cartonPlt }; count++; }
+                    let cartonVal = 70; 
+
+                    for(let i = 2; i < cols.length; i++) {
+                        let val = parseFloat(cols[i].trim());
+                        if(!isNaN(val) && val > 0 && val < 2000) {
+                            cartonVal = val;
+                            break;
+                        }
+                    }
+
+                    if(skuId) {
+                        newRowsToInsert.push({
+                            sku: skuId,
+                            nama_produk: skuName,
+                            carton_per_pallet: cartonVal
+                        });
+                        count++;
+                    }
                 }
-            });
-            localStorage.setItem('stockDataGDFG_RangePalletFull', JSON.stringify(stockData));
-            textarea.value = '';
-            alert(`Berhasil menyimpan ${count} Master SKU!`);
-            renderMasterSkuTable();
+            }
+
+            if(newRowsToInsert.length > 0) {
+                // Simpan langsung ke tabel Supabase 'master_sku'
+                let { error } = await _supabase.from('master_sku').upsert(newRowsToInsert, { onConflict: 'sku' });
+                if(error) {
+                    console.error("Gagal simpan ke Supabase:", error);
+                    alert("Gagal menyimpan ke database Supabase!");
+                } else {
+                    alert(`Berhasil memproses dan menyimpan ${count} Master SKU ke database!`);
+                    textarea.value = '';
+                    fetchAllDataFromSupabase();
+                }
+            } else {
+                alert('Format teks tidak dikenali. Pastikan kolom SKU dan Nama Produk terpisah dengan tab/spasi.');
+            }
         }
 
         function renderMasterSkuTable() {
-            let localMaster = localStorage.getItem('stockDataGDFG_RangePalletFull');
-            if (localMaster) stockData = JSON.parse(localMaster);
-
             let tbody = document.getElementById('masterSkuTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
