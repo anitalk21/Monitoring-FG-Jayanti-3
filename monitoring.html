@@ -55,6 +55,15 @@
             <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
                 <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...
             </span>
+            <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+    <div class="text-right">
+        <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
+        <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
+    </div>
+    <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
+        <i class="fa-solid fa-power-off"></i> Keluar
+    </button>
+</div>
             <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
                 <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
             </a>
@@ -951,6 +960,28 @@ if (!sessionUser) {
         window.location.href = 'antrian.html';
     }
     // Catatan: Jika role-nya 'superadmin', dibebaskan masuk ke mana saja tanpa batasan!
+}
+        // Tampilkan identitas user yang sedang login saat halaman dimuat
+window.addEventListener('DOMContentLoaded', () => {
+    let sessionUser = localStorage.getItem('loggedUser');
+    if (sessionUser) {
+        let userObj = JSON.parse(sessionUser);
+        
+        // Ubah teks HTML sesuai nama dan role user yang aktif
+        let namaEl = document.getElementById('userNamaDisplay');
+        let roleEl = document.getElementById('userRoleDisplay');
+        
+        if (namaEl) namaEl.innerText = userObj.nama_lengkap || userObj.username;
+        if (roleEl) roleEl.innerText = userObj.role;
+    }
+});
+
+// Fungsi untuk Logout (Hapus sesi & kembalikan ke halaman login)
+function prosesLogout() {
+    if (confirm('Yakin ingin keluar dari sistem?')) {
+        localStorage.removeItem('loggedUser'); // Hapus data sesi
+        window.location.href = 'login.html'; // Lempar balik ke login
+    }
 }
         // Konfigurasi Koneksi Supabase
         const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
