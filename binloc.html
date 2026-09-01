@@ -144,7 +144,6 @@
             </div>
         </div>
 
-        <!-- SECTION REPORT DENGAN FITUR FILTER & CARI -->
         <div id="section-report" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -156,7 +155,6 @@
                 </div>
             </div>
 
-            <!-- PANEL PENCARIAN & FILTER REPORT -->
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <div>
                     <label class="form-label text-[11px] fw-bold text-slate-600 mb-1">Cari Cepat (SKU / Produk / Pallet)</label>
@@ -205,7 +203,6 @@
             </div>
         </div>
 
-        <!-- SECTION LOG OPNAME TERPISAH (HALAMAN FULL TABLE) -->
         <div id="section-opname-log" class="app-page space-y-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -240,7 +237,6 @@
             </div>
         </div>
 
-        <!-- SECTION AGING: KHUSUS BENG-BENG -->
         <div id="section-aging" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <div>
@@ -354,7 +350,6 @@
             </div>
         </div>
 
-        <!-- SECTION OPNAME: PURE INPUT DENGAN MENU TOMBOL NAVIGASI -->
         <div id="section-opname" class="app-page space-y-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
                 <h3 class="font-bold text-slate-700 text-base">Stock Opname Harian & Rekonsiliasi SAP vs Fisik</h3>
@@ -363,7 +358,6 @@
                 </div>
             </div>
 
-            <!-- TOMBOL NAVIGASI MENU UTAMA OPNAME (UKURAN FONT & TAMPILAN DISAMAKAN) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div onclick="switchSection('opname-log')" class="bg-white hover:border-purple-300 border border-slate-200 rounded-2xl p-4 cursor-pointer transition shadow-2xs flex items-center gap-4 group">
                     <div class="bg-purple-50 text-purple-600 p-3 rounded-xl border border-purple-100 group-hover:scale-105 transition flex items-center justify-center shrink-0" style="width: 44px; height: 44px;">
@@ -386,7 +380,6 @@
                 </div>
             </div>
 
-            <!-- CONTAINER REKONSILIASI SAP (SECARA DEFAULT DISEMBUNYIKAN AGAR TAMPILAN PURE INPUT) -->
             <div id="sapAndReconContainer" class="space-y-4" style="display: none;">
                 <div class="card border-0 shadow-2xs rounded-2xl overflow-hidden" style="background-color: #fffbeb;">
                     <div class="card-header border-0 font-bold d-flex justify-content-between align-items-center py-3 px-4" style="background-color: #fef3c7; color: #92400e;">
@@ -421,7 +414,6 @@
                 </div>
             </div>
 
-            <!-- FORM UTAMA STOCK OPNAME (PURE INPUT BERSIH) -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h5 class="fw-bold text-slate-700 text-xs uppercase mb-3"><i class="fa-solid fa-pen-to-square mr-1"></i> Form Input Stock Opname Harian</h5>
                 <form onsubmit="saveBulkOpname(event)">
@@ -1367,7 +1359,8 @@
 
             if (error) {
                 console.error('Gagal menyimpan QC ke Supabase:', error);
-                alert('Gagal menyimpan data QC ke database!');
+                alert('Gagal menyimpan data QC ke database! Error: ' + error.message);
+                return;
             } else {
                 qcHistoryData.unshift(qcItem);
                 alert('Palet berhasil dikarantina (HOLD) dan tersimpan ke Supabase!');
@@ -1398,7 +1391,7 @@
                     .eq('id', id);
 
                 if (error) {
-                    alert('Gagal memperbarui status ke database!');
+                    alert('Gagal memperbarui status ke database! Error: ' + error.message);
                 } else {
                     renderActiveHoldTable();
                     alert('Status berhasil diubah menjadi: ' + newStatus);
@@ -1414,7 +1407,7 @@
                     .eq('id', id);
 
                 if (error) {
-                    alert('Gagal menghapus data dari database!');
+                    alert('Gagal menghapus data dari database! Error: ' + error.message);
                 } else {
                     qcHistoryData = qcHistoryData.filter(item => item.id !== id);
                     renderActiveHoldTable();
@@ -1504,6 +1497,8 @@
             let rowTrs = document.getElementById('penerimaanRowsBody').children;
             if(rowTrs.length === 0) { alert('Harap tambahkan minimal 1 baris lokasi rak!'); return; }
 
+            let hasError = false;
+
             for(let tr of rowTrs) {
                 let idx = tr.id.split('_')[1];
                 let blockVal = document.getElementById('pBlock_' + idx).value;
@@ -1540,16 +1535,21 @@
 
                 if (error) {
                     console.error('Gagal simpan ke Supabase:', error);
+                    alert('Gagal menyimpan ke database! Error: ' + error.message);
+                    hasError = true;
+                    break;
                 } else {
                     binData.unshift(newItem);
                 }
             }
 
-            closeModal('modalPenerimaan');
-            e.target.reset();
-            document.getElementById('pTanggal').value = todayIsoStr;
-            alert('Penerimaan barang berhasil disimpan ke database!');
-            loadDataFromCloud();
+            if (!hasError) {
+                closeModal('modalPenerimaan');
+                e.target.reset();
+                document.getElementById('pTanggal').value = todayIsoStr;
+                alert('Penerimaan barang berhasil disimpan ke database!');
+                loadDataFromCloud();
+            }
         }
 
         async function deleteReportItem(idOrIndex) {
@@ -1745,7 +1745,11 @@
                     konversi: pallets + ' Pallet'
                 };
 
-                await _supabase.from('binloc_stok_jayanti3').insert([newItem]);
+                const { error } = await _supabase.from('binloc_stok_jayanti3').insert([newItem]);
+                if (error) {
+                    alert('Gagal simpan opname! Error: ' + error.message);
+                    return;
+                }
                 binData.unshift(newItem);
             }
 
