@@ -2187,7 +2187,7 @@ function prosesLogout() {
             });
         }
 
-        // --- SKRIP CERDAS (SMART PARSER) MASTER SKU UNTUK GOOGLE SHEETS ---
+        // --- SKRIP CERDAS (SMART PARSER) MASTER SKU MENGGUNAKAN INSERT ---
         async function processPasteData() {
             const textarea = document.getElementById('pasteArea');
             if(!textarea) return;
@@ -2199,10 +2199,7 @@ function prosesLogout() {
             let count = 0;
 
             for(let line of lines) {
-                // Memisahkan baris berdasarkan tab (sesuai format copy-paste dari Google Sheets/Excel)
                 let cols = line.split('\t');
-                
-                // Jika tidak menggunakan tab, fallback ke pemisah spasi ganda
                 if(cols.length < 2) {
                     cols = line.trim().split(/\s{2,}/);
                 }
@@ -2211,7 +2208,6 @@ function prosesLogout() {
                     let skuId = cols[0] ? cols[0].trim() : '';
                     let skuName = cols[1] ? cols[1].trim() : '';
                     
-                    // Mengambil standar karton dari kolom ke-5 (Indeks 4: Kolom E / JUMLAH CAR/PALLET)
                     let cartonVal = 70;
                     if (cols.length >= 5 && cols[4]) {
                         let parsedCarton = parseFloat(cols[4].trim());
@@ -2219,7 +2215,6 @@ function prosesLogout() {
                             cartonVal = parsedCarton;
                         }
                     } else {
-                        // Mencari angka di kolom lain jika formatnya berbeda
                         for(let i = 2; i < cols.length; i++) {
                             let val = parseFloat(cols[i].trim());
                             if(!isNaN(val) && val > 0 && val < 2000) {
@@ -2229,7 +2224,6 @@ function prosesLogout() {
                         }
                     }
 
-                    // Abaikan baris header seperti tulisan "ID" atau "NAME"
                     if(skuId && skuId.toLowerCase() !== 'id' && skuName.toLowerCase() !== 'name') {
                         newRowsToInsert.push({
                             sku: skuId,
@@ -2242,8 +2236,8 @@ function prosesLogout() {
             }
 
             if(newRowsToInsert.length > 0) {
-                // Simpan langsung ke tabel Supabase 'master_sku'
-                let { error } = await _supabase.from('master_sku').upsert(newRowsToInsert, { onConflict: 'sku' });
+                // Menggunakan .insert() agar tidak error pada unique constraint Supabase
+                let { error } = await _supabase.from('master_sku').insert(newRowsToInsert);
                 if(error) {
                     console.error("Gagal simpan ke Supabase:", error);
                     alert("Gagal menyimpan ke database Supabase: " + error.message);
@@ -2253,7 +2247,7 @@ function prosesLogout() {
                     fetchAllDataFromSupabase();
                 }
             } else {
-                alert('Format teks tidak dikenali. Pastikan kamu meng-copy langsung dari tabel Google Sheets (Kolom ID sampai CAR/PALLET).');
+                alert('Format teks tidak dikenali. Pastikan kamu meng-copy langsung dari tabel Google Sheets.');
             }
         }
 
