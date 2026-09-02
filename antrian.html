@@ -476,7 +476,7 @@ async function loadDataFromCloud() {
                 if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
-                let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
+                let rawTimeVal = (statRow && statRow.created_at) ? new Date(statRow.created_at).getTime() : (t.created_at ? new Date(t.created_at).getTime() : new Date().getTime());
                 
                 let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
@@ -508,16 +508,21 @@ async function loadDataFromCloud() {
                     tim: firstPl ? (firstPl.nama_tim || 'Team A') : 'Team A',
                     shift: firstPl ? firstPl.shift_kerja : 'Shift 1 (Pagi)',
                     lokasiArsip: statRow && statRow.kategori_arsip ? `${statRow.kategori_arsip}: ${statRow.nomor_map_arsip || ''}` : 'Belum Ada Arsip',
-                    pickingList: plRows.map(p => ({
-                        sku: p.sku,
-                        nama: masterStock[p.sku] ? masterStock[p.sku].name : '-',
-                        prodate: '-',
-                        rak: p.batch_lokasi,
-                        palletSource: '-',
-                        pallet: p.konversi_pallet || 0,
-                        receh: 0,
-                        jumlah: p.total_karton
-                    }))
+                    pickingList: plRows.map(p => {
+                        let stdPlt = getCartonPerPallet(p.sku);
+                        let pltVal = Math.floor(p.total_karton / stdPlt);
+                        let rchVal = p.total_karton % stdPlt;
+                        return {
+                            sku: p.sku,
+                            nama: masterStock[p.sku] ? masterStock[p.sku].name : '-',
+                            prodate: p.prodate || '-',
+                            rak: p.batch_lokasi,
+                            palletSource: '-',
+                            pallet: pltVal,
+                            receh: rchVal,
+                            jumlah: p.total_karton
+                        };
+                    })
                 };
             });
             renderAll();
@@ -763,13 +768,17 @@ function renderPlTable() {
         return;
     }
     list.forEach((item, idx) => {
+        let std = getCartonPerPallet(item.sku);
+        let pltVal = Math.floor(item.jumlah / std);
+        let rchVal = item.jumlah % std;
+
         let actionTd = isLocked ? '' : `<td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>`;
         tbody.innerHTML += `<tr>
             <td style="text-align:center;"><b>${item.sku}</b></td>
             <td style="text-align:left;">${item.nama}</td>
             <td>${item.prodate || '-'}</td>
             <td>${item.rak || '-'}</td>
-            <td>${item.pallet} Plt + ${item.receh} krt</td>
+            <td>${pltVal} Plt + ${rchVal} krt</td>
             <td><b>${item.jumlah} krt</b></td>
             ${actionTd}
         </tr>`;
@@ -820,7 +829,8 @@ async function addItemToTruckPickingList() {
         sku: skuCode,
         batch_lokasi: selectedBatchData.lokasi,
         total_karton: totalKrt,
-        konversi_pallet: pallet
+        konversi_pallet: pallet,
+        prodate: exactProdate
     };
 
     let { error } = await _supabase.from('picking_list_truk').insert([pickRecord]);
