@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3b82f6">
+    <meta name="theme-color" content="#3b82f6">
     <meta charset="UTF-8">
     <title>Dashboard Antrian - PT. Mayora Indah Tbk</title>
     <style>
@@ -36,8 +36,22 @@
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 15px; font-family: 'Segoe UI', sans-serif; font-size: 11px; color: black; }
-            @page { size: A5 portrait; margin: 10mm; }
+            #printArea { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100vw; 
+                background: white; 
+                padding: 5mm; 
+                font-family: 'Segoe UI', sans-serif; 
+                font-size: 10px; 
+                color: black; 
+                box-sizing: border-box;
+            }
+            @page { 
+                size: A5 portrait; 
+                margin: 5mm; 
+            }
         }
         #printArea { display: none; }
     </style>
@@ -232,7 +246,8 @@
             <table style="width:100%;">
                 <thead>
                     <tr>
-                        <th>SKU & Nama Produk</th>
+                        <th>SKU</th>
+                        <th>Nama Produk</th>
                         <th>Prodate (FIFO)</th>
                         <th>Rak / Bin-Loc</th>
                         <th>Pallet & Receh</th>
@@ -241,7 +256,7 @@
                     </tr>
                 </thead>
                 <tbody id="plTableBody">
-                    <tr><td colspan="6" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>
+                    <tr><td colspan="7" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -744,13 +759,14 @@ function renderPlTable() {
     let isLocked = (t.status === 'Selesai Muat' || t.status === 'Keluar');
 
     if(list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${isLocked ? 5 : 6}" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${isLocked ? 6 : 7}" style="color:#94a3b8;">Belum ada item barang dalam picking list.</td></tr>`;
         return;
     }
     list.forEach((item, idx) => {
         let actionTd = isLocked ? '' : `<td><button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="removePlItem(${idx})">Hapus</button></td>`;
         tbody.innerHTML += `<tr>
-            <td style="text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+            <td style="text-align:center;"><b>${item.sku}</b></td>
+            <td style="text-align:left;">${item.nama}</td>
             <td>${item.prodate || '-'}</td>
             <td>${item.rak || '-'}</td>
             <td>${item.pallet} Plt + ${item.receh} krt</td>
@@ -931,7 +947,8 @@ function printPickingList() {
         if(item) {
             rowsHtml += `<tr>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${i+1}</td>
-                <td style="border:1px solid #000; padding:4px; text-align:left;"><b>${item.sku}</b> - ${item.nama}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;"><b>${item.sku}</b></td>
+                <td style="border:1px solid #000; padding:4px; text-align:left;">${item.nama}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.prodate || '-'}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.rak || '-'}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.pallet} Plt + ${item.receh} krt</td>
@@ -945,50 +962,52 @@ function printPickingList() {
                 <td style="border:1px solid #000; padding:4px;"></td>
                 <td style="border:1px solid #000; padding:4px;"></td>
                 <td style="border:1px solid #000; padding:4px;"></td>
+                <td style="border:1px solid #000; padding:4px;"></td>
             </tr>`;
         }
     }
 
     let printBox = document.getElementById('printArea');
     printBox.innerHTML = `
-        <div style="border: 2px solid #000; padding: 10px;">
+        <div style="border: 2px solid #000; padding: 10px; width: 100%; box-sizing: border-box;">
             <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
                 <div>
-                    <strong style="font-size:13px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
-                    <span style="font-size:9px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
+                    <strong style="font-size:12px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
+                    <span style="font-size:8px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
                 </div>
-                <div style="text-align:right; font-size:11px;">
+                <div style="text-align:right; font-size:10px;">
                     <strong>Tgl: ${nowStr}</strong>
                 </div>
             </div>
 
-            <div style="text-align:center; font-weight:bold; font-size:13px; margin-bottom:8px; text-decoration:underline;">
+            <div style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:8px; text-decoration:underline;">
                 PICKING LIST LOKAL
             </div>
 
-            <table style="width:100%; font-size:11px; margin-bottom:10px; border-collapse:collapse;">
+            <table style="width:100%; font-size:10px; margin-bottom:10px; border-collapse:collapse;">
                 <tr>
-                    <td style="width:50%;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
-                    <td style="width:50%;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
+                    <td style="width:50%; text-align:left; border:none; padding:2px;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
+                    <td style="width:50%; text-align:left; border:none; padding:2px;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
                 </tr>
                 <tr>
-                    <td><strong>TUJUAN  :</strong> ${t.tujuan}</td>
-                    <td><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
+                    <td style="text-align:left; border:none; padding:2px;"><strong>TUJUAN  :</strong> ${t.tujuan}</td>
+                    <td style="text-align:left; border:none; padding:2px;"><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
                 </tr>
                 <tr>
-                    <td colspan="2"><strong>PETUGAS / TIM / SHIFT :</strong> ${petugasName} | ${timName} | ${shiftName}</td>
+                    <td colspan="2" style="text-align:left; border:none; padding:2px;"><strong>PETUGAS / TIM / SHIFT :</strong> ${petugasName} | ${timName} | ${shiftName}</td>
                 </tr>
             </table>
 
-            <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <table style="width:100%; border-collapse:collapse; font-size:9px;">
                 <thead>
                     <tr style="background:#f1f5f9;">
-                        <th style="border:1px solid #000; padding:4px; width:30px;">No.</th>
-                        <th style="border:1px solid #000; padding:4px;">SKU & Nama Produk</th>
-                        <th style="border:1px solid #000; padding:4px; width:65px;">Prodate</th>
-                        <th style="border:1px solid #000; padding:4px; width:75px;">Rak</th>
-                        <th style="border:1px solid #000; padding:4px; width:80px;">Pallet & Receh</th>
-                        <th style="border:1px solid #000; padding:4px; width:50px;">Total</th>
+                        <th style="border:1px solid #000; padding:4px; width:25px;">No.</th>
+                        <th style="border:1px solid #000; padding:4px; width:65px;">SKU</th>
+                        <th style="border:1px solid #000; padding:4px;">Nama Produk</th>
+                        <th style="border:1px solid #000; padding:4px; width:55px;">Prodate</th>
+                        <th style="border:1px solid #000; padding:4px; width:65px;">Rak</th>
+                        <th style="border:1px solid #000; padding:4px; width:70px;">Pallet & Receh</th>
+                        <th style="border:1px solid #000; padding:4px; width:45px;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -996,7 +1015,7 @@ function printPickingList() {
                 </tbody>
             </table>
 
-            <div style="display:flex; justify-content:space-between; margin-top:25px; font-size:11px; text-align:center;">
+            <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:10px; text-align:center;">
                 <div style="width: 40%;">
                     <span>Admin GDFC</span><br><br><br>
                     <strong>(${petugasName})</strong>
@@ -1009,7 +1028,6 @@ function printPickingList() {
         </div>
     `;
 
-    // Pastikan printArea diaktifkan sebelum mencetak, lalu sembunyikan kembali setelah selesai
     printBox.style.display = 'block';
     window.print();
     printBox.style.display = 'none';
