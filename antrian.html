@@ -395,7 +395,7 @@ let truckQueue = [];
 let masterStock = {}; 
 let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
 
-// Sinkronisasi data dari tabel Supabase: antrian_truk, picking_list_truk, status_truk_log, dan master_sku
+// Sinkronisasi data dari tabel Supabase dengan tanggal & jam real-time dari kolom created_at
 async function loadDataFromCloud() {
     try {
         let { data: skuMaster, error: errSku } = await _supabase.from('master_sku').select('*');
@@ -429,7 +429,11 @@ async function loadDataFromCloud() {
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
                 let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
+                
+                // PERBAIKAN: Menarik jam masuk dan tanggal real-time dari created_at database Supabase
                 let timeInStr = t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
+                let startLoadingStr = statRow && statRow.time_start_loading ? statRow.time_start_loading : '-';
 
                 return {
                     id: 'TRK-' + t.id,
@@ -444,10 +448,10 @@ async function loadDataFromCloud() {
                     status: statRow ? statRow.status_truk : (t.status_antrian || 'Antrian'),
                     dock: statRow ? (statRow.loading_dock || '-') : '-',
                     timeIn: timeInStr,
-                    tanggalKirim: t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-',
-                    timeStartLoading: '-',
+                    tanggalKirim: tanggalKirimStr,
+                    timeStartLoading: startLoadingStr,
                     rawTime: rawTimeVal,
-                    timeOut: '-',
+                    timeOut: statRow ? (statRow.time_out || '-') : '-',
                     rawTimeOut: null,
                     frozenDurationMs: null,
                     petugas: firstPl ? firstPl.nama_petugas : '',
@@ -801,7 +805,6 @@ async function removePlItem(idx) {
 
     let removedItem = t.pickingList[idx];
     
-    // Hapus dari database picking_list_truk berdasarkan no_doc dan sku
     await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc).eq('sku', removedItem.sku);
 
     if(removedItem) {
@@ -1340,6 +1343,7 @@ async function saveStatus() {
         newSt = document.getElementById('selectStatus').value;
     }
     let selectedDock = document.getElementById('selectDock').value;
+    let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     if (newSt === 'Proses Muat') {
         let dockNum = parseInt(selectedDock.replace('Dock ', ''));
@@ -1353,7 +1357,6 @@ async function saveStatus() {
     targetTruck.status = newSt;
     targetTruck.dock = (newSt === 'Proses Muat') ? (selectedDock || 'Dock 01') : '-';
 
-    // Upsert ke tabel status_truk_log
     let logRecord = {
         no_doc: targetTruck.noDoc,
         status_truk: newSt,
@@ -1362,7 +1365,15 @@ async function saveStatus() {
         nomor_map_arsip: detailArsip || '-'
     };
 
-    let { error } = await _supabase.from('status_truk_log').upsert([logRecord], { onConflict: 'no_doc' });
+    if (newSt === 'Proses Muat') {
+        logRecord.time_start_loading = currentTimeStr;
+        targetTruck.timeStartLoading = currentTimeStr;
+    } else if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
+        logRecord.time_out = currentTimeStr;
+        targetTruck.timeOut = currentTimeStr;
+    }
+
+    let { error } = await _supabase.from('status_truk_log').upsert(logRecord);
     if (error) {
         alert('Gagal menyimpan status truk ke database: ' + error.message);
         return;
@@ -1401,7 +1412,6 @@ async function deleteTruck(idx) {
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
         }
 
-        // Hapus dari picking_list_truk, status_truk_log, dan antrian_truk
         await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc);
         await _supabase.from('status_truk_log').delete().eq('no_doc', t.noDoc);
         await _supabase.from('antrian_truk').delete().eq('id', t.dbId);
