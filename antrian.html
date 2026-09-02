@@ -178,7 +178,15 @@
                 <label>Nama Petugas / Admin *</label>
                 <input type="text" id="plPetugas" placeholder="Cth: Budi Setiawan" oninput="savePetugasShift()">
             </div>
-            <div style="width:160px;">
+            <div style="width:130px;">
+                <label>Tim Kerja *</label>
+                <select id="plTim" onchange="savePetugasShift()">
+                    <option value="Team A">Team A</option>
+                    <option value="Team B">Team B</option>
+                    <option value="Team C">Team C</option>
+                </select>
+            </div>
+            <div style="width:150px;">
                 <label>Shift Kerja *</label>
                 <select id="plShift" onchange="savePetugasShift()">
                     <option value="Shift 1 (Pagi)">Shift 1 (Pagi)</option>
@@ -469,6 +477,7 @@ async function loadDataFromCloud() {
                     rawTimeOut: null,
                     frozenDurationMs: null,
                     petugas: firstPl ? firstPl.nama_petugas : '',
+                    tim: firstPl ? (firstPl.nama_tim || 'Team A') : 'Team A',
                     shift: firstPl ? firstPl.shift_kerja : 'Shift 1 (Pagi)',
                     lokasiArsip: statRow && statRow.kategori_arsip ? `${statRow.kategori_arsip}: ${statRow.nomor_map_arsip || ''}` : 'Belum Ada Arsip',
                     pickingList: plRows.map(p => ({
@@ -689,6 +698,7 @@ function openPickingListModal(index) {
     document.getElementById('plTruckInfo').innerText = `${t.noPol} (${t.ekspedisi}) - Doc: ${t.noDoc}`;
     
     document.getElementById('plPetugas').value = t.petugas || '';
+    document.getElementById('plTim').value = t.tim || 'Team A';
     document.getElementById('plShift').value = t.shift || 'Shift 1 (Pagi)';
 
     let isLocked = (t.status === 'Selesai Muat' || t.status === 'Keluar');
@@ -730,6 +740,7 @@ function renderPlTable() {
 async function savePetugasShift() {
     if(activePlTruckIdx === null) return;
     truckQueue[activePlTruckIdx].petugas = document.getElementById('plPetugas').value;
+    truckQueue[activePlTruckIdx].tim = document.getElementById('plTim').value;
     truckQueue[activePlTruckIdx].shift = document.getElementById('plShift').value;
 }
 
@@ -765,6 +776,7 @@ async function addItemToTruckPickingList() {
     let pickRecord = {
         no_doc: t.noDoc,
         nama_petugas: document.getElementById('plPetugas').value || '-',
+        nama_tim: document.getElementById('plTim').value || 'Team A',
         shift_kerja: document.getElementById('plShift').value || 'Shift 1 (Pagi)',
         sku: skuCode,
         batch_lokasi: selectedBatchData.lokasi,
@@ -861,6 +873,7 @@ function printPickingList() {
     let list = t.pickingList || [];
     const nowStr = new Date().toLocaleDateString('id-ID');
     let petugasName = t.petugas || '-';
+    let timName = t.tim || '-';
     let shiftName = t.shift || '-';
 
     let rowsHtml = '';
@@ -914,7 +927,7 @@ function printPickingList() {
                     <td><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
                 </tr>
                 <tr>
-                    <td colspan="2"><strong>PETUGAS / SHIFT :</strong> ${petugasName} (${shiftName})</td>
+                    <td colspan="2"><strong>PETUGAS / TIM / SHIFT :</strong> ${petugasName} | ${timName} | ${shiftName}</td>
                 </tr>
             </table>
 
@@ -964,7 +977,7 @@ function showDockDetail(dockName) {
 
     if(assignedTruck) {
         let totalQty = (assignedTruck.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
-        let pInfo = assignedTruck.petugas ? `<br><strong>Petugas:</strong> ${assignedTruck.petugas} (${assignedTruck.shift})` : '';
+        let pInfo = assignedTruck.petugas ? `<br><strong>Petugas:</strong> ${assignedTruck.petugas} (${assignedTruck.tim} - ${assignedTruck.shift})` : '';
         bodyEl.innerHTML = `
             <p><strong>ID Antrian:</strong> ${assignedTruck.id}</p>
             <p><strong>No. Polisi:</strong> ${assignedTruck.noPol}</p>
@@ -1116,7 +1129,7 @@ function renderAll() {
         let displayTimeIn = t.timeIn || '-';
         let displayStartLoading = t.timeStartLoading || '-';
         let displayTimeOut = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
-        let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.shift})` : '';
+        let petugasBadge = t.petugas ? ` | 👤 ${t.petugas} (${t.tim} - ${t.shift})` : '';
         let arsipBadge = (t.lokasiArsip && t.lokasiArsip !== 'Belum Ada Arsip') ? ` | 📁 Arsip: <b>${t.lokasiArsip}</b>` : '';
 
         let stayDurationInfo = '';
