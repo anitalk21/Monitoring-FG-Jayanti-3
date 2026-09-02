@@ -465,10 +465,9 @@ async function loadDataFromCloud() {
                 
                 let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
-                let startLoadingStr = statRow && statRow.time_start_loading ? statRow.time_start_loading : '-';
+                let startLoadingStr = (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') ? statRow.time_start_loading : '-';
                 let timeoutStr = statRow && statRow.time_out ? statRow.time_out : '-';
                 
-                // Ambil status langsung dari kolom status_antrian jika ada, atau log status, atau default 'Antrian'
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
                 return {
@@ -1466,7 +1465,6 @@ async function saveStatus() {
         return;
     }
 
-    // Update permanen status di tabel antrian_truk agar status langsung berpindah saat data direfresh/dimuat ulang
     await _supabase.from('antrian_truk').update({ status_antrian: newSt }).eq('id', targetTruck.dbId);
 
     targetTruck.lokasiArsip = finalArsipStr;
