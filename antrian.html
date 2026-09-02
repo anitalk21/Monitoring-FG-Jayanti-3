@@ -67,7 +67,7 @@
     </div>
     <div class="nav-actions">
         <button class="btn-nav" onclick="loadDataFromCloud()" style="background: #e0e7ff; color: #4338ca; border-color: #c7d2fe;">🔄 Refresh</button>
-        <button class="btn-nav" onclick="openModal('modalManual')" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
+        <button class="btn-nav" onclick="openManualModal()" style="background: #10b981; color: white; border-color: #059669;">+ Daftar Manual (Time Keeper)</button>
         <a href="monitoring.html" class="btn-nav" style="color:#6366f1;">Monitoring Utama</a>
         <a href="index.html" class="btn-nav" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">Portal</a>
     </div>
@@ -121,6 +121,7 @@
         <button type="button" onclick="closeModal('modalManual')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:16px; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
         <h4 style="margin-top:0; color:#1e293b;">Form Pendaftaran Truk Masuk (Time Keeper)</h4>
         <form onsubmit="submitAntrian(event)">
+            <div class="form-group"><label>Tanggal Masuk *</label><input type="date" id="mTanggal" required></div>
             <div class="form-group"><label>Nama Sopir *</label><input type="text" id="mSopir" required placeholder="Contoh: Budi"></div>
             <div class="form-group"><label>Nama Ekspedisi *</label><input type="text" id="mEkspedisi" required placeholder="Contoh: Seino"></div>
             <div class="form-group"><label>No. Polisi Truk *</label><input type="text" id="mNoPol" required placeholder="B 1234 XYZ"></div>
@@ -423,6 +424,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function openManualModal() {
+    let todayIso = new Date().toISOString().split('T')[0];
+    let tanggalEl = document.getElementById('mTanggal');
+    if (tanggalEl) tanggalEl.value = todayIso;
+    openModal('modalManual');
+}
+
 function closeModal(id) { 
     document.getElementById(id).style.display = 'none';
     const drop = document.getElementById('adminSkuDropdown');
@@ -482,7 +490,6 @@ async function loadDataFromCloud() {
                 if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
-                // PARSING TIMESTAMPTZ DARI DATABASE SUPABASE UNTUK TIMER RDC PRESISI
                 let rawTimeVal = new Date().getTime();
                 let timeInStr = '-';
                 
@@ -496,7 +503,14 @@ async function loadDataFromCloud() {
                     timeInStr = dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 }
 
-                let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
+                let tanggalKirimStr = '-';
+                if (t.tanggal) {
+                    let parts = t.tanggal.split('-');
+                    if (parts.length === 3) tanggalKirimStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    else tanggalKirimStr = t.tanggal;
+                } else if (t.created_at) {
+                    tanggalKirimStr = new Date(t.created_at).toLocaleDateString('id-ID');
+                }
                 
                 let startLoadingStr = '-';
                 if (statRow && statRow.time_start_loading) {
@@ -716,6 +730,7 @@ document.addEventListener('click', function(e) {
 
 async function submitAntrian(e) {
     e.preventDefault();
+    let tanggalVal = document.getElementById('mTanggal').value;
     let jenisVal = document.getElementById('mJenis').value;
     let tipeVal = document.getElementById('mTipeLokal').value;
     let containerVal = document.getElementById('mContainer').value;
@@ -723,6 +738,7 @@ async function submitAntrian(e) {
     let currentIsoTime = new Date().toISOString();
 
     let newTruckRecord = {
+        tanggal: tanggalVal,
         nama_sopir: document.getElementById('mSopir').value,
         nama_ekspedisi: document.getElementById('mEkspedisi').value,
         no_polisi_truk: document.getElementById('mNoPol').value.toUpperCase(),
@@ -1101,7 +1117,7 @@ function showDockDetail(dockName) {
             <p><strong>No. Doc (SPE/SPM/SO/QT):</strong> ${assignedTruck.noDoc}</p>
             <p><strong>Jenis / Tujuan:</strong> ${assignedTruck.jenis} &rarr; ${assignedTruck.tujuan}</p>
             <p><strong>Total Muatan:</strong> ${totalQty} karton</p>
-            <p><strong>Waktu Masuk:</strong> ${assignedTruck.timeIn} ${pInfo}</p>
+            <p><strong>Tanggal / Waktu Masuk:</strong> ${assignedTruck.tanggalKirim} ${assignedTruck.timeIn} ${pInfo}</p>
         `;
     } else {
         let dockNum = parseInt(dockName.replace('Dock ', ''));
@@ -1241,6 +1257,7 @@ function renderAll() {
 
         let plCount = (t.pickingList || []).length;
         let totalQty = (t.pickingList || []).reduce((sum, i) => sum + i.jumlah, 0);
+        let displayTanggal = t.tanggalKirim || '-';
         let displayTimeIn = t.timeIn || '-';
         let displayStartLoading = t.timeStartLoading || '-';
         let displayTimeOut = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
@@ -1329,6 +1346,7 @@ function renderAll() {
                 </div>
                 <div style="margin-top:4px; font-size:10px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                     <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:bold; color:#334155;">Status: ${t.status} | Dock: ${t.dock}</span>
+                    <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px; font-weight:bold;">📅 Tgl: ${displayTanggal}</span>
                     <span style="background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:bold;">🕒 Masuk: ${displayTimeIn}</span>
                     <span style="background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-weight:bold;">🚀 Start Loading: ${displayStartLoading}</span>
                     ${isKeluar ? `<span style="background:#fef2f2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-weight:bold;">🏁 Keluar: ${displayTimeOut}</span>` : ''}
