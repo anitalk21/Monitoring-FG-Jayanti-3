@@ -467,6 +467,9 @@ async function loadDataFromCloud() {
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
                 let startLoadingStr = statRow && statRow.time_start_loading ? statRow.time_start_loading : '-';
                 let timeoutStr = statRow && statRow.time_out ? statRow.time_out : '-';
+                
+                // Ambil status langsung dari kolom status_antrian jika ada, atau log status, atau default 'Antrian'
+                let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
                 return {
                     id: 'TRK-' + t.id,
@@ -478,7 +481,7 @@ async function loadDataFromCloud() {
                     jenis: jenisFormatted,
                     tujuan: t.tujuan_pengiriman,
                     noHp: t.no_hp || '-',
-                    status: statRow ? statRow.status_truk : (t.status_antrian || 'Antrian'),
+                    status: currentStatus,
                     dock: statRow ? (statRow.loading_dock || '-') : '-',
                     timeIn: timeInStr,
                     tanggalKirim: tanggalKirimStr,
@@ -576,8 +579,8 @@ async function loadAvailableBatchesForSku(skuCode) {
     let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
     let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
     binStockData = [];
-    if (stokLokal) stokLokal.forEach(i => binStockData.push(i));
-    if (stokEkspor) stokEkspor.forEach(i => binStockData.push(i));
+    if (stokLokal) stokLokal.forEach(i => binStockData.push({ ...i, kategori_stok: 'Lokal' }));
+    if (stokEkspor) stokEkspor.forEach(i => binStockData.push({ ...i, kategori_stok: 'Ekspor' }));
 
     let matches = binStockData.filter(b => b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()));
     
@@ -725,8 +728,8 @@ async function openPickingListModal(index) {
     let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
     let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
     binStockData = [];
-    if (stokLokal) stokLokal.forEach(i => binStockData.push(i));
-    if (stokEkspor) stokEkspor.forEach(i => binStockData.push(i));
+    if (stokLokal) stokLokal.forEach(i => binStockData.push({ ...i, kategori_stok: 'Lokal' }));
+    if (stokEkspor) stokEkspor.forEach(i => binStockData.push({ ...i, kategori_stok: 'Ekspor' }));
 
     renderPlTable();
     openModal('modalPickingList');
@@ -1462,6 +1465,9 @@ async function saveStatus() {
         alert('Gagal menyimpan status truk ke database: ' + error.message);
         return;
     }
+
+    // Update permanen status di tabel antrian_truk agar status langsung berpindah saat data direfresh/dimuat ulang
+    await _supabase.from('antrian_truk').update({ status_antrian: newSt }).eq('id', targetTruck.dbId);
 
     targetTruck.lokasiArsip = finalArsipStr;
     closeModal('modalStatus');
