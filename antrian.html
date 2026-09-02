@@ -366,11 +366,26 @@ setInterval(updateClock, 1000);
 updateClock();
 
 function updateRunningTextSummary() {
+    let countAntri = truckQueue.filter(t => t.status === 'Antrian').length;
+    let countDokumen = truckQueue.filter(t => t.status === 'Menunggu Dokumen').length;
+    let countProses = truckQueue.filter(t => t.status === 'Proses Muat').length;
+    let countSelesai = truckQueue.filter(t => t.status === 'Selesai Muat').length;
+    let countTreatment = truckQueue.filter(t => t.status === 'Treatment').length;
+    let countKeluar = truckQueue.filter(t => t.status === 'Keluar').length;
+
     let elAntri = document.getElementById('rtAntrian');
-    if (elAntri) {
-        let countAntri = document.querySelector('.badge-antrian, [onclick*="antrian"]');
-        if (countAntri) elAntri.querySelector('b').innerText = countAntri.innerText.replace(/[^0-9]/g, '') || '0';
-    }
+    let elDokumen = document.getElementById('rtDokumen');
+    let elProses = document.getElementById('rtProses');
+    let elSelesai = document.getElementById('rtSelesai');
+    let elTreatment = document.getElementById('rtTreatment');
+    let elKeluar = document.getElementById('rtKeluar');
+
+    if (elAntri) elAntri.querySelector('b').innerText = countAntri;
+    if (elDokumen) elDokumen.querySelector('b').innerText = countDokumen;
+    if (elProses) elProses.querySelector('b').innerText = countProses;
+    if (elSelesai) elSelesai.querySelector('b').innerText = countSelesai;
+    if (elTreatment) elTreatment.querySelector('b').innerText = countTreatment;
+    if (elKeluar) elKeluar.querySelector('b').innerText = countKeluar;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -395,7 +410,6 @@ let truckQueue = [];
 let masterStock = {}; 
 let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
 
-// Sinkronisasi data dari tabel Supabase dengan tanggal & jam real-time dari kolom created_at
 async function loadDataFromCloud() {
     try {
         let { data: skuMaster, error: errSku } = await _supabase.from('master_sku').select('*');
@@ -430,10 +444,10 @@ async function loadDataFromCloud() {
 
                 let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
                 
-                // PERBAIKAN: Menarik jam masuk dan tanggal real-time dari created_at database Supabase
-                let timeInStr = t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
                 let startLoadingStr = statRow && statRow.time_start_loading ? statRow.time_start_loading : '-';
+                let timeoutStr = statRow && statRow.time_out ? statRow.time_out : '-';
 
                 return {
                     id: 'TRK-' + t.id,
@@ -451,7 +465,7 @@ async function loadDataFromCloud() {
                     tanggalKirim: tanggalKirimStr,
                     timeStartLoading: startLoadingStr,
                     rawTime: rawTimeVal,
-                    timeOut: statRow ? (statRow.time_out || '-') : '-',
+                    timeOut: timeoutStr,
                     rawTimeOut: null,
                     frozenDurationMs: null,
                     petugas: firstPl ? firstPl.nama_petugas : '',
@@ -470,6 +484,7 @@ async function loadDataFromCloud() {
                 };
             });
             renderAll();
+            updateRunningTextSummary();
         }
     } catch (e) {
         console.error('Error loadDataFromCloud:', e);
@@ -629,12 +644,14 @@ async function submitAntrian(e) {
     let jenisVal = document.getElementById('mJenis').value;
     let tipeVal = document.getElementById('mTipeLokal').value;
     let containerVal = document.getElementById('mContainer').value;
+    let noDocVal = document.getElementById('mNoDoc').value;
+    let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     let newTruckRecord = {
         nama_sopir: document.getElementById('mSopir').value,
         nama_ekspedisi: document.getElementById('mEkspedisi').value,
         no_polisi_truk: document.getElementById('mNoPol').value.toUpperCase(),
-        no_doc: document.getElementById('mNoDoc').value,
+        no_doc: noDocVal,
         jenis: jenisVal,
         tipe_pengiriman: tipeVal || '-',
         no_container: containerVal || '-',
@@ -643,20 +660,25 @@ async function submitAntrian(e) {
         status_antrian: 'Antrian'
     };
 
-    let { error } = await _supabase
-        .from('antrian_truk')
-        .insert([newTruckRecord]);
+    let { error } = await _supabase.from('antrian_truk').insert([newTruckRecord]);
 
-    if (error) {
-        console.error('Gagal menyimpan antrian ke Supabase:', error);
-        alert('Gagal menyimpan data ke database cloud: ' + error.message);
-    } else {
+    if (!error) {
+        await _supabase.from('status_truk_log').upsert({
+            no_doc: noDocVal,
+            status_truk: 'Antrian',
+            loading_dock: '-',
+            time_in: currentTimeStr
+        });
+
         alert('Truk berhasil didaftarkan dan tersimpan online!');
         closeModal('modalManual');
         e.target.reset();
         document.getElementById('groupTipePengiriman').style.display = 'none';
         document.getElementById('groupContainer').style.display = 'none';
         loadDataFromCloud();
+    } else {
+        console.error('Gagal menyimpan antrian ke Supabase:', error);
+        alert('Gagal menyimpan data ke database cloud: ' + error.message);
     }
 }
 
@@ -996,6 +1018,8 @@ function renderAll() {
     document.getElementById('countSelesaiTab').innerText = countSelesai;
     document.getElementById('countTreatmentTab').innerText = countTreatment;
     document.getElementById('countKeluarTab').innerText = countKeluar;
+
+    updateRunningTextSummary();
 
     if(currentMainTab === 'DockTab') {
         let dockHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">';
