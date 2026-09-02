@@ -823,7 +823,6 @@
                     });
                 }
 
-                // Ambil data stok lokal & ekspor secara terpadu
                 let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
                 let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
                 
@@ -1576,9 +1575,11 @@
                     let itemTime = item.tanggal_masuk ? new Date(item.tanggal_masuk).getTime() : nowTime;
                     let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
                     if(diffDays < 0) diffDays = 0;
-                    let isReady = diffDays >= 8;
+                    
+                    // Diatur minimal 9 hari (hari ke-9 baru boleh keluar / Ready)
+                    let isReady = diffDays >= 9;
                     lamaAgingText = `${diffDays} Hari`;
-                    statusBadge = isReady ? '<span class="badge bg-success px-2 py-1">Ready</span>' : `<span class="badge bg-warning text-dark px-2 py-1">Aging (${8 - diffDays} hari lagi)</span>`;
+                    statusBadge = isReady ? '<span class="badge bg-success px-2 py-1">Ready</span>' : `<span class="badge bg-warning text-dark px-2 py-1">Aging (${9 - diffDays} hari lagi)</span>`;
                 } else {
                     lamaAgingText = '<span class="text-slate-400">Non-Aging (Overflow)</span>';
                     statusBadge = '<span class="badge bg-emerald-100 text-emerald-700 px-2 py-1 fw-bold">Ready / Bebas Aging</span>';
@@ -1820,7 +1821,6 @@
             let lokasiAsalLama = item.lokasi;
             let lokasiTujuanBaru = `${destBlock} - ${destRow}`;
 
-            // Simpan ke tabel relokasi__barang Supabase
             let logItem = {
                 tanggal_relokasi: new Date().toLocaleDateString('id-ID'),
                 sku: item.sku,
@@ -1837,7 +1837,6 @@
                 return;
             }
 
-            // Update tabel lokal/ekspor asal
             let targetTable = item.category === 'Ekspor' ? 'stok_ekspor' : 'stok_lokal';
             if (item.id) {
                 await _supabase.from(targetTable).update({ lokasi: lokasiTujuanBaru, tujuan_gudang: destWh }).eq('id', item.id);
