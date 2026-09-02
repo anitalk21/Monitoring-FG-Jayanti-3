@@ -1008,7 +1008,11 @@ function printPickingList() {
             </div>
         </div>
     `;
+
+    // Pastikan printArea diaktifkan sebelum mencetak, lalu sembunyikan kembali setelah selesai
+    printBox.style.display = 'block';
     window.print();
+    printBox.style.display = 'none';
 }
 
 let currentMainTab = 'AntrianTab';
