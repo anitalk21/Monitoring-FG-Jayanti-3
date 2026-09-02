@@ -491,9 +491,10 @@ async function loadDataFromCloud() {
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
+                // Acuan timer RDC diubah total mutlak menghitung dari jam masuk pertama (timeInStr)
                 let rawTimeVal = new Date().getTime();
-                if (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') {
-                    let parts = statRow.time_start_loading.split(':');
+                if (timeInStr && timeInStr !== '-') {
+                    let parts = timeInStr.split(':');
                     let d = new Date();
                     d.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
                     rawTimeVal = d.getTime();
@@ -1485,7 +1486,6 @@ async function saveStatus() {
     }
     let selectedDock = document.getElementById('selectDock').value;
     let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let currentTimestamp = new Date().getTime();
 
     if (newSt === 'Proses Muat') {
         let dockNum = parseInt(selectedDock.replace('Dock ', ''));
@@ -1508,13 +1508,13 @@ async function saveStatus() {
         time_in: targetTruck.timeIn || currentTimeStr
     };
 
+    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
+
     if (newSt === 'Proses Muat') {
-        logRecord.time_start_loading = currentTimeStr;
-        targetTruck.timeStartLoading = currentTimeStr;
-        targetTruck.rawTime = currentTimestamp;
-        targetTruck.frozenDurationMs = null;
+        logRecord.time_start_loading = existingStartLoading ? existingStartLoading : currentTimeStr;
+        targetTruck.timeStartLoading = logRecord.time_start_loading;
     } else {
-        logRecord.time_start_loading = targetTruck.timeStartLoading || '-';
+        logRecord.time_start_loading = existingStartLoading || '-';
     }
 
     if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
