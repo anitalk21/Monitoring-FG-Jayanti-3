@@ -1015,7 +1015,7 @@
             if(overlay) overlay.classList.toggle('hidden');
         }
 
-        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI (FIX SINKRONISASI BIN-LOC & GUDANG AGING) ---
+        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI (FIX SINKRONISASI TANGGAL & JAM RAPI) ---
         async function fetchAllDataFromSupabase() {
             try {
                 // 1. Ambil Master SKU
@@ -1033,7 +1033,7 @@
                     });
                 }
 
-                // 2. Ambil Stok Bin-Loc dari tabel stok_lokal & stok_ekspor (seperti di binloc.html) serta binloc_stok_jayanti3
+                // 2. Ambil Stok Bin-Loc dari tabel stok_lokal & stok_ekspor serta binloc_stok_jayanti3
                 let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
                 let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
                 let { data: binRes } = await _supabase.from('binloc_stok_jayanti3').select('*');
@@ -1067,10 +1067,37 @@
 
                         let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
                         
-                        // SINKRONISASI WAKTU REAL-TIME DARI TABEL `status_truk_log` (time_in, time_start_loading, time_out)
-                        let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
-                        let startLoadingStr = (statRow && statRow.time_start_loading) ? statRow.time_start_loading : '-';
-                        let timeoutStr = (statRow && statRow.time_out) ? statRow.time_out : '-';
+                        // FORMAT TANGGAL YANG TEPAT (SINKRON DENGAN antrian_truk & created_at)
+                        let tanggalKirimStr = '-';
+                        if (t.tanggal) {
+                            let parts = t.tanggal.split('-');
+                            if (parts.length === 3) tanggalKirimStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            else tanggalKirimStr = t.tanggal;
+                        } else if (t.created_at) {
+                            tanggalKirimStr = new Date(t.created_at).toLocaleDateString('id-ID');
+                        }
+
+                        // FORMAT JAM RAPI (MENGUBAH ISO STRING MENJADI HH:MM)
+                        let timeInStr = '-';
+                        if (statRow && statRow.time_in) {
+                            let dIn = new Date(statRow.time_in);
+                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_in;
+                        } else if (t.created_at) {
+                            let dIn = new Date(t.created_at);
+                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                        }
+
+                        let startLoadingStr = '-';
+                        if (statRow && statRow.time_start_loading) {
+                            let dStart = new Date(statRow.time_start_loading);
+                            startLoadingStr = !isNaN(dStart.getTime()) ? dStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_start_loading;
+                        }
+
+                        let timeoutStr = '-';
+                        if (statRow && statRow.time_out) {
+                            let dOut = new Date(statRow.time_out);
+                            timeoutStr = !isNaN(dOut.getTime()) ? dOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_out;
+                        }
 
                         return {
                             id: 'TRK-' + t.id,
@@ -1085,7 +1112,7 @@
                             status: statRow ? statRow.status_truk : (t.status_antrian || 'Antrian'),
                             dock: statRow ? (statRow.loading_dock || '-') : '-',
                             timeIn: timeInStr,
-                            tanggalKirim: t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-',
+                            tanggalKirim: tanggalKirimStr,
                             timeStartLoading: startLoadingStr,
                             rawTime: rawTimeVal,
                             timeOut: timeoutStr,
@@ -1637,7 +1664,7 @@
                     jamMasukVal = matchingAntrian.timeIn || jamMasukVal;
                     jamKeluarVal = matchingAntrian.timeOut || jamKeluarVal;
                     startTimeVal = matchingAntrian.timeStartLoading || startTimeVal;
-                    realisasiStuffingVal = matchingAntrian.timeIn ? (new Date().toLocaleDateString('id-ID')) : realisasiStuffingVal;
+                    realisasiStuffingVal = matchingAntrian.tanggalKirim || realisasiStuffingVal;
                     noDoVal = matchingAntrian.noDoc || noDoVal;
 
                     if (matchingAntrian.pickingList && matchingAntrian.pickingList.length > 0) {
@@ -1778,7 +1805,7 @@
             activeTrucks.forEach((t, globalIdx) => {
                 let list = t.pickingList || [];
                 let totalQty = list.reduce((sum, i) => sum + (parseFloat(i.jumlah) || 0), 0);
-                let tglKirim = t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-');
+                let tglKirim = t.tanggalKirim || '-';
                 let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
 
                 let badgeArsipColor = 'bg-amber-50 text-amber-700 border-amber-200';
@@ -1847,7 +1874,7 @@
                             noDoc: t.noDoc || '-',
                             noPol: t.noPol || '-',
                             ekspedisi: t.ekspedisi || '-',
-                            tanggalKirim: t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-'),
+                            tanggalKirim: t.tanggalKirim || '-',
                             tujuan: t.tujuan || '-',
                             petugas: t.petugas ? `${t.petugas} (${t.shift || '-'})` : '-'
                         });
@@ -1962,7 +1989,7 @@
                 });
             }
 
-            let tglKirim = t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-');
+            let tglKirim = t.tanggalKirim || '-';
             let petugasInfo = t.petugas ? `${t.petugas} (${t.shift || 'Shift 1'})` : 'Belum ditentukan';
             let arsipFisik = t.lokasiArsip || 'Belum Ada Arsip';
 
@@ -2035,7 +2062,7 @@
             let csvContent = "data:text/csv;charset=utf-8,ID Truk,No Polisi,Ekspedisi,No Dokumen,Tujuan,Jenis Pengiriman,Tanggal Kirim,Petugas & Shift,Status Truk,Dock,Lokasi Arsip Fisik,SKU,Nama Produk,Prodate,Rak Asal,Total Karton\n";
 
             antrianData.forEach(t => {
-                let tglKirim = t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-');
+                let tglKirim = t.tanggalKirim || '-';
                 let petugas = t.petugas ? `${t.petugas} (${t.shift || '-'})` : '-';
                 let arsip = t.lokasiArsip || 'Belum Ada Arsip';
 
@@ -2097,7 +2124,6 @@
 
                 let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : (parseFloat(item.karton) / 70 || 0);
                 
-                // Pengecekan apakah barang masuk ke Gudang Aging atau Induk (berdasarkan field gudang atau lokasi)
                 let gudangStr = (item.gudang || '').toLowerCase();
                 let lokasiStr = (item.lokasi || '').toUpperCase();
                 
