@@ -1499,8 +1499,6 @@ async function saveStatus() {
     targetTruck.status = newSt;
     targetTruck.dock = (newSt === 'Proses Muat') ? (selectedDock || 'Dock 01') : '-';
 
-    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
-
     let logRecord = {
         no_doc: targetTruck.noDoc,
         status_truk: newSt,
@@ -1511,14 +1509,12 @@ async function saveStatus() {
     };
 
     if (newSt === 'Proses Muat') {
-        logRecord.time_start_loading = existingStartLoading ? existingStartLoading : currentTimeStr;
-        targetTruck.timeStartLoading = logRecord.time_start_loading;
-        
-        if(!existingStartLoading) {
-            targetTruck.rawTime = currentTimestamp;
-        }
+        logRecord.time_start_loading = currentTimeStr;
+        targetTruck.timeStartLoading = currentTimeStr;
+        targetTruck.rawTime = currentTimestamp;
+        targetTruck.frozenDurationMs = null;
     } else {
-        logRecord.time_start_loading = existingStartLoading || '-';
+        logRecord.time_start_loading = targetTruck.timeStartLoading || '-';
     }
 
     if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
