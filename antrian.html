@@ -388,7 +388,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Auto refresh render agar RDC timer berjalan live setiap 1 detik
 setInterval(() => {
     if (truckQueue.length > 0) {
         renderAll();
@@ -727,12 +726,18 @@ async function submitAntrian(e) {
     let { error } = await _supabase.from('antrian_truk').insert([newTruckRecord]);
 
     if (!error) {
-        await _supabase.from('status_truk_log').upsert({
+        let { data: existingLog } = await _supabase.from('status_truk_log').select('id').eq('no_doc', noDocVal);
+        let logData = {
             no_doc: noDocVal,
             status_truk: 'Antrian',
             loading_dock: '-',
             time_in: currentTimeStr
-        }, { onConflict: 'no_doc' });
+        };
+        if (existingLog && existingLog.length > 0) {
+            await _supabase.from('status_truk_log').update(logData).eq('no_doc', noDocVal);
+        } else {
+            await _supabase.from('status_truk_log').insert([logData]);
+        }
 
         alert('Truk berhasil didaftarkan dan tersimpan online!');
         closeModal('modalManual');
@@ -1499,7 +1504,8 @@ async function saveStatus() {
         status_truk: newSt,
         loading_dock: targetTruck.dock,
         kategori_arsip: kat,
-        nomor_map_arsip: detailArsip || '-'
+        nomor_map_arsip: detailArsip || '-',
+        time_in: targetTruck.timeIn || currentTimeStr
     };
 
     if (newSt === 'Proses Muat') {
@@ -1511,7 +1517,17 @@ async function saveStatus() {
         targetTruck.timeOut = currentTimeStr;
     }
 
-    let { error } = await _supabase.from('status_truk_log').upsert(logRecord, { onConflict: 'no_doc' });
+    let { data: existingLog } = await _supabase.from('status_truk_log').select('id').eq('no_doc', targetTruck.noDoc);
+
+    let error;
+    if (existingLog && existingLog.length > 0) {
+        let res = await _supabase.from('status_truk_log').update(logRecord).eq('no_doc', targetTruck.noDoc);
+        error = res.error;
+    } else {
+        let res = await _supabase.from('status_truk_log').insert([logRecord]);
+        error = res.error;
+    }
+
     if (error) {
         alert('Gagal menyimpan status truk ke database: ' + error.message);
         return;
@@ -1522,7 +1538,7 @@ async function saveStatus() {
     targetTruck.lokasiArsip = finalArsipStr;
     closeModal('modalStatus');
     loadDataFromCloud();
-    alert('Status dan jam start loading berhasil diperbarui!');
+    alert('Status dan jam berhasil diperbarui!');
 }
 
 async function deleteTruck(idx) {
