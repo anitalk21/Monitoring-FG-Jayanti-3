@@ -491,7 +491,6 @@ async function loadDataFromCloud() {
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
-                // Hitung rawTime yang akurat berdasarkan jam start loading aktual
                 let rawTimeVal = new Date().getTime();
                 if (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') {
                     let parts = statRow.time_start_loading.split(':');
@@ -1258,7 +1257,7 @@ function renderAll() {
                 t.frozenDurationMs = null;
                 let startRaw = t.rawTime || new Date().getTime();
                 diffMs = new Date().getTime() - startRaw;
-                if(diffMs < 0) diffMs = 0; // Cegah nilai negatif jika selisih waktu
+                if(diffMs < 0) diffMs = 0;
             }
 
             let diffHrs = diffMs / (1000 * 60 * 60);
@@ -1486,6 +1485,7 @@ async function saveStatus() {
     }
     let selectedDock = document.getElementById('selectDock').value;
     let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let currentTimestamp = new Date().getTime();
 
     if (newSt === 'Proses Muat') {
         let dockNum = parseInt(selectedDock.replace('Dock ', ''));
@@ -1499,7 +1499,7 @@ async function saveStatus() {
     targetTruck.status = newSt;
     targetTruck.dock = (newSt === 'Proses Muat') ? (selectedDock || 'Dock 01') : '-';
 
-    let currentTimestamp = new Date().getTime();
+    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
 
     let logRecord = {
         no_doc: targetTruck.noDoc,
@@ -1510,12 +1510,10 @@ async function saveStatus() {
         time_in: targetTruck.timeIn || currentTimeStr
     };
 
-    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
-
     if (newSt === 'Proses Muat') {
         logRecord.time_start_loading = existingStartLoading ? existingStartLoading : currentTimeStr;
         targetTruck.timeStartLoading = logRecord.time_start_loading;
-        // Gunakan timestamp persis saat pertama kali start loading
+        
         if(!existingStartLoading) {
             targetTruck.rawTime = currentTimestamp;
         }
