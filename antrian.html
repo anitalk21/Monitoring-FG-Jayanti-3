@@ -491,13 +491,13 @@ async function loadDataFromCloud() {
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
-                // Acuan timer RDC diubah total mutlak menghitung dari jam masuk pertama (timeInStr)
+                // Parsing jam masuk akurat tanpa mengubah format/geser tanggal
                 let rawTimeVal = new Date().getTime();
                 if (timeInStr && timeInStr !== '-') {
                     let parts = timeInStr.split(':');
-                    let d = new Date();
-                    d.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
-                    rawTimeVal = d.getTime();
+                    let now = new Date();
+                    now.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
+                    rawTimeVal = now.getTime();
                 } else if (t.created_at) {
                     rawTimeVal = new Date(t.created_at).getTime();
                 }
