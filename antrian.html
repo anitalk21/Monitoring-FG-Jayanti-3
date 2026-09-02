@@ -654,16 +654,25 @@ async function loadAvailableBatchesForSku(skuCode) {
     const nowTime = new Date().getTime();
     matches.sort((a, b) => new Date(a.prodate || a.tanggal || a.tanggalProduksi || 0) - new Date(b.prodate || b.tanggal || b.tanggalProduksi || 0));
 
+    // Cek apakah produk yang dipilih adalah kategori Beng-Beng atau mengandung kata kunci "beng"
+    let prodInfo = masterStock[skuCode] ? masterStock[skuCode].name.toLowerCase() : '';
+    let isBengBengProduct = prodInfo.includes('beng') || skuCode.toLowerCase().includes('beng');
+
     matches.forEach((m, idx) => {
         let pDate = m.prodate || m.tanggal || m.tanggalProduksi || m.tgl || '-';
-        let itemTime = m.timestamp || new Date(pDate).getTime() || nowTime;
+        let itemTime = new Date(pDate).getTime() || nowTime;
         let diffDays = Math.floor((nowTime - itemTime) / (1000 * 60 * 60 * 24));
         if(diffDays < 0) diffDays = 0;
 
-        let isAgingGudang = m.gudang && m.gudang.includes('Aging');
-        let isNotReady = isAgingGudang && diffDays < 8;
+        // LOGIKA KHUSUS BENG-BENG: Jika produk Beng-Beng dan usia < 8 hari, wajib diblokir! Produk lain bebas.
+        let isNotReady = false;
+        if (isBengBengProduct && diffDays < 8) {
+            isNotReady = true;
+        } else if (m.gudang && m.gudang.toLowerCase().includes('aging')) {
+            isNotReady = diffDays < 8;
+        }
 
-        let statusLabel = isNotReady ? ` ⚠️ [BLOCKED: Kurang ${8 - diffDays} hari aging]` : ' ✓ [READY KIRIM]';
+        let statusLabel = isNotReady ? ` ⚠️ [BLOCKED BENG-BENG: Kurang ${Math.max(0, 8 - diffDays)} hari aging]` : ' ✓ [READY KIRIM]';
         let optionText = `Rak: ${m.lokasi} | Prodate: ${pDate} | Stok: ${m.karton} krt | Pallet: ${m.pallet}${statusLabel}`;
         
         let opt = document.createElement('option');
