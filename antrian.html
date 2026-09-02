@@ -48,7 +48,7 @@
 
 <header class="nav-bar">
     <div style="display: flex; align-items: center; gap: 15px;">
-        <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian (Time Keeper & Admin)</span>
+        <span style="font-weight:bold; font-size:14px; color:#1e293b;">Dashboard Antrian - PT. Mayora Indah Tbk</span>
         <span id="realTimeClock" style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold;">Memuat waktu...</span>
     </div>
     <div class="nav-actions">
@@ -392,43 +392,79 @@ function handleJenisChange() {
 }
 
 let truckQueue = [];
-let masterStock = {}; // Akan ditarik langsung dari Supabase (tabel master_sku)
+let masterStock = {}; 
 let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
 
-// Fungsi utama menarik data Master SKU dan antrian langsung dari Supabase
+// Sinkronisasi data dari tabel Supabase: antrian_truk, picking_list_truk, status_truk_log, dan master_sku
 async function loadDataFromCloud() {
     try {
-        // 1. Tarik data Master SKU dari Supabase (tabel master_sku)
-        let { data: skuMaster, error: errSku } = await _supabase
-            .from('master_sku')
-            .select('*');
-        
+        let { data: skuMaster, error: errSku } = await _supabase.from('master_sku').select('*');
         if (!errSku && skuMaster) {
             masterStock = {};
             skuMaster.forEach(item => {
-                let skuKey = item.sku;
-                let namaVal = item.nama_produk;
-                let cartonVal = item.carton_per_pallet;
-                
-                if (skuKey) {
-                    masterStock[skuKey] = {
-                        sku: skuKey,
-                        name: namaVal || '-',
-                        cartonPerPallet: parseFloat(cartonVal) || 70
+                if (item.sku) {
+                    masterStock[item.sku] = {
+                        sku: item.sku,
+                        name: item.nama_produk || '-',
+                        cartonPerPallet: parseFloat(item.carton_per_pallet) || 70
                     };
                 }
             });
         }
 
-        // 2. Tarik data Antrian Truk dari Supabase (tabel antrian_truk_jayanti3)
-        let { data, error } = await _supabase
-            .from('antrian_truk_jayanti3')
-            .select('*');
-        
-        if (error) {
-            console.error('Gagal mengambil data antrian dari cloud:', error);
-        } else if (data) {
-            truckQueue = data;
+        let { data: trucks, error: errTrucks } = await _supabase.from('antrian_truk').select('*');
+        let { data: pickLists, error: errPick } = await _supabase.from('picking_list_truk').select('*');
+        let { data: statuses, error: errStat } = await _supabase.from('status_truk_log').select('*');
+
+        if (!errTrucks && trucks) {
+            truckQueue = trucks.map(t => {
+                let docNo = t.no_doc;
+                let statRow = statuses ? statuses.find(s => s.no_doc === docNo) : null;
+                let plRows = pickLists ? pickLists.filter(p => p.no_doc === docNo) : [];
+                
+                let firstPl = plRows.length > 0 ? plRows[0] : null;
+
+                let jenisFormatted = t.jenis || 'LOKAL';
+                if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
+                if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
+
+                let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
+                let timeInStr = t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+
+                return {
+                    id: 'TRK-' + t.id,
+                    dbId: t.id,
+                    sopir: t.nama_sopir,
+                    ekspedisi: t.nama_ekspedisi,
+                    noPol: t.no_polisi_truk,
+                    noDoc: docNo,
+                    jenis: jenisFormatted,
+                    tujuan: t.tujuan_pengiriman,
+                    noHp: t.no_hp || '-',
+                    status: statRow ? statRow.status_truk : (t.status_antrian || 'Antrian'),
+                    dock: statRow ? (statRow.loading_dock || '-') : '-',
+                    timeIn: timeInStr,
+                    tanggalKirim: t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-',
+                    timeStartLoading: '-',
+                    rawTime: rawTimeVal,
+                    timeOut: '-',
+                    rawTimeOut: null,
+                    frozenDurationMs: null,
+                    petugas: firstPl ? firstPl.nama_petugas : '',
+                    shift: firstPl ? firstPl.shift_kerja : 'Shift 1 (Pagi)',
+                    lokasiArsip: statRow && statRow.kategori_arsip ? `${statRow.kategori_arsip}: ${statRow.nomor_map_arsip || ''}` : 'Belum Ada Arsip',
+                    pickingList: plRows.map(p => ({
+                        sku: p.sku,
+                        nama: masterStock[p.sku] ? masterStock[p.sku].name : '-',
+                        prodate: '-',
+                        rak: p.batch_lokasi,
+                        palletSource: '-',
+                        pallet: p.konversi_pallet || 0,
+                        receh: 0,
+                        jumlah: p.total_karton
+                    }))
+                };
+            });
             renderAll();
         }
     } catch (e) {
@@ -590,46 +626,26 @@ async function submitAntrian(e) {
     let tipeVal = document.getElementById('mTipeLokal').value;
     let containerVal = document.getElementById('mContainer').value;
 
-    let jenisFull = jenisVal;
-    if(jenisVal === 'LOKAL' && tipeVal) jenisFull = 'LOKAL • ' + tipeVal;
-    else if(jenisVal === 'EKSPOR' && containerVal) jenisFull = 'EKSPOR (Container: ' + containerVal + ')';
-
-    let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let currentDateStr = String(new Date().getDate()).padStart(2, '0') + '/' + String(new Date().getMonth() + 1).padStart(2, '0') + '/' + new Date().getFullYear();
-
-    let newTruck = {
-        id: 'TRK-' + Math.floor(Math.random() * 9000 + 1000),
-        sopir: document.getElementById('mSopir').value,
-        ekspedisi: document.getElementById('mEkspedisi').value,
-        noPol: document.getElementById('mNoPol').value.toUpperCase(),
-        noDoc: document.getElementById('mNoDoc').value,
-        jenis: jenisFull,
-        tujuan: document.getElementById('mTujuan').value.toUpperCase(),
-        noHp: document.getElementById('mNoHp').value || '-',
-        status: 'Antrian',
-        dock: '-',
-        timeIn: currentTimeStr,
-        tanggalKirim: currentDateStr,
-        timeStartLoading: '-', 
-        rawTime: new Date().getTime(),
-        timeOut: '-',
-        rawTimeOut: null,
-        frozenDurationMs: null,
-        petugas: '',
-        shift: 'Shift 1 (Pagi)',
-        lokasiArsip: 'Belum Ada Arsip',
-        pickingList: []
+    let newTruckRecord = {
+        nama_sopir: document.getElementById('mSopir').value,
+        nama_ekspedisi: document.getElementById('mEkspedisi').value,
+        no_polisi_truk: document.getElementById('mNoPol').value.toUpperCase(),
+        no_doc: document.getElementById('mNoDoc').value,
+        jenis: jenisVal,
+        tipe_pengiriman: tipeVal || '-',
+        no_container: containerVal || '-',
+        tujuan_pengiriman: document.getElementById('mTujuan').value.toUpperCase(),
+        no_hp: document.getElementById('mNoHp').value || '-',
+        status_antrian: 'Antrian'
     };
 
-    truckQueue.unshift(newTruck);
-
     let { error } = await _supabase
-        .from('antrian_truk_jayanti3')
-        .upsert([newTruck]);
+        .from('antrian_truk')
+        .insert([newTruckRecord]);
 
     if (error) {
         console.error('Gagal menyimpan antrian ke Supabase:', error);
-        alert('Gagal menyimpan data ke database cloud!');
+        alert('Gagal menyimpan data ke database cloud: ' + error.message);
     } else {
         alert('Truk berhasil didaftarkan dan tersimpan online!');
         closeModal('modalManual');
@@ -689,10 +705,6 @@ async function savePetugasShift() {
     if(activePlTruckIdx === null) return;
     truckQueue[activePlTruckIdx].petugas = document.getElementById('plPetugas').value;
     truckQueue[activePlTruckIdx].shift = document.getElementById('plShift').value;
-    
-    await _supabase
-        .from('antrian_truk_jayanti3')
-        .upsert([truckQueue[activePlTruckIdx]]);
 }
 
 async function addItemToTruckPickingList() {
@@ -724,6 +736,22 @@ async function addItemToTruckPickingList() {
 
     let exactProdate = selectedBatchData.prodate || selectedBatchData.tanggal || selectedBatchData.tanggalProduksi || selectedBatchData.tgl || '-';
 
+    let pickRecord = {
+        no_doc: t.noDoc,
+        nama_petugas: document.getElementById('plPetugas').value || '-',
+        shift_kerja: document.getElementById('plShift').value || 'Shift 1 (Pagi)',
+        sku: skuCode,
+        batch_lokasi: selectedBatchData.lokasi,
+        total_karton: totalKrt,
+        konversi_pallet: pallet
+    };
+
+    let { error } = await _supabase.from('picking_list_truk').insert([pickRecord]);
+    if (error) {
+        alert('Gagal menyimpan picking list ke database: ' + error.message);
+        return;
+    }
+
     let item = {
         sku: skuCode,
         nama: skuName,
@@ -753,10 +781,6 @@ async function addItemToTruckPickingList() {
         }
         localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
     }
-
-    await _supabase
-        .from('antrian_truk_jayanti3')
-        .upsert([truckQueue[activePlTruckIdx]]);
     
     document.getElementById('itemSku').value = '';
     document.getElementById('itemBatchSelect').innerHTML = '<option value="">— Pilih SKU Terlebih Dahulu —</option>';
@@ -777,6 +801,9 @@ async function removePlItem(idx) {
 
     let removedItem = t.pickingList[idx];
     
+    // Hapus dari database picking_list_truk berdasarkan no_doc dan sku
+    await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc).eq('sku', removedItem.sku);
+
     if(removedItem) {
         let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
         let target = binStock.find(b => 
@@ -800,11 +827,6 @@ async function removePlItem(idx) {
     }
 
     t.pickingList.splice(idx, 1);
-    
-    await _supabase
-        .from('antrian_truk_jayanti3')
-        .upsert([t]);
-
     renderPlTable();
 }
 
@@ -1312,17 +1334,11 @@ async function saveStatus() {
     else if (kat === 'Lainnya') detailArsip = document.getElementById('inputArsipLainnya').value.trim();
 
     let finalArsipStr = detailArsip ? `${kat}: ${detailArsip}` : kat;
+    let newSt = targetTruck.status;
 
-    if (targetTruck.status === 'Keluar') {
-        targetTruck.lokasiArsip = finalArsipStr;
-        await _supabase.from('antrian_truk_jayanti3').upsert([targetTruck]);
-        closeModal('modalStatus');
-        loadDataFromCloud();
-        alert('Lokasi arsip berhasil diperbarui!');
-        return;
+    if (document.getElementById('statusSelectionGroup').style.display !== 'none') {
+        newSt = document.getElementById('selectStatus').value;
     }
-
-    let newSt = document.getElementById('selectStatus').value;
     let selectedDock = document.getElementById('selectDock').value;
 
     if (newSt === 'Proses Muat') {
@@ -1335,35 +1351,27 @@ async function saveStatus() {
     }
 
     targetTruck.status = newSt;
+    targetTruck.dock = (newSt === 'Proses Muat') ? (selectedDock || 'Dock 01') : '-';
 
-    if (newSt === 'Keluar' || newSt === 'Selesai Muat') {
-        targetTruck.lokasiArsip = finalArsipStr;
+    // Upsert ke tabel status_truk_log
+    let logRecord = {
+        no_doc: targetTruck.noDoc,
+        status_truk: newSt,
+        loading_dock: targetTruck.dock,
+        kategori_arsip: kat,
+        nomor_map_arsip: detailArsip || '-'
+    };
+
+    let { error } = await _supabase.from('status_truk_log').upsert([logRecord], { onConflict: 'no_doc' });
+    if (error) {
+        alert('Gagal menyimpan status truk ke database: ' + error.message);
+        return;
     }
 
-    if ((newSt === 'Selesai Muat' || newSt === 'Keluar') && !targetTruck.frozenDurationMs) {
-        let startRaw = targetTruck.rawTime || new Date().getTime();
-        targetTruck.frozenDurationMs = new Date().getTime() - startRaw;
-    }
-
-    if (newSt === 'Keluar') {
-        if (!targetTruck.timeOut || targetTruck.timeOut === '-') {
-            targetTruck.timeOut = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            targetTruck.rawTimeOut = new Date().getTime();
-        }
-    }
-
-    if(newSt === 'Proses Muat') {
-        targetTruck.dock = selectedDock || 'Dock 01';
-        if(!targetTruck.timeStartLoading || targetTruck.timeStartLoading === '-') {
-            targetTruck.timeStartLoading = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-    } else if(newSt !== 'Proses Muat') {
-        targetTruck.dock = '-';
-    }
-
-    await _supabase.from('antrian_truk_jayanti3').upsert([targetTruck]);
+    targetTruck.lokasiArsip = finalArsipStr;
     closeModal('modalStatus');
     loadDataFromCloud();
+    alert('Status dan arsip berhasil disimpan!');
 }
 
 async function deleteTruck(idx) {
@@ -1393,10 +1401,10 @@ async function deleteTruck(idx) {
             localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
         }
 
-        await _supabase
-            .from('antrian_truk_jayanti3')
-            .delete()
-            .eq('id', t.id);
+        // Hapus dari picking_list_truk, status_truk_log, dan antrian_truk
+        await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc);
+        await _supabase.from('status_truk_log').delete().eq('no_doc', t.noDoc);
+        await _supabase.from('antrian_truk').delete().eq('id', t.dbId);
 
         loadDataFromCloud();
     }
@@ -1405,7 +1413,9 @@ async function deleteTruck(idx) {
 async function resetData() {
     if(confirm('Yakin ingin mereset seluruh data antrian truk?')) {
         for (let t of truckQueue) {
-            await _supabase.from('antrian_truk_jayanti3').delete().eq('id', t.id);
+            await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc);
+            await _supabase.from('status_truk_log').delete().eq('no_doc', t.noDoc);
+            await _supabase.from('antrian_truk').delete().eq('id', t.dbId);
         }
         truckQueue = [];
         loadDataFromCloud();
