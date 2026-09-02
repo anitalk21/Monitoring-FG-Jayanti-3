@@ -1015,7 +1015,7 @@
             if(overlay) overlay.classList.toggle('hidden');
         }
 
-        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI ---
+        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI (FIX SINKRONISASI BIN-LOC & GUDANG AGING) ---
         async function fetchAllDataFromSupabase() {
             try {
                 // 1. Ambil Master SKU
@@ -1033,9 +1033,21 @@
                     });
                 }
 
-                // 2. Ambil Stok Bin-Loc
-                let { data: binRes, error: binErr } = await _supabase.from('binloc_stok_jayanti3').select('*');
-                if (!binErr && binRes) binData = binRes;
+                // 2. Ambil Stok Bin-Loc dari tabel stok_lokal & stok_ekspor (seperti di binloc.html) serta binloc_stok_jayanti3
+                let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
+                let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
+                let { data: binRes } = await _supabase.from('binloc_stok_jayanti3').select('*');
+
+                binData = [];
+                if (stokLokal) {
+                    stokLokal.forEach(i => binData.push({ ...i, category: 'Lokal' }));
+                }
+                if (stokEkspor) {
+                    stokEkspor.forEach(i => binData.push({ ...i, category: 'Ekspor' }));
+                }
+                if (binRes && binRes.length > 0) {
+                    binRes.forEach(i => binData.push(i));
+                }
 
                 // 3. Ambil Data Antrian Truk, Status Log, dan Picking List secara terintegrasi penuh
                 let { data: trucks, error: errTrucks } = await _supabase.from('antrian_truk').select('*');
@@ -2083,8 +2095,13 @@
             binData.forEach(item => {
                 if (!item || !item.sku || item.sku.includes('undefined') || item.category === 'Ekspor') return;
 
-                let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : 0;
-                if (item.gudang && item.gudang.includes('Gudang Aging')) {
+                let pltValue = item.konversi ? (parseFloat(item.konversi.split(' ')[0]) || 0) : (parseFloat(item.karton) / 70 || 0);
+                
+                // Pengecekan apakah barang masuk ke Gudang Aging atau Induk (berdasarkan field gudang atau lokasi)
+                let gudangStr = (item.gudang || '').toLowerCase();
+                let lokasiStr = (item.lokasi || '').toUpperCase();
+                
+                if (gudangStr.includes('aging') || lokasiStr.includes('AGING') || lokasiStr.includes('GUDANG AGING')) {
                     totalAgingPlt += pltValue;
                 } else {
                     totalIndukPlt += pltValue;
@@ -2427,7 +2444,7 @@
                         isWarehouseMatch = itemGudang.includes(targetGudangKeyword);
                     } else {
                         if (currentBinWarehouse === 'AGING' && itemLokasi.includes('INDUK')) isWarehouseMatch = false;
-                        if (currentBinWarehouse === 'INDUK' && itemLokasi.includes('AGING')) isWarehouseMatch = false;
+                        if (currentBinWarehouse === 'INDUK' && (itemLokasi.includes('AGING') || itemGudang.includes('aging'))) isWarehouseMatch = false;
                     }
 
                     if (isBlockMatch && isWarehouseMatch) {
@@ -2467,7 +2484,7 @@
             let binModalEl = document.getElementById('binModal');
 
             if(gridEl) gridEl.innerHTML = gridHtml;
-            if(skuTbody) skuTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas untuk melihat rincian SKU.</td></tr>`;
+            if(skuTbody) skuTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Pilih nomor lorong di atas.</td></tr>`;
             if(binModalEl) binModalEl.classList.remove('hidden');
         }
 
