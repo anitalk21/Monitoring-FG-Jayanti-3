@@ -1054,7 +1054,11 @@
                         if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
                         let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
-                        let timeInStr = t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                        
+                        // SINKRONISASI WAKTU REAL-TIME DARI TABEL `status_truk_log` (time_in, time_start_loading, time_out)
+                        let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
+                        let startLoadingStr = (statRow && statRow.time_start_loading) ? statRow.time_start_loading : '-';
+                        let timeoutStr = (statRow && statRow.time_out) ? statRow.time_out : '-';
 
                         return {
                             id: 'TRK-' + t.id,
@@ -1070,8 +1074,9 @@
                             dock: statRow ? (statRow.loading_dock || '-') : '-',
                             timeIn: timeInStr,
                             tanggalKirim: t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-',
+                            timeStartLoading: startLoadingStr,
                             rawTime: rawTimeVal,
-                            timeOut: '-',
+                            timeOut: timeoutStr,
                             rawTimeOut: null,
                             petugas: firstPl ? firstPl.nama_petugas : '',
                             shift: firstPl ? firstPl.shift_kerja : 'Shift 1 (Pagi)',
@@ -2307,9 +2312,9 @@
                     <td class="fw-bold text-emerald-600">${totalQty} Krt</td>
                     <td class="fw-bold">${t.noPol || '-'}</td>
                     <td>${t.ekspedisi || '-'}</td>
-                    <td>${t.timeIn || '-'}</td>
-                    <td><span class="text-indigo-600 font-bold">${t.timeStartLoading || '-'}</span></td>
-                    <td><span class="text-emerald-600 font-bold">${t.timeOut || '-'}</span></td>
+                    <td><span class="text-indigo-600 font-bold">${t.timeIn || '-'}</span></td>
+                    <td><span class="text-emerald-600 font-bold">${t.timeStartLoading || '-'}</span></td>
+                    <td><span class="text-rose-600 font-bold">${t.timeOut || '-'}</span></td>
                     <td>${t.timeOut || '-'}</td>
                     <td>-</td>
                     <td><span class="badge bg-emerald-50 text-emerald-700">Aman</span></td>
