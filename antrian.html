@@ -482,27 +482,36 @@ async function loadDataFromCloud() {
                 if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
-                let defaultTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                let timeInStr = (statRow && statRow.time_in && statRow.time_in !== '-') ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : defaultTimeStr);
+                // PARSING TIMESTAMPTZ DARI DATABASE SUPABASE UNTUK TIMER RDC PRESISI
+                let rawTimeVal = new Date().getTime();
+                let timeInStr = '-';
                 
+                if (statRow && statRow.time_in) {
+                    let dIn = new Date(statRow.time_in);
+                    rawTimeVal = dIn.getTime();
+                    timeInStr = dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else if (t.created_at) {
+                    let dIn = new Date(t.created_at);
+                    rawTimeVal = dIn.getTime();
+                    timeInStr = dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
-                let startLoadingStr = (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') ? statRow.time_start_loading : '-';
-                let timeoutStr = statRow && statRow.time_out ? statRow.time_out : '-';
+                
+                let startLoadingStr = '-';
+                if (statRow && statRow.time_start_loading) {
+                    startLoadingStr = new Date(statRow.time_start_loading).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                let timeoutStr = '-';
+                let rawTimeoutVal = null;
+                if (statRow && statRow.time_out) {
+                    let dOut = new Date(statRow.time_out);
+                    rawTimeoutVal = dOut.getTime();
+                    timeoutStr = dOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
-
-                // Ambil langsung dari raw_timestamp database agar timer stabil murni dari jam masuk pertama
-                let rawTimeVal = new Date().getTime();
-                if (statRow && statRow.raw_timestamp) {
-                    rawTimeVal = parseInt(statRow.raw_timestamp);
-                } else if (timeInStr && timeInStr !== '-') {
-                    let parts = timeInStr.split(':');
-                    let d = new Date();
-                    d.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
-                    rawTimeVal = d.getTime();
-                } else if (t.created_at) {
-                    rawTimeVal = new Date(t.created_at).getTime();
-                }
 
                 return {
                     id: 'TRK-' + t.id,
@@ -521,7 +530,7 @@ async function loadDataFromCloud() {
                     timeStartLoading: startLoadingStr,
                     rawTime: rawTimeVal,
                     timeOut: timeoutStr,
-                    rawTimeOut: null,
+                    rawTimeOut: rawTimeoutVal,
                     frozenDurationMs: null,
                     petugas: firstPl ? firstPl.nama_petugas : '',
                     tim: firstPl ? (firstPl.nama_tim || 'Team A') : 'Team A',
@@ -711,8 +720,7 @@ async function submitAntrian(e) {
     let tipeVal = document.getElementById('mTipeLokal').value;
     let containerVal = document.getElementById('mContainer').value;
     let noDocVal = document.getElementById('mNoDoc').value;
-    let currentTimestamp = new Date().getTime();
-    let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let currentIsoTime = new Date().toISOString();
 
     let newTruckRecord = {
         nama_sopir: document.getElementById('mSopir').value,
@@ -735,8 +743,7 @@ async function submitAntrian(e) {
             no_doc: noDocVal,
             status_truk: 'Antrian',
             loading_dock: '-',
-            time_in: currentTimeStr,
-            raw_timestamp: currentTimestamp
+            time_in: currentIsoTime
         };
         if (existingLog && existingLog.length > 0) {
             await _supabase.from('status_truk_log').update(logData).eq('no_doc', noDocVal);
@@ -1489,7 +1496,7 @@ async function saveStatus() {
         newSt = document.getElementById('selectStatus').value;
     }
     let selectedDock = document.getElementById('selectDock').value;
-    let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let currentIsoTime = new Date().toISOString();
 
     if (newSt === 'Proses Muat') {
         let dockNum = parseInt(selectedDock.replace('Dock ', ''));
@@ -1508,22 +1515,17 @@ async function saveStatus() {
         status_truk: newSt,
         loading_dock: targetTruck.dock,
         kategori_arsip: kat,
-        nomor_map_arsip: detailArsip || '-',
-        time_in: targetTruck.timeIn || currentTimeStr
+        nomor_map_arsip: detailArsip || '-'
     };
 
-    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
-
-    if (newSt === 'Proses Muat') {
-        logRecord.time_start_loading = existingStartLoading ? existingStartLoading : currentTimeStr;
-        targetTruck.timeStartLoading = logRecord.time_start_loading;
-    } else {
-        logRecord.time_start_loading = existingStartLoading || '-';
+    if (newSt === 'Proses Muat' && targetTruck.timeStartLoading === '-') {
+        logRecord.time_start_loading = currentIsoTime;
+        targetTruck.timeStartLoading = new Date(currentIsoTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
-        logRecord.time_out = currentTimeStr;
-        targetTruck.timeOut = currentTimeStr;
+        logRecord.time_out = currentIsoTime;
+        targetTruck.timeOut = new Date(currentIsoTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     let { data: existingLog } = await _supabase.from('status_truk_log').select('id').eq('no_doc', targetTruck.noDoc);
@@ -1533,6 +1535,7 @@ async function saveStatus() {
         let res = await _supabase.from('status_truk_log').update(logRecord).eq('no_doc', targetTruck.noDoc);
         error = res.error;
     } else {
+        logRecord.time_in = currentIsoTime;
         let res = await _supabase.from('status_truk_log').insert([logRecord]);
         error = res.error;
     }
