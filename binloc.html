@@ -1383,10 +1383,9 @@
             let gudang = document.getElementById('pGudang').value;
             let plant = document.getElementById('pPlant').value;
             let line = document.getElementById('pLine').value;
-            let dateInputVal = document.getElementById('pTanggal').value; 
             
-            let parts = dateInputVal.split('-');
-            let formattedDateStr = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateInputVal;
+            // Mengambil langsung format YYYY-MM-DD dari input tanggal HTML agar akurat dibaca aging
+            let formattedDateStr = document.getElementById('pTanggal').value; 
 
             let shift = document.getElementById('pShift').value;
             let skuInputFull = document.getElementById('pSku').value;
