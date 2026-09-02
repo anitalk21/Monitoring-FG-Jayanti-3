@@ -416,7 +416,7 @@ function handleJenisChange() {
 
 let truckQueue = [];
 let masterStock = {}; 
-let binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+let binStockData = [];
 
 async function loadDataFromCloud() {
     try {
@@ -432,6 +432,17 @@ async function loadDataFromCloud() {
                     };
                 }
             });
+        }
+
+        let { data: stokLokal, error: errLokal } = await _supabase.from('stok_lokal').select('*');
+        let { data: stokEkspor, error: errEkspor } = await _supabase.from('stok_ekspor').select('*');
+        
+        binStockData = [];
+        if (!errLokal && stokLokal) {
+            stokLokal.forEach(item => binStockData.push({ ...item, kategori_stok: 'Lokal' }));
+        }
+        if (!errEkspor && stokEkspor) {
+            stokEkspor.forEach(item => binStockData.push({ ...item, kategori_stok: 'Ekspor' }));
         }
 
         let { data: trucks, error: errTrucks } = await _supabase.from('antrian_truk').select('*');
@@ -558,11 +569,16 @@ function handleSkuKeydown(e) {
     }
 }
 
-function loadAvailableBatchesForSku(skuCode) {
+async function loadAvailableBatchesForSku(skuCode) {
     let select = document.getElementById('itemBatchSelect');
     select.innerHTML = '<option value="">— Pilih Lokasi Rak / Batch (FIFO) —</option>';
     
-    binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+    let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
+    let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
+    binStockData = [];
+    if (stokLokal) stokLokal.forEach(i => binStockData.push(i));
+    if (stokEkspor) stokEkspor.forEach(i => binStockData.push(i));
+
     let matches = binStockData.filter(b => b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()));
     
     if(matches.length === 0) {
@@ -692,7 +708,7 @@ async function submitAntrian(e) {
 }
 
 let activePlTruckIdx = null;
-function openPickingListModal(index) {
+async function openPickingListModal(index) {
     activePlTruckIdx = index;
     let t = truckQueue[index];
     document.getElementById('plTruckInfo').innerText = `${t.noPol} (${t.ekspedisi}) - Doc: ${t.noDoc}`;
@@ -706,7 +722,12 @@ function openPickingListModal(index) {
     document.getElementById('lockedNotice').style.display = isLocked ? 'block' : 'none';
     document.getElementById('thAksiHead').style.display = isLocked ? 'none' : '';
 
-    binStockData = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
+    let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
+    let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
+    binStockData = [];
+    if (stokLokal) stokLokal.forEach(i => binStockData.push(i));
+    if (stokEkspor) stokEkspor.forEach(i => binStockData.push(i));
+
     renderPlTable();
     openModal('modalPickingList');
 }
@@ -804,20 +825,26 @@ async function addItemToTruckPickingList() {
     if(!truckQueue[activePlTruckIdx].pickingList) truckQueue[activePlTruckIdx].pickingList = [];
     truckQueue[activePlTruckIdx].pickingList.push(item);
 
-    let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-    let bIndex = binStock.findIndex(b => 
-        b.sku && b.sku.toLowerCase().includes(skuCode.toLowerCase()) &&
-        b.lokasi && b.lokasi.toLowerCase().includes(selectedBatchData.lokasi.toLowerCase()) &&
-        b.pallet && b.pallet.toLowerCase().includes(selectedBatchData.pallet.toLowerCase())
-    );
+    let targetTable = selectedBatchData.kategori_stok === 'Ekspor' ? 'stok_ekspor' : 'stok_lokal';
+    let { data: currentDbStock } = await _supabase.from(targetTable).select('*').eq('sku', selectedBatchData.sku).eq('lokasi', selectedBatchData.lokasi);
 
-    if(bIndex !== -1) {
-        if(totalKrt >= parseInt(binStock[bIndex].karton)) {
-            binStock.splice(bIndex, 1);
+    if (currentDbStock && currentDbStock.length > 0) {
+        let dbItem = currentDbStock[0];
+        let newKarton = parseInt(dbItem.karton) - totalKrt;
+        if (newKarton <= 0) {
+            await _supabase.from(targetTable).delete().eq('id', dbItem.id);
         } else {
-            binStock[bIndex].karton = parseInt(binStock[bIndex].karton) - totalKrt;
+            let stdPlt = getCartonPerPallet(skuCode);
+            let pltVal = Math.floor(newKarton / stdPlt);
+            let rchVal = newKarton % stdPlt;
+            let konvStr = `${pltVal} Plt (${newKarton} krt)`;
+            if (rchVal > 0) konvStr = `${pltVal} Plt + ${rchVal} krt`;
+            
+            await _supabase.from(targetTable).update({
+                karton: newKarton,
+                konversi: konvStr
+            }).eq('id', dbItem.id);
         }
-        localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
     }
     
     document.getElementById('itemSku').value = '';
@@ -842,25 +869,45 @@ async function removePlItem(idx) {
     await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc).eq('sku', removedItem.sku);
 
     if(removedItem) {
-        let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-        let target = binStock.find(b => 
-            b.sku && b.sku.toLowerCase().includes(removedItem.sku.toLowerCase()) &&
-            b.lokasi && b.lokasi.toLowerCase().includes(removedItem.rak.toLowerCase()) &&
-            b.pallet && b.pallet.toLowerCase().includes(removedItem.palletSource.toLowerCase())
-        );
-        if(target) {
-            target.karton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+        let targetTable = 'stok_lokal';
+        let { data: existingRow } = await _supabase.from('stok_lokal').select('*').eq('sku', removedItem.sku).eq('lokasi', removedItem.rak);
+        if (!existingRow || existingRow.length === 0) {
+            let { data: existingEkspor } = await _supabase.from('stok_ekspor').select('*').eq('sku', removedItem.sku).eq('lokasi', removedItem.rak);
+            if (existingEkspor && existingEkspor.length > 0) {
+                targetTable = 'stok_ekspor';
+                existingRow = existingEkspor;
+            }
+        }
+
+        if(existingRow && existingRow.length > 0) {
+            let target = existingRow[0];
+            let updatedKarton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+            let stdPlt = getCartonPerPallet(removedItem.sku);
+            let pltVal = Math.floor(updatedKarton / stdPlt);
+            let rchVal = updatedKarton % stdPlt;
+            let konvStr = `${pltVal} Plt (${updatedKarton} krt)`;
+            if (rchVal > 0) konvStr = `${pltVal} Plt + ${rchVal} krt`;
+
+            await _supabase.from(targetTable).update({
+                karton: updatedKarton,
+                konversi: konvStr
+            }).eq('id', target.id);
         } else {
-            binStock.push({
+            let stdPlt = getCartonPerPallet(removedItem.sku);
+            let pltVal = Math.floor(removedItem.jumlah / stdPlt);
+            let rchVal = removedItem.jumlah % stdPlt;
+            let konvStr = `${pltVal} Plt (${removedItem.jumlah} krt)`;
+            if (rchVal > 0) konvStr = `${pltVal} Plt + ${rchVal} krt`;
+
+            await _supabase.from('stok_lokal').insert([{
                 sku: removedItem.sku,
                 lokasi: removedItem.rak,
-                pallet: removedItem.palletSource,
+                pallet: removedItem.palletSource || '-',
                 prodate: removedItem.prodate,
                 karton: removedItem.jumlah,
-                konversi: `${removedItem.pallet} Pallet (${removedItem.jumlah} krt)`
-            });
+                konversi: konvStr
+            }]);
         }
-        localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
     }
 
     t.pickingList.splice(idx, 1);
@@ -1426,27 +1473,47 @@ async function deleteTruck(idx) {
     let t = truckQueue[idx];
     if(confirm('Yakin ingin menghapus data truk ' + t.noPol + ' dari sistem?')) {
         if(t && t.pickingList && t.pickingList.length > 0) {
-            let binStock = JSON.parse(localStorage.getItem('binloc_stok_jayanti3')) || [];
-            t.pickingList.forEach(removedItem => {
-                let target = binStock.find(b => 
-                    b.sku && b.sku.toLowerCase().includes(removedItem.sku.toLowerCase()) &&
-                    b.lokasi && b.lokasi.toLowerCase().includes(removedItem.rak.toLowerCase()) &&
-                    b.pallet && b.pallet.toLowerCase().includes(removedItem.palletSource.toLowerCase())
-                );
-                if(target) {
-                    target.karton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+            for (let removedItem of t.pickingList) {
+                let targetTable = 'stok_lokal';
+                let { data: existingRow } = await _supabase.from('stok_lokal').select('*').eq('sku', removedItem.sku).eq('lokasi', removedItem.rak);
+                if (!existingRow || existingRow.length === 0) {
+                    let { data: existingEkspor } = await _supabase.from('stok_ekspor').select('*').eq('sku', removedItem.sku).eq('lokasi', removedItem.rak);
+                    if (existingEkspor && existingEkspor.length > 0) {
+                        targetTable = 'stok_ekspor';
+                        existingRow = existingEkspor;
+                    }
+                }
+
+                if(existingRow && existingRow.length > 0) {
+                    let target = existingRow[0];
+                    let updatedKarton = parseInt(target.karton || 0) + parseInt(removedItem.jumlah || 0);
+                    let stdPlt = getCartonPerPallet(removedItem.sku);
+                    let pltVal = Math.floor(updatedKarton / stdPlt);
+                    let rchVal = updatedKarton % stdPlt;
+                    let konvStr = `${pltVal} Plt (${updatedKarton} krt)`;
+                    if (rchVal > 0) konvStr = `${pltVal} Plt + ${rchVal} krt`;
+
+                    await _supabase.from(targetTable).update({
+                        karton: updatedKarton,
+                        konversi: konvStr
+                    }).eq('id', target.id);
                 } else {
-                    binStock.push({
+                    let stdPlt = getCartonPerPallet(removedItem.sku);
+                    let pltVal = Math.floor(removedItem.jumlah / stdPlt);
+                    let rchVal = removedItem.jumlah % stdPlt;
+                    let konvStr = `${pltVal} Plt (${removedItem.jumlah} krt)`;
+                    if (rchVal > 0) konvStr = `${pltVal} Plt + ${rchVal} krt`;
+
+                    await _supabase.from('stok_lokal').insert([{
                         sku: removedItem.sku,
                         lokasi: removedItem.rak,
-                        pallet: removedItem.palletSource,
+                        pallet: removedItem.palletSource || '-',
                         prodate: removedItem.prodate,
                         karton: removedItem.jumlah,
-                        konversi: `${removedItem.pallet} Pallet (${removedItem.jumlah} krt)`
-                    });
+                        konversi: konvStr
+                    }]);
                 }
-            });
-            localStorage.setItem('binloc_stok_jayanti3', JSON.stringify(binStock));
+            }
         }
 
         await _supabase.from('picking_list_truk').delete().eq('no_doc', t.noDoc);
