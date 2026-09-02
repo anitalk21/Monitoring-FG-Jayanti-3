@@ -491,6 +491,7 @@ async function loadDataFromCloud() {
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
+                // Hitung rawTime yang akurat berdasarkan jam start loading aktual
                 let rawTimeVal = new Date().getTime();
                 if (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') {
                     let parts = statRow.time_start_loading.split(':');
@@ -1257,6 +1258,7 @@ function renderAll() {
                 t.frozenDurationMs = null;
                 let startRaw = t.rawTime || new Date().getTime();
                 diffMs = new Date().getTime() - startRaw;
+                if(diffMs < 0) diffMs = 0; // Cegah nilai negatif jika selisih waktu
             }
 
             let diffHrs = diffMs / (1000 * 60 * 60);
@@ -1508,11 +1510,20 @@ async function saveStatus() {
         time_in: targetTruck.timeIn || currentTimeStr
     };
 
+    let existingStartLoading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : null;
+
     if (newSt === 'Proses Muat') {
-        logRecord.time_start_loading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : currentTimeStr;
+        logRecord.time_start_loading = existingStartLoading ? existingStartLoading : currentTimeStr;
         targetTruck.timeStartLoading = logRecord.time_start_loading;
-        targetTruck.rawTime = currentTimestamp;
-    } else if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
+        // Gunakan timestamp persis saat pertama kali start loading
+        if(!existingStartLoading) {
+            targetTruck.rawTime = currentTimestamp;
+        }
+    } else {
+        logRecord.time_start_loading = existingStartLoading || '-';
+    }
+
+    if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
         logRecord.time_out = currentTimeStr;
         targetTruck.timeOut = currentTimeStr;
     }
