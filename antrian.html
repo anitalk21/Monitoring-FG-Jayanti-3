@@ -491,13 +491,15 @@ async function loadDataFromCloud() {
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
 
-                // Parsing jam masuk akurat tanpa mengubah format/geser tanggal
+                // Ambil langsung dari raw_timestamp database agar timer stabil murni dari jam masuk pertama
                 let rawTimeVal = new Date().getTime();
-                if (timeInStr && timeInStr !== '-') {
+                if (statRow && statRow.raw_timestamp) {
+                    rawTimeVal = parseInt(statRow.raw_timestamp);
+                } else if (timeInStr && timeInStr !== '-') {
                     let parts = timeInStr.split(':');
-                    let now = new Date();
-                    now.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
-                    rawTimeVal = now.getTime();
+                    let d = new Date();
+                    d.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
+                    rawTimeVal = d.getTime();
                 } else if (t.created_at) {
                     rawTimeVal = new Date(t.created_at).getTime();
                 }
@@ -709,6 +711,7 @@ async function submitAntrian(e) {
     let tipeVal = document.getElementById('mTipeLokal').value;
     let containerVal = document.getElementById('mContainer').value;
     let noDocVal = document.getElementById('mNoDoc').value;
+    let currentTimestamp = new Date().getTime();
     let currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     let newTruckRecord = {
@@ -732,7 +735,8 @@ async function submitAntrian(e) {
             no_doc: noDocVal,
             status_truk: 'Antrian',
             loading_dock: '-',
-            time_in: currentTimeStr
+            time_in: currentTimeStr,
+            raw_timestamp: currentTimestamp
         };
         if (existingLog && existingLog.length > 0) {
             await _supabase.from('status_truk_log').update(logData).eq('no_doc', noDocVal);
