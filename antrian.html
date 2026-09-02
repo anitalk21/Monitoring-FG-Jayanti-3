@@ -476,7 +476,7 @@ async function loadDataFromCloud() {
                 if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
-                let rawTimeVal = (statRow && statRow.created_at) ? new Date(statRow.created_at).getTime() : (t.created_at ? new Date(t.created_at).getTime() : new Date().getTime());
+                let rawTimeVal = (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') ? new Date().setHours(parseInt(statRow.time_start_loading.split(':')[0]), parseInt(statRow.time_start_loading.split(':')[1]), 0, 0) : (t.created_at ? new Date(t.created_at).getTime() : new Date().getTime());
                 
                 let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
@@ -715,7 +715,7 @@ async function submitAntrian(e) {
             status_truk: 'Antrian',
             loading_dock: '-',
             time_in: currentTimeStr
-        });
+        }, { onConflict: 'no_doc' });
 
         alert('Truk berhasil didaftarkan dan tersimpan online!');
         closeModal('modalManual');
@@ -1487,7 +1487,6 @@ async function saveStatus() {
 
     if (newSt === 'Proses Muat') {
         logRecord.time_start_loading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : currentTimeStr;
-        logRecord.created_at = new Date().toISOString();
         targetTruck.timeStartLoading = logRecord.time_start_loading;
         targetTruck.rawTime = currentTimestamp;
     } else if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
