@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#3b82f6">
+    <meta name="theme-color" content="#3b82f6">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring Finished Goods - PT. Mayora Indah Tbk</title>
@@ -57,19 +57,19 @@
             <span id="realTimeClock" class="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-semibold hidden sm:inline-block">
                 <i class="fa-regular fa-clock text-indigo-400 mr-1"></i> Memuat waktu...
             </span>
-                      <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
+            <a href="index.html" class="bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-200 font-medium transition flex items-center gap-1.5">
                 <i class="fa-solid fa-house text-indigo-400"></i> <span>Portal</span>
             </a>
         </div>
-    <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-    <div class="text-right">
-        <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
-        <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
-    </div>
-    <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
-        <i class="fa-solid fa-power-off"></i> Keluar
-    </button>
-</div>
+        <div class="flex items-center gap-3 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <div class="text-right">
+                <p id="userNamaDisplay" class="font-bold text-slate-700 text-xs">Memuat...</p>
+                <p id="userRoleDisplay" class="text-[10px] text-slate-400 capitalize">-</p>
+            </div>
+            <button onclick="prosesLogout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-rose-200" title="Keluar Akun">
+                <i class="fa-solid fa-power-off"></i> Keluar
+            </button>
+        </div>
     </header>
 
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/25 backdrop-blur-2xs z-30 hidden transition-opacity" onclick="toggleSidebar()"></div>
@@ -950,48 +950,41 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Cek sesi login
-let sessionUser = localStorage.getItem('loggedUser');
-if (!sessionUser) {
-    window.location.href = 'login.html'; 
-} else {
-    let userObj = JSON.parse(sessionUser);
-    
-    // Jika role-nya manpower, tidak boleh masuk ke monitoring admin
-    if (userObj.role === 'manpower' && window.location.pathname.includes('monitoring.html')) {
-        alert('Akses ditolak! Anda login sebagai Manpower Lapangan.');
-        window.location.href = 'antrian.html';
-    }
-    // Catatan: Jika role-nya 'superadmin', dibebaskan masuk ke mana saja tanpa batasan!
-}
-        // Tampilkan identitas user yang sedang login saat halaman dimuat
-window.addEventListener('DOMContentLoaded', () => {
-    let sessionUser = localStorage.getItem('loggedUser');
-    if (sessionUser) {
-        let userObj = JSON.parse(sessionUser);
-        
-        // Ubah teks HTML sesuai nama dan role user yang aktif
-        let namaEl = document.getElementById('userNamaDisplay');
-        let roleEl = document.getElementById('userRoleDisplay');
-        
-        if (namaEl) namaEl.innerText = userObj.nama_lengkap || userObj.username;
-        if (roleEl) roleEl.innerText = userObj.role;
-    }
-});
+        let sessionUser = localStorage.getItem('loggedUser');
+        if (!sessionUser) {
+            window.location.href = 'login.html'; 
+        } else {
+            let userObj = JSON.parse(sessionUser);
+            if (userObj.role === 'manpower' && window.location.pathname.includes('monitoring.html')) {
+                alert('Akses ditolak! Anda login sebagai Manpower Lapangan.');
+                window.location.href = 'antrian.html';
+            }
+        }
 
-// Fungsi untuk Logout (Hapus sesi & kembalikan ke halaman login)
-function prosesLogout() {
-    if (confirm('Yakin ingin keluar dari sistem?')) {
-        localStorage.removeItem('loggedUser'); // Hapus data sesi
-        window.location.href = 'login.html'; // Lempar balik ke login
-    }
-}
+        window.addEventListener('DOMContentLoaded', () => {
+            let sessionUser = localStorage.getItem('loggedUser');
+            if (sessionUser) {
+                let userObj = JSON.parse(sessionUser);
+                let namaEl = document.getElementById('userNamaDisplay');
+                let roleEl = document.getElementById('userRoleDisplay');
+                if (namaEl) namaEl.innerText = userObj.nama_lengkap || userObj.username;
+                if (roleEl) roleEl.innerText = userObj.role;
+            }
+        });
+
+        function prosesLogout() {
+            if (confirm('Yakin ingin keluar dari sistem?')) {
+                localStorage.removeItem('loggedUser');
+                window.location.href = 'login.html';
+            }
+        }
+
         // Konfigurasi Koneksi Supabase
         const SUPABASE_URL = 'https://dmmybcscwxvxztcgjnbe.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_9sAzy4cjko7xheXLmDButQ_gDOEsxfN'; 
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Variabel penampung state online dari Supabase
         let stockData = {};
         let sapStockData = {};
         let qcHistoryData = [];
@@ -1022,10 +1015,10 @@ function prosesLogout() {
             if(overlay) overlay.classList.toggle('hidden');
         }
 
-        // --- FUNGSI UTAMA SINKRONISASI SUPABASE ---
+        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI ---
         async function fetchAllDataFromSupabase() {
             try {
-                // Ambil Master SKU langsung dari tabel Supabase 'master_sku'
+                // 1. Ambil Master SKU
                 let { data: masterRes, error: masterErr } = await _supabase.from('master_sku').select('*');
                 if (!masterErr && masterRes) {
                     stockData = {};
@@ -1038,34 +1031,79 @@ function prosesLogout() {
                             };
                         }
                     });
-                } else {
-                    let localMaster = localStorage.getItem('stockDataGDFG_RangePalletFull');
-                    if (localMaster) stockData = JSON.parse(localMaster);
                 }
 
+                // 2. Ambil Stok Bin-Loc
                 let { data: binRes, error: binErr } = await _supabase.from('binloc_stok_jayanti3').select('*');
                 if (!binErr && binRes) binData = binRes;
 
-                let { data: antRes, error: antErr } = await _supabase.from('antrian_truk_jayanti3').select('*');
-                if (!antErr && antRes) antrianData = antRes;
+                // 3. Ambil Data Antrian Truk, Status Log, dan Picking List secara terintegrasi penuh
+                let { data: trucks, error: errTrucks } = await _supabase.from('antrian_truk').select('*');
+                let { data: pickLists, error: errPick } = await _supabase.from('picking_list_truk').select('*');
+                let { data: statuses, error: errStat } = await _supabase.from('status_truk_log').select('*');
 
-                let { data: expRes, error: expErr } = await _supabase.from('ekspor_planning_jayanti3').select('*');
-                if (!expErr && expRes && expRes.length > 0) {
-                    eksporPlanningData = expRes;
-                } else {
-                    let localExp = localStorage.getItem('ekspor_planning_jayanti3');
-                    eksporPlanningData = localExp ? JSON.parse(localExp) : [];
+                if (!errTrucks && trucks) {
+                    antrianData = trucks.map(t => {
+                        let docNo = t.no_doc;
+                        let statRow = statuses ? statuses.find(s => s.no_doc === docNo) : null;
+                        let plRows = pickLists ? pickLists.filter(p => p.no_doc === docNo) : [];
+                        let firstPl = plRows.length > 0 ? plRows[0] : null;
+
+                        let jenisFormatted = t.jenis || 'LOKAL';
+                        if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
+                        if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
+
+                        let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
+                        let timeInStr = t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+
+                        return {
+                            id: 'TRK-' + t.id,
+                            dbId: t.id,
+                            sopir: t.nama_sopir,
+                            ekspedisi: t.nama_ekspedisi,
+                            noPol: t.no_polisi_truk,
+                            noDoc: docNo,
+                            jenis: jenisFormatted,
+                            tujuan: t.tujuan_pengiriman,
+                            noHp: t.no_hp || '-',
+                            status: statRow ? statRow.status_truk : (t.status_antrian || 'Antrian'),
+                            dock: statRow ? (statRow.loading_dock || '-') : '-',
+                            timeIn: timeInStr,
+                            tanggalKirim: t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-',
+                            rawTime: rawTimeVal,
+                            timeOut: '-',
+                            rawTimeOut: null,
+                            petugas: firstPl ? firstPl.nama_petugas : '',
+                            shift: firstPl ? firstPl.shift_kerja : 'Shift 1 (Pagi)',
+                            lokasiArsip: statRow && statRow.kategori_arsip ? `${statRow.kategori_arsip}: ${statRow.nomor_map_arsip || ''}` : 'Belum Ada Arsip',
+                            pickingList: plRows.map(p => ({
+                                sku: p.sku,
+                                nama: stockData[p.sku] ? stockData[p.sku].name : '-',
+                                prodate: '-',
+                                rak: p.batch_lokasi,
+                                pallet: p.konversi_pallet || 0,
+                                receh: 0,
+                                jumlah: p.total_karton
+                            }))
+                        };
+                    });
                 }
 
+                // 4. Ambil Planning Ekspor
+                let { data: expRes, error: expErr } = await _supabase.from('ekspor_planning_jayanti3').select('*');
+                if (!expErr && expRes) eksporPlanningData = expRes;
+
+                // Render ulang seluruh komponen di dashboard monitoring
                 updateDashboardCapacity();
                 renderMasterSkuTable();
                 renderRealisasiTable();
                 renderStockJalurTable();
                 renderEksporSummaryTable();
+                renderRdcMonitoringTable();
                 renderBinMap();
 
             } catch (err) {
-                console.error("Gagal mengambil data dari Supabase:", err);
+                console.error("Gagal sinkronisasi data Supabase:", err);
             }
         }
 
@@ -1105,12 +1143,8 @@ function prosesLogout() {
             if(activeTabBtn) {
                 activeTabBtn.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-2xs';
             }
-            if(tab === 'summary') {
-                renderEksporSummaryTable();
-            }
-            if(tab === 'planning') {
-                renderEksporPlanningTable();
-            }
+            if(tab === 'summary') renderEksporSummaryTable();
+            if(tab === 'planning') renderEksporPlanningTable();
         }
 
         function switchReportTab(tab) {
@@ -1340,9 +1374,6 @@ function prosesLogout() {
                 filename = "Laporan_Productivity_Team.csv";
                 csvContent += "Tim Shift,Total Truk Dilayani,Total Karton Dimuat,Rata-rata Durasi,Efisiensi,Status\n";
                 csvContent += `"Shift 1","12 Truk","45,000 Karton","3.5 Jam","94.5%","Optimal"\n`;
-            } else if(type === 'traceability') {
-                filename = "Laporan_Traceability_Product.csv";
-                csvContent += "SKU,Nama Produk,Prodate,Rak Asal,Jumlah Krt,No Doc,No Pol Ekspedisi,Tgl Kirim,Tujuan,Petugas\n";
             }
 
             let encodedUri = encodeURI(csvContent);
@@ -1588,27 +1619,15 @@ function prosesLogout() {
                     currentStatus = matchingAntrian.status || currentStatus;
                     jamMasukVal = matchingAntrian.timeIn || jamMasukVal;
                     jamKeluarVal = matchingAntrian.timeOut || jamKeluarVal;
-                    
-                    startTimeVal = matchingAntrian.timeStartLoading || matchingAntrian.timeStart || matchingAntrian.jamMulai || startTimeVal;
+                    startTimeVal = matchingAntrian.timeStartLoading || startTimeVal;
                     realisasiStuffingVal = matchingAntrian.timeIn ? (new Date().toLocaleDateString('id-ID')) : realisasiStuffingVal;
                     noDoVal = matchingAntrian.noDoc || noDoVal;
 
                     if (matchingAntrian.pickingList && matchingAntrian.pickingList.length > 0) {
                         let matchedPl = matchingAntrian.pickingList.find(item => item.sku && p.sku && item.sku.trim() === p.sku.trim()) || matchingAntrian.pickingList[0];
                         if (matchedPl) {
-                            p.proDate = matchedPl.prodate || matchedPl.proDate || matchedPl.tanggalProduksi || p.proDate;
-                            p.expDate = matchedPl.expDate || matchedPl.expiredDate || matchedPl.exp || p.expDate;
-                            p.kodifikasi = matchedPl.kodifikasi || matchedPl.kodefikasi || matchedPl.code || p.kodifikasi;
+                            p.proDate = matchedPl.prodate || p.proDate;
                         }
-                    }
-                }
-
-                if ((!p.expDate || p.expDate === '-' || !p.kodifikasi || p.kodifikasi === '-')) {
-                    let matchedBin = binData.find(b => (p.quotation && b.qt && b.qt.trim() === p.quotation.trim()) || (b.sku && p.sku && b.sku.includes(p.sku.trim())));
-                    if (matchedBin) {
-                        if (!p.proDate || p.proDate === '-') p.proDate = matchedBin.prodate || matchedBin.tanggal || '-';
-                        if (!p.expDate || p.expDate === '-') p.expDate = matchedBin.expDate || '-';
-                        if (!p.kodifikasi || p.kodifikasi === '-') p.kodifikasi = matchedBin.kodifikasi || matchedBin.code || '-';
                     }
                 }
 
@@ -1984,7 +2003,7 @@ function prosesLogout() {
             
             if (newArsip !== null) {
                 t.lokasiArsip = newArsip.trim() || 'Belum Ada Arsip';
-                await _supabase.from('antrian_truk_jayanti3').upsert([t]);
+                await _supabase.from('antrian_truk').upsert([{ id: t.dbId, lokasi_arsip: t.lokasiArsip }]);
                 fetchAllDataFromSupabase();
                 alert('Lokasi arsip berhasil diperbarui!');
             }
@@ -2049,7 +2068,7 @@ function prosesLogout() {
             let activeBtn = document.getElementById('btnCap' + tab.charAt(0) + tab.slice(1).toLowerCase());
             if(activeBtn) activeBtn.className = 'px-4 py-2 rounded-xl bg-indigo-500 text-white shadow-2xs';
             
-            if(tab === 'HOLD') { openQcModalSummary(); }
+            if(tab === 'HOLD') openQcModalSummary();
         }
 
         function updateDashboardCapacity() {
@@ -2187,7 +2206,6 @@ function prosesLogout() {
             });
         }
 
-        // --- SKRIP CERDAS (SMART PARSER) MASTER SKU MENGGUNAKAN INSERT ---
         async function processPasteData() {
             const textarea = document.getElementById('pasteArea');
             if(!textarea) return;
@@ -2236,7 +2254,6 @@ function prosesLogout() {
             }
 
             if(newRowsToInsert.length > 0) {
-                // Menggunakan .insert() agar tidak error pada unique constraint Supabase
                 let { error } = await _supabase.from('master_sku').insert(newRowsToInsert);
                 if(error) {
                     console.error("Gagal simpan ke Supabase:", error);
@@ -2271,7 +2288,7 @@ function prosesLogout() {
             
             let rdcTrucks = antrianData.filter(t => t.jenis && t.jenis.toUpperCase().includes('RDC'));
             if(rdcTrucks.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="16" class="text-muted">Belum ada data truk RDC.</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="16" class="text-muted text-center py-4">Belum ada data truk RDC yang masuk antrian.</td></tr>'; 
                 return; 
             }
 
@@ -2280,39 +2297,21 @@ function prosesLogout() {
                 let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
                 let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
                 
-                let jamMasuk = t.timeIn || '-';
-                let jamMuat = (t.timeStartLoading && t.timeStartLoading !== '-') ? t.timeStartLoading : '-';
-                
-                let jamSelesai = '-';
-                if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
-                    jamSelesai = t.timeOut && t.timeOut !== '-' ? t.timeOut : (t.timeStartLoading || '-');
-                }
-                let jamKeluar = (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') ? t.timeOut : '-';
-
-                let lamaStr = '-';
-                if (t.rawTime && t.rawTimeOut) {
-                    let diffMs = t.rawTimeOut - t.rawTime;
-                    let totalMins = Math.floor(diffMs / (1000 * 60));
-                    let h = Math.floor(totalMins / 60);
-                    let m = totalMins % 60;
-                    lamaStr = `${h}j ${m}m`;
-                }
-
                 tbody.innerHTML += `<tr>
-                    <td>${t.tanggalKirim || (t.timeIn ? new Date().toLocaleDateString('id-ID') : '-')}</td>
+                    <td>${t.tanggalKirim || '-'}</td>
                     <td>Plant 1115</td>
                     <td class="fw-bold">${t.tujuan || '-'}</td>
                     <td>${t.noDoc || '-'}</td>
                     <td>${skuItem}</td>
                     <td class="text-start">${namaBarangItem}</td>
-                    <td>${totalQty} Krt</td>
+                    <td class="fw-bold text-emerald-600">${totalQty} Krt</td>
                     <td class="fw-bold">${t.noPol || '-'}</td>
                     <td>${t.ekspedisi || '-'}</td>
-                    <td>${jamMasuk}</td>
-                    <td><span class="text-indigo-600 font-bold">${jamMuat}</span></td>
-                    <td><span class="text-emerald-600 font-bold">${jamSelesai}</span></td>
-                    <td>${jamKeluar}</td>
-                    <td>${lamaStr}</td>
+                    <td>${t.timeIn || '-'}</td>
+                    <td><span class="text-indigo-600 font-bold">${t.timeStartLoading || '-'}</span></td>
+                    <td><span class="text-emerald-600 font-bold">${t.timeOut || '-'}</span></td>
+                    <td>${t.timeOut || '-'}</td>
+                    <td>-</td>
                     <td><span class="badge bg-emerald-50 text-emerald-700">Aman</span></td>
                     <td><span class="badge bg-slate-100 text-slate-700">${t.status || '-'}</span></td>
                 </tr>`;
@@ -2333,11 +2332,11 @@ function prosesLogout() {
             let btnInduk = document.getElementById('btnBinInduk');
             let btnAging = document.getElementById('btnBinAging');
             if (wh === 'INDUK') {
-                if(btnInduk) { btnInduk.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold'; }
-                if(btnAging) { btnAging.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold'; }
+                if(btnInduk) btnInduk.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold';
+                if(btnAging) btnAging.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
             } else {
-                if(btnAging) { btnAging.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold'; }
-                if(btnInduk) { btnInduk.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold'; }
+                if(btnAging) btnAging.className = 'px-4 py-2 rounded-xl bg-indigo-400 text-white text-xs font-semibold';
+                if(btnInduk) btnInduk.className = 'px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold';
             }
             renderBinMap(); 
         }
