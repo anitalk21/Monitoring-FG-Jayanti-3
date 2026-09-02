@@ -388,6 +388,13 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+// Auto refresh render agar RDC timer berjalan live setiap 1 detik
+setInterval(() => {
+    if (truckQueue.length > 0) {
+        renderAll();
+    }
+}, 1000);
+
 function updateRunningTextSummary() {
     let countAntri = truckQueue.filter(t => t.status === 'Antrian').length;
     let countDokumen = truckQueue.filter(t => t.status === 'Menunggu Dokumen').length;
@@ -476,14 +483,24 @@ async function loadDataFromCloud() {
                 if (t.tipe_pengiriman && t.tipe_pengiriman !== '-') jenisFormatted += ' • ' + t.tipe_pengiriman;
                 if (t.no_container && t.no_container !== '-') jenisFormatted += ' (Container: ' + t.no_container + ')';
 
-                let rawTimeVal = (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') ? new Date().setHours(parseInt(statRow.time_start_loading.split(':')[0]), parseInt(statRow.time_start_loading.split(':')[1]), 0, 0) : (t.created_at ? new Date(t.created_at).getTime() : new Date().getTime());
+                let defaultTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let timeInStr = (statRow && statRow.time_in && statRow.time_in !== '-') ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : defaultTimeStr);
                 
-                let timeInStr = (statRow && statRow.time_in) ? statRow.time_in : (t.created_at ? new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
                 let tanggalKirimStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '-';
                 let startLoadingStr = (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') ? statRow.time_start_loading : '-';
                 let timeoutStr = statRow && statRow.time_out ? statRow.time_out : '-';
                 
                 let currentStatus = t.status_antrian || (statRow ? statRow.status_truk : 'Antrian');
+
+                let rawTimeVal = new Date().getTime();
+                if (statRow && statRow.time_start_loading && statRow.time_start_loading !== '-') {
+                    let parts = statRow.time_start_loading.split(':');
+                    let d = new Date();
+                    d.setHours(parseInt(parts[0]) || 0, parseInt(parts[1]) || 0, 0, 0);
+                    rawTimeVal = d.getTime();
+                } else if (t.created_at) {
+                    rawTimeVal = new Date(t.created_at).getTime();
+                }
 
                 return {
                     id: 'TRK-' + t.id,
