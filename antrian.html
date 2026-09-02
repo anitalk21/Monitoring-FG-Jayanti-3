@@ -1475,6 +1475,8 @@ async function saveStatus() {
     targetTruck.status = newSt;
     targetTruck.dock = (newSt === 'Proses Muat') ? (selectedDock || 'Dock 01') : '-';
 
+    let currentTimestamp = new Date().getTime();
+
     let logRecord = {
         no_doc: targetTruck.noDoc,
         status_truk: newSt,
@@ -1484,14 +1486,16 @@ async function saveStatus() {
     };
 
     if (newSt === 'Proses Muat') {
-        logRecord.time_start_loading = currentTimeStr;
-        targetTruck.timeStartLoading = currentTimeStr;
+        logRecord.time_start_loading = targetTruck.timeStartLoading && targetTruck.timeStartLoading !== '-' ? targetTruck.timeStartLoading : currentTimeStr;
+        logRecord.created_at = new Date().toISOString();
+        targetTruck.timeStartLoading = logRecord.time_start_loading;
+        targetTruck.rawTime = currentTimestamp;
     } else if (newSt === 'Selesai Muat' || newSt === 'Keluar') {
         logRecord.time_out = currentTimeStr;
         targetTruck.timeOut = currentTimeStr;
     }
 
-    let { error } = await _supabase.from('status_truk_log').upsert(logRecord);
+    let { error } = await _supabase.from('status_truk_log').upsert(logRecord, { onConflict: 'no_doc' });
     if (error) {
         alert('Gagal menyimpan status truk ke database: ' + error.message);
         return;
@@ -1502,7 +1506,7 @@ async function saveStatus() {
     targetTruck.lokasiArsip = finalArsipStr;
     closeModal('modalStatus');
     loadDataFromCloud();
-    alert('Status dan arsip berhasil disimpan!');
+    alert('Status dan jam start loading berhasil diperbarui!');
 }
 
 async function deleteTruck(idx) {
