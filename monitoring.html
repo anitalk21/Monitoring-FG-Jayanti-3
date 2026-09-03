@@ -2345,6 +2345,13 @@
                 let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
                 let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
                 
+                // Perbaikan logika: Kolom "Keluar" hanya terisi jika status truk benar-benar sudah "Keluar"
+                // atau waktu keluar (timeOut) di database terisi secara terpisah, bukan dari jam selesai muat.
+                let actualKeluar = '-';
+                if (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') {
+                    actualKeluar = t.timeOut;
+                }
+
                 tbody.innerHTML += `<tr>
                     <td>${t.tanggalKirim || '-'}</td>
                     <td>Plant 1115</td>
@@ -2358,7 +2365,7 @@
                     <td><span class="text-indigo-600 font-bold">${t.timeIn || '-'}</span></td>
                     <td><span class="text-emerald-600 font-bold">${t.timeStartLoading || '-'}</span></td>
                     <td><span class="text-rose-600 font-bold">${t.timeOut || '-'}</span></td>
-                    <td>${t.timeOut || '-'}</td>
+                    <td><span class="text-slate-700 font-bold">${actualKeluar}</span></td>
                     <td>-</td>
                     <td><span class="badge bg-emerald-50 text-emerald-700">Aman</span></td>
                     <td><span class="badge bg-slate-100 text-slate-700">${t.status || '-'}</span></td>
@@ -2575,3 +2582,4 @@
     </script>
 </body>
 </html>
+```[cite: 2]
