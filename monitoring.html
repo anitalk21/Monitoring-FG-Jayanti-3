@@ -1015,7 +1015,7 @@
             if(overlay) overlay.classList.toggle('hidden');
         }
 
-        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI (FIX SINKRONISASI TANGGAL & JAM RAPI) ---
+        // --- FUNGSI UTAMA SINKRONISASI SUPABASE TERINTEGRASI ---
         async function fetchAllDataFromSupabase() {
             try {
                 // 1. Ambil Master SKU
@@ -1033,7 +1033,7 @@
                     });
                 }
 
-                // 2. Ambil Stok Bin-Loc dari tabel stok_lokal & stok_ekspor serta binloc_stok_jayanti3
+                // 2. Ambil Stok Bin-Loc
                 let { data: stokLokal } = await _supabase.from('stok_lokal').select('*');
                 let { data: stokEkspor } = await _supabase.from('stok_ekspor').select('*');
                 let { data: binRes } = await _supabase.from('binloc_stok_jayanti3').select('*');
@@ -1049,7 +1049,7 @@
                     binRes.forEach(i => binData.push(i));
                 }
 
-                // 3. Ambil Data Antrian Truk, Status Log, dan Picking List secara terintegrasi penuh
+                // 3. Ambil Data Antrian Truk
                 let { data: trucks, error: errTrucks } = await _supabase.from('antrian_truk').select('*');
                 let { data: pickLists, error: errPick } = await _supabase.from('picking_list_truk').select('*');
                 let { data: statuses, error: errStat } = await _supabase.from('status_truk_log').select('*');
@@ -1067,7 +1067,6 @@
 
                         let rawTimeVal = t.created_at ? new Date(t.created_at).getTime() : new Date().getTime();
                         
-                        // FORMAT TANGGAL YANG TEPAT (SINKRON DENGAN antrian_truk & created_at)
                         let tanggalKirimStr = '-';
                         if (t.tanggal) {
                             let parts = t.tanggal.split('-');
@@ -1077,26 +1076,25 @@
                             tanggalKirimStr = new Date(t.created_at).toLocaleDateString('id-ID');
                         }
 
-                        // FORMAT JAM RAPI (MENGUBAH ISO STRING MENJADI HH:MM)
                         let timeInStr = '-';
                         if (statRow && statRow.time_in) {
                             let dIn = new Date(statRow.time_in);
-                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_in;
+                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : statRow.time_in;
                         } else if (t.created_at) {
                             let dIn = new Date(t.created_at);
-                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+                            timeInStr = !isNaN(dIn.getTime()) ? dIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
                         }
 
                         let startLoadingStr = '-';
                         if (statRow && statRow.time_start_loading) {
                             let dStart = new Date(statRow.time_start_loading);
-                            startLoadingStr = !isNaN(dStart.getTime()) ? dStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_start_loading;
+                            startLoadingStr = !isNaN(dStart.getTime()) ? dStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : statRow.time_start_loading;
                         }
 
                         let timeoutStr = '-';
                         if (statRow && statRow.time_out) {
                             let dOut = new Date(statRow.time_out);
-                            timeoutStr = !isNaN(dOut.getTime()) ? dOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : statRow.time_out;
+                            timeoutStr = !isNaN(dOut.getTime()) ? dOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : statRow.time_out;
                         }
 
                         return {
@@ -1137,7 +1135,6 @@
                 let { data: expRes, error: expErr } = await _supabase.from('ekspor_planning_jayanti3').select('*');
                 if (!expErr && expRes) eksporPlanningData = expRes;
 
-                // Render ulang seluruh komponen di dashboard monitoring
                 updateDashboardCapacity();
                 renderMasterSkuTable();
                 renderRealisasiTable();
@@ -2345,21 +2342,19 @@
                 let skuItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.sku).join(', ') : '-';
                 let namaBarangItem = t.pickingList && t.pickingList.length > 0 ? t.pickingList.map(i => i.nama).join(', ') : '-';
                 
-                // Jam keluar aktual
+                // Jam Keluar aktual
                 let actualKeluar = '-';
                 if (t.status === 'Keluar' && t.timeOut && t.timeOut !== '-') {
                     actualKeluar = t.timeOut;
                 }
 
-                // Jam Selesai Muat (ambil dari timeOut jika sudah selesai/keluar, atau set '-' jika belum)
+                // Jam Selesai Muat (ambil dari timeOut jika sudah selesai/keluar)
                 let selesaiMuat = '-';
-                if (t.timeOut && t.timeOut !== '-') {
-                    selesaiMuat = t.timeOut;
-                } else if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
-                    selesaiMuat = t.timeOut !== '-' ? t.timeOut : '-';
+                if (t.status === 'Selesai Muat' || t.status === 'Keluar') {
+                    selesaiMuat = t.timeOut && t.timeOut !== '-' ? t.timeOut : (t.timeStartLoading || '-');
                 }
 
-                // Hitung durasi lama stay di pabrik dengan aman (Masuk sampai Keluar)
+                // Hitung durasi lama stay di pabrik dengan toleransi lintas hari
                 let lamaStay = '-';
                 if (t.timeIn && t.timeIn !== '-' && actualKeluar !== '-') {
                     try {
@@ -2369,7 +2364,8 @@
                         let outTotalMin = outH * 60 + outM;
                         
                         let diffMin = outTotalMin - inTotalMin;
-                        if (diffMin < 0) diffMin += 24 * 60; // Lewat tengah malam
+                        if (diffMin < 0) diffMin += 24 * 60; // Truk menginap / lewat tengah malam
+                        
                         let dh = Math.floor(diffMin / 60);
                         let dm = diffMin % 60;
                         lamaStay = `${dh}j ${dm}m`;
