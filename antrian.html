@@ -1003,7 +1003,12 @@ function printPickingList() {
     if(activePlTruckIdx === null) return;
     let t = truckQueue[activePlTruckIdx];
     let list = t.pickingList || [];
-    const nowStr = new Date().toLocaleDateString('id-ID');
+    
+    // Tanggal dan Jam Cetak Otomatis
+    const now = new Date();
+    const tglCetakStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+    const jamCetakStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+
     let petugasName = t.petugas || '-';
     let timName = t.tim || '-';
     let shiftName = t.shift || '-';
@@ -1012,18 +1017,21 @@ function printPickingList() {
     for(let i=0; i<10; i++) {
         let item = list[i];
         if(item) {
+            let stdPlt = getCartonPerPallet(item.sku);
             rowsHtml += `<tr>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${i+1}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;"><b>${item.sku}</b></td>
                 <td style="border:1px solid #000; padding:4px; text-align:left;">${item.nama}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.prodate || '-'}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.rak || '-'}</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">${stdPlt}</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;">${item.pallet} Plt + ${item.receh} krt</td>
                 <td style="border:1px solid #000; padding:4px; text-align:center;"><b>${item.jumlah} krt</b></td>
             </tr>`;
         } else {
             rowsHtml += `<tr>
                 <td style="border:1px solid #000; padding:6px; text-align:center;">${i+1}</td>
+                <td style="border:1px solid #000; padding:4px;"></td>
                 <td style="border:1px solid #000; padding:4px;"></td>
                 <td style="border:1px solid #000; padding:4px;"></td>
                 <td style="border:1px solid #000; padding:4px;"></td>
@@ -1037,13 +1045,13 @@ function printPickingList() {
     let printBox = document.getElementById('printArea');
     printBox.innerHTML = `
         <div style="border: 2px solid #000; padding: 10px; width: 100%; box-sizing: border-box;">
-            <div style="display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
-                <div>
-                    <strong style="font-size:12px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
-                    <span style="font-size:8px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
-                </div>
-                <div style="text-align:right; font-size:10px;">
-                    <strong>Tgl: ${nowStr}</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="logo-mayora.png" alt="Logo" style="height: 32px; width: auto;" onerror="this.style.display='none'">
+                    <div>
+                        <strong style="font-size:12px;">PT. MAYORA INDAH - JAYANTI 3</strong><br>
+                        <span style="font-size:8px;">MAY/PRC/PRO/SBU/MIJ/GDFGxx/002-04-00</span>
+                    </div>
                 </div>
             </div>
 
@@ -1053,28 +1061,31 @@ function printPickingList() {
 
             <table style="width:100%; font-size:10px; margin-bottom:10px; border-collapse:collapse;">
                 <tr>
-                    <td style="width:50%; text-align:left; border:none; padding:2px;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
-                    <td style="width:50%; text-align:left; border:none; padding:2px;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
+                    <td style="width:34%; text-align:left; border:none; border-right:none; padding:2px;"><strong>NO. D/O :</strong> ${t.noDoc}</td>
+                    <td style="width:33%; text-align:left; border:none; border-right:none; padding:2px;"><strong>EKSPEDISI :</strong> ${t.ekspedisi}</td>
+                    <td style="width:33%; text-align:left; border:none; padding:2px;"><strong>TANGGAL :</strong> ${tglCetakStr}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:left; border:none; padding:2px;"><strong>TUJUAN  :</strong> ${t.tujuan}</td>
-                    <td style="text-align:left; border:none; padding:2px;"><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
+                    <td style="text-align:left; border:none; border-right:none; padding:2px;"><strong>TUJUAN  :</strong> ${t.tujuan}</td>
+                    <td style="text-align:left; border:none; border-right:none; padding:2px;"><strong>NO.MOBIL  :</strong> ${t.noPol}</td>
+                    <td style="text-align:left; border:none; padding:2px;"><strong>JAM CETAK :</strong> ${jamCetakStr}</td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align:left; border:none; padding:2px;"><strong>PETUGAS / TIM / SHIFT :</strong> ${petugasName} | ${timName} | ${shiftName}</td>
+                    <td colspan="3" style="text-align:left; border:none; padding:2px; padding-top:4px;"><strong>PETUGAS / TIM / SHIFT :</strong> ${petugasName} | ${timName} | ${shiftName}</td>
                 </tr>
             </table>
 
             <table style="width:100%; border-collapse:collapse; font-size:9px;">
                 <thead>
                     <tr style="background:#f1f5f9;">
-                        <th style="border:1px solid #000; padding:4px; width:25px;">No.</th>
-                        <th style="border:1px solid #000; padding:4px; width:65px;">SKU</th>
+                        <th style="border:1px solid #000; padding:4px; width:22px;">No.</th>
+                        <th style="border:1px solid #000; padding:4px; width:60px;">SKU</th>
                         <th style="border:1px solid #000; padding:4px;">Nama Produk</th>
-                        <th style="border:1px solid #000; padding:4px; width:55px;">Prodate</th>
-                        <th style="border:1px solid #000; padding:4px; width:65px;">Rak</th>
-                        <th style="border:1px solid #000; padding:4px; width:70px;">Pallet & Receh</th>
-                        <th style="border:1px solid #000; padding:4px; width:45px;">Total</th>
+                        <th style="border:1px solid #000; padding:4px; width:52px;">Prodate</th>
+                        <th style="border:1px solid #000; padding:4px; width:60px;">Rak</th>
+                        <th style="border:1px solid #000; padding:4px; width:38px;">Std/Plt</th>
+                        <th style="border:1px solid #000; padding:4px; width:65px;">Pallet & Receh</th>
+                        <th style="border:1px solid #000; padding:4px; width:40px;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1364,7 +1375,7 @@ function renderAll() {
             <div style="display:flex; gap:6px; align-items:center;">
                 ${actionButtonsHtml}
             </div>
-        </div>`;
+        `;
     });
 
     if(html === '') {
